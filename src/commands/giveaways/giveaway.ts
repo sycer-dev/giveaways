@@ -54,7 +54,7 @@ export default class Giveaways extends Command {
 	public async exec(msg: Message, { type }: { type: string }): Promise<Message | Message[]> {
 		if (type === '1') {
 			return this.tierOne(msg);
-		} else if (type === '1') {
+		} else if (type === '2') {
 			return this.tierTwo(msg);
 		} else if (type === '3') {
 			return this.tierThree(msg);
