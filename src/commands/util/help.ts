@@ -12,7 +12,6 @@ export default class HelpCommand extends Command {
 				usage: '[command]',
 				examples: ['', 'ebay', 'size'],
 			},
-			clientPermissions: ['EMBED_LINKS'],
 			args: [
 				{
 					id: 'command',
