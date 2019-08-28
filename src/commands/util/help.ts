@@ -12,7 +12,6 @@ export default class HelpCommand extends Command {
 				usage: '[command]',
 				examples: ['', 'ebay', 'size'],
 			},
-			clientPermissions: ['EMBED_LINKS'],
 			args: [
 				{
 					id: 'command',
@@ -40,7 +39,7 @@ export default class HelpCommand extends Command {
 
 			for (const category of this.handler.categories.values()) {
 				if (category.id === 'owner' && !this.client.ownerID.includes(msg.author!.id)) continue;
-				embed.addField(`\`🎉\` ${category.id.replace(/(\b\w)/gi, lc => lc.toUpperCase())}`, `${category.filter(cmd => cmd.aliases.length > 0 && msg.member ? msg.member.permissions.has(cmd.userPermissions as Array<PermissionResolvable>) : true).map(cmd => `\`${cmd.aliases[0]}\`${cmd.description && cmd.description.content ? ` - ${cmd.description.content.split('\n')[0].substring(0, 120)}` : ''}`).join('\n') || 'Nothin\' to see here! '}`);
+				embed.addField(`\`🎉\` ${category.id.replace(/(\b\w)/gi, lc => lc.toUpperCase())}`, `${category.filter(cmd => cmd.aliases.length > 0).map(cmd => `\`${cmd.aliases[0]}\`${cmd.description && cmd.description.content ? ` - ${cmd.description.content.split('\n')[0].substring(0, 120)}` : ''}`).join('\n') || 'Nothin\' to see here! '}`);
 			}
 
 			return msg.util!.send({ embed });
