@@ -91,7 +91,7 @@ export default class GiveawayHandler {
 
 				__Entries__
 				${message.guild!.defaultRole} - \`1\` Entry
-				${g.boosted!.map(e => `<@${e.string}> - \`${e.entries}\` entries`).join('\n')}
+				${g.boosted!.map(e => `<@&${e.string}> - \`${e.entries}\` entries`).join('\n')}
 			`);
 		if (message.editable) message.edit({ embed });
 	}
