@@ -148,7 +148,7 @@ export default class Giveaways extends Command {
 
 						__Role-based Extra Entries__
 						Default - \`1\` Entry
-						${entries.map(e => `<@${e.string}> - \`${e.entries}\` entries`).join('\n')}
+						${entries.map(e => `<@&${e.string}> - \`${e.entries}\` entries`).join('\n')}
 					`);
 			await m.edit({ embed });
 
@@ -257,7 +257,7 @@ export default class Giveaways extends Command {
 
 									__Entries__
 									${msg.guild!.defaultRole} - \`1\` Entry
-									${entries.map(e => `<@${e.string}> - \`${e.entries}\` entries`).join('\n')}
+									${entries.map(e => `<@&${e.string}> - \`${e.entries}\` entries`).join('\n')}
 									
 								`);
 						const mss = await channel!.send('🎉 **GIVEAWAY** 🎉', { embed }) as Message;
