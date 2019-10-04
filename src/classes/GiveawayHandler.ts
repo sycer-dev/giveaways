@@ -90,7 +90,7 @@ export default class GiveawayHandler {
 				React with ${this.client.emojis.get(g.emoji) || g.emoji} to enter!
 
 				__Entries__
-				${message.guild!.defaultRole} - \`1\` Entry
+				${message.guild!.roles.everyone} - \`1\` Entry
 				${g.boosted!.map(e => `<@&${e.string}> - \`${e.entries}\` entries`).join('\n')}
 			`);
 		if (message.editable) message.edit({ embed });

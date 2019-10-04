@@ -256,7 +256,7 @@ export default class Giveaways extends Command {
 									React with ${rawEMOJI} to enter!
 
 									__Entries__
-									${msg.guild!.defaultRole} - \`1\` Entry
+									${msg.guild!.roles.everyone} - \`1\` Entry
 									${entries.map(e => `<@&${e.string}> - \`${e.entries}\` entries`).join('\n')}
 									
 								`);
