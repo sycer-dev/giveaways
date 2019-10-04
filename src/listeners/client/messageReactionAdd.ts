@@ -25,7 +25,7 @@ export default class MessageReactionAddListener extends Listener {
 		console.log('point 2');
 		const list = await reaction.users.fetch();
 		const users = list.array().filter(u => u.id !== msg!.author!.id);
-		if (doc.winnerCount < users.length) return;
+		if (doc.winnerCount > users.length) return;
 		console.log('point 3');
 		await this.client.settings!.set('giveaway', { _id: doc.id }, { complete: true });
 
@@ -47,7 +47,7 @@ export default class MessageReactionAddListener extends Listener {
 		const msg = reaction.message;
 		const list = await reaction.users.fetch();
 		const users = list.array().filter(u => u.id !== msg!.author!.id);
-		if (g.winnerCount !== users.length) return;
+		if (g.winnerCount > users.length) return;
 		this.client.giveawayHandler.end(g);
 	}
 }
