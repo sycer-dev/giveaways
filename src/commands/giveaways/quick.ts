@@ -1,4 +1,4 @@
-import { Command } from 'discord-akairo';
+ import { Command } from 'discord-akairo';
 import { Message, TextChannel } from 'discord.js';
 import * as nodemoji from 'node-emoji';
 import { stripIndents } from 'common-tags';
@@ -52,6 +52,7 @@ export default class Giveaways extends Command {
 						const unicode = nodemoji.find(str);
 						if (unicode) return unicode.emoji;
 
+						//@ts-ignore
 						const custom = this.client.util.resolveEmoji(str, this.client.emojis);
 						if (custom) return custom.id;
 						return null;
