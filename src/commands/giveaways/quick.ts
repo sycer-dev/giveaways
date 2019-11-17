@@ -97,7 +97,7 @@ export default class Giveaways extends Command {
 	public async exec(msg: Message, { channel, winnerCount, emoji, duration, title }: { channel: TextChannel; winnerCount: number; emoji: string; duration: number; title: string }): Promise<Message | Message[] | undefined> {
 		const embed = this.client.util.embed()
 			.setColor(msg.guild!.me!.displayColor || this.client.config.color)
-			.setFooter('Ends at')
+			.setFooter(`${winnerCount} winner${winnerCount === 1 ? '' : 's'} - Ends at`)
 			.setTimestamp(new Date(Date.now() + duration))
 			.setTitle(`**${title}**`)
 			.setDescription(stripIndents`

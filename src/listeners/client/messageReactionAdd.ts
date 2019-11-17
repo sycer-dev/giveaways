@@ -18,15 +18,11 @@ export default class MessageReactionAddListener extends Listener {
 		if (!msg.guild || user.bot) return;
 
 		const doc = this.client.settings!.giveaway.find(g => g.messageID === msg.id);
-		console.dir(doc);
 		if (doc && !doc.complete && doc.maxEntries && [reaction.emoji.id, reaction.emoji.name].includes(doc.emoji)) return this.handleMax(reaction, user, doc);
-		console.log('point 1');
 		if (!doc || doc.complete || !doc.fcfs || ![reaction.emoji.id, reaction.emoji.name].includes(doc.emoji)) return;
-		console.log('point 2');
 		const list = await reaction.users.fetch();
 		const users = list.array().filter(u => u.id !== msg!.author!.id);
 		if (doc.winnerCount > users.length) return;
-		console.log('point 3');
 		await this.client.settings!.set('giveaway', { _id: doc.id }, { complete: true });
 
 		const embed = this.client.util.embed()

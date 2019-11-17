@@ -2,8 +2,7 @@ import GiveawayClient from './GiveawayClient';
 import { Giveaway } from '../models/Giveaway';
 import { TextChannel, User, Message } from 'discord.js';
 import { stripIndents } from 'common-tags';
-import ms = require('ms');
-
+import prettyMS from 'pretty-ms';
 
 export default class GiveawayHandler {
 	protected client: GiveawayClient;
@@ -85,7 +84,7 @@ export default class GiveawayHandler {
 		this.client.logger.info(`[GIVEAWAY HANDLER] Editing Message ${message.id}. Emoji: ${g.emoji}`);
 		const embed = this.client.util.embed(message.embeds[0])
 			.setDescription(stripIndents`
-				**Time Remaining**: ${ms(g.endsAt.getTime() - Date.now(), { 'long': true })}
+				**Time Remaining**: \`${prettyMS(g.endsAt.getTime() - Date.now(), { verbose: true })}\`
 										
 				React with ${this.client.emojis.get(g.emoji) || g.emoji} to enter!
 
