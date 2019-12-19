@@ -14,7 +14,7 @@ export default class ReloadCommand extends Command {
 		});
 	}
 
-	public *args(): object {
+	public *args() {
 		const type = yield {
 			match: 'option',
 			flag: ['type:'],
@@ -29,14 +29,14 @@ export default class ReloadCommand extends Command {
 		const mod = yield {
 			type: (msg: Message, phrase: string) => {
 				if (!phrase) return null;
-				// @ts-ignore
-				const resolver = this.handler.resolver.type(
-					{
-						command: 'commandAlias',
-						inhibitor: 'inhibitor',
-						listener: 'listener',
-					}[type],
-				);
+
+				const types = {
+					command: 'commandAlias',
+					inhibitor: 'inhibitor',
+					listener: 'listener',
+				} as { [key: string]: string };
+
+				const resolver = this.handler.resolver.type(types[type]!);
 
 				return resolver(msg, phrase);
 			},
