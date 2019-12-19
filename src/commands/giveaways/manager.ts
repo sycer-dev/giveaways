@@ -34,7 +34,8 @@ export default class ManagerRole extends Command {
 	public async exec(msg: Message, { role, off }: { role: Role; off: boolean }): Promise<Message | Message[]> {
 		if (!off && !role) {
 			const staff = this.client.settings!.guild.get(msg.guild!.id)!.manager;
-			if (staff && msg.guild!.roles.get(staff as string)) return msg.util!.send(`The current Giveaway Manager role is **${msg.guild!.roles!.get(staff as string)!.name}**.`);
+			if (staff && msg.guild!.roles.get(staff))
+				return msg.util!.send(`The current Giveaway Manager role is **${msg.guild!.roles.get(staff)!.name}**.`);
 			if (staff) return msg.util!.send(`The previous Giveaway Manager role was deleted. Please set a new one.`);
 			return msg.util!.send('There is no current Giveaway Manager role.');
 		}

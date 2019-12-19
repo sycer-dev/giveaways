@@ -1,7 +1,7 @@
- import { Command } from 'discord-akairo';
+import { Command } from 'discord-akairo';
 import { Message, TextChannel } from 'discord.js';
 import * as nodemoji from 'node-emoji';
-import { stripIndents } from 'common-tags';
+import prettyMilliseconds from 'pretty-ms';
 const ms = require('ms'); // eslint-disable-line
 
 export interface Entries {
@@ -31,7 +31,8 @@ export default class Giveaways extends Command {
 					type: 'textChannel',
 					prompt: {
 						start: 'What channel would you like to start this giveaway in?',
-						retry: 'What channel would you like to start this giveaway in? Please provide a valid channel name, ID or mention.',
+						retry:
+							'What channel would you like to start this giveaway in? Please provide a valid channel name, ID or mention.',
 					},
 				},
 				{
@@ -52,14 +53,15 @@ export default class Giveaways extends Command {
 						const unicode = nodemoji.find(str);
 						if (unicode) return unicode.emoji;
 
-						//@ts-ignore
+						// @ts-ignore
 						const custom = this.client.util.resolveEmoji(str, this.client.emojis);
 						if (custom) return custom.id;
 						return null;
 					},
 					prompt: {
-						start: 'Which emoji would you like to use? If it\'s a guild emoji, please ensure I\'m in that server.',
-						retry: 'Which emoji would you like to use? If it\'s a guild emoji, please ensure I\'m in that server. Some other regular emojis may not work due to Discord\'s weird emoji rules.',
+						start: "Which emoji would you like to use? If it's a guild emoji, please ensure I'm in that server.",
+						retry:
+							"Which emoji would you like to use? If it's a guild emoji, please ensure I'm in that server. Some other regular emojis may not work due to Discord's weird emoji rules.",
 					},
 				},
 				{
@@ -71,8 +73,10 @@ export default class Giveaways extends Command {
 						return null;
 					},
 					prompt: {
-						start: 'How long would you like this giveaway to last? Please say something like `1d` or `3h`. **NO SPACES**.',
-						retry: 'How long would you like this giveaway to last? Please say something like `1d` or `3h`. **NO SPACES**.',
+						start:
+							'How long would you like this giveaway to last? Please say something like `1d` or `3h`. **NO SPACES**.',
+						retry:
+							'How long would you like this giveaway to last? Please say something like `1d` or `3h`. **NO SPACES**.',
 					},
 				},
 				{
@@ -94,30 +98,38 @@ export default class Giveaways extends Command {
 		return 'notMaster';
 	}
 
-	public async exec(msg: Message, { channel, winnerCount, emoji, duration, title }: { channel: TextChannel; winnerCount: number; emoji: string; duration: number; title: string }): Promise<Message | Message[] | undefined> {
-		const embed = this.client.util.embed()
-			.setColor(msg.guild!.me!.displayColor || this.client.config.color)
-			.setFooter(`${winnerCount} winner${winnerCount === 1 ? '' : 's'} - Ends at`)
+	public async exec(
+		msg: Message,
+		{
+			channel,
+			winnerCount,
+			emoji,
+			duration,
+			title,
+		}: { channel: TextChannel; winnerCount: number; emoji: string; duration: number; title: string },
+	): Promise<Message | Message[] | undefined> {
+		const embed = this.client.util
+			.embed()
+			.setColor(msg.guild?.me?.displayColor || this.client.config.color)
+			.setFooter(`${winnerCount} Winner${winnerCount === 1 ? '' : 's'} • Ends at`)
 			.setTimestamp(new Date(Date.now() + duration))
-			.setTitle(`**${title}**`)
-			.setDescription(stripIndents`
-                **Time Remaining**: ${ms(duration, { 'long': true })}
-                
-                React with ${this.client.emojis.get(emoji) || emoji} to enter!
-            `);
-		const m = await channel!.send('🎉 **GIVEAWAY** 🎉', { embed }) as Message;
+			.setTitle(title)
+			.addField('Time Remaining', `\`${prettyMilliseconds(duration, { verbose: true })}\``)
+			.addField('Host', `${msg.author} [\`${msg.author.tag}\`]`)
+			.setDescription(`React with ${this.client.emojis.get(emoji) || emoji} to enter!`);
+		const m = await channel.send('🎉 **GIVEAWAY** 🎉', { embed });
 		await this.client.settings!.new('giveaway', {
-			title, emoji,
+			title,
+			emoji,
 			guildID: msg.guild!.id,
-			channelID: channel!.id,
+			channelID: channel.id,
 			messageID: m.id,
 			winnerCount,
 			endsAt: new Date(Date.now() + duration),
-			createdBy: msg.author!.id,
+			createdBy: msg.author.id,
 		});
 		await m.react(emoji);
 
-		return msg.util!.send(`Successfully started giveaway in ${channel}.`);
+		return msg.util!.reply(`successfully started giveaway in ${channel}.`);
 	}
 }
-

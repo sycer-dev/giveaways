@@ -6,21 +6,24 @@ export interface Guild extends Document {
 	manager: string;
 }
 
-const Guild: Schema = new Schema({
-	id: {
-		type: String,
-		required: true,
+const Guild: Schema = new Schema(
+	{
+		id: {
+			type: String,
+			required: true,
+		},
+		prefix: {
+			type: String,
+			default: process.env.PREFIX,
+		},
+		manager: {
+			type: String,
+			required: false,
+		},
 	},
-	prefix: {
-		'type': String,
-		'default': process.env.PREFIX,
+	{
+		strict: false,
 	},
-	manager: {
-		type: String,
-		required: false,
-	},
-}, {
-	strict: false,
-});
+);
 
 export default model<Guild>('Guild', Guild);

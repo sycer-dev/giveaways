@@ -9,18 +9,18 @@ export default class ManagerRole extends Command {
 			aliases: ['reroll', 'redraw'],
 			args: [
 				{
-					'id': 'count',
-					'type': (_, str: string): number | null => {
+					id: 'count',
+					type: (_, str: string): number | null => {
 						const input = parseInt(str, 10);
 						if (input && !isNaN(input) && input >= 1) return input;
 						return null;
 					},
-					'prompt': {
+					prompt: {
 						start: 'How many people to do you wish to re-draw?',
 						retry: 'How many people to do you wish to re-draw? Please proide a number over 0.',
 						optional: true,
 					},
-					'default': 1,
+					default: 1,
 				},
 			],
 			description: {
@@ -39,17 +39,24 @@ export default class ManagerRole extends Command {
 	}
 
 	public async exec(msg: Message, { count }: { count: number }): Promise<Message | Message[]> {
-		const giveaways = this.client.settings!.giveaway.filter(g => g.complete && g.channelID === msg.channel.id && !g.fcfs && !g.maxEntries);
-		if (!giveaways.size) return msg.util!.reply('sorry! I couldn\'t find any ended giveaways in this channel');
-		const g = giveaways.size === 1 ? giveaways.first()! : giveaways.sort((a, b) => b.endsAt.getTime() - a.endsAt.getTime()).first()!;
+		const giveaways = this.client.settings!.giveaway.filter(
+			g => g.complete && g.channelID === msg.channel.id && !g.fcfs && !g.maxEntries,
+		);
+		if (!giveaways.size) return msg.util!.reply("sorry! I couldn't find any ended giveaways in this channel");
+		const g =
+			giveaways.size === 1
+				? giveaways.first()!
+				: giveaways.sort((a, b) => b.endsAt.getTime() - a.endsAt.getTime()).first()!;
 
-		const message = await (this.client.channels.get(g.channelID) as TextChannel).messages.fetch(g.messageID).catch(() => null);
+		const message = await (this.client.channels.get(g.channelID) as TextChannel).messages
+			.fetch(g.messageID)
+			.catch(() => null);
 		if (!message) return msg.util!.reply('looks like that giveaway was deleted!');
-		const reaction = await message.reactions.get(g.emoji);
+		const reaction = message.reactions.get(g.emoji);
 		if (!reaction) return msg.util!.reply('looks like that giveaway was deleted!');
 
 		const users = await reaction.users.fetch();
-		const list = users.array().filter(u => u.id !== message!.author!.id);
+		const list = users.array().filter(u => u.id !== message.author.id);
 
 		let winners: User[] = [];
 		if (list.length <= count) {
@@ -61,6 +68,11 @@ export default class ManagerRole extends Command {
 			}
 		}
 
-		return msg.channel.send(`🎲 Congratz ${winners.map(g => g.toString()).join(', ').substring(0, 1800)}! You won the giveaway for **${g.title}** on a reroll!`);
+		return msg.channel.send(
+			`🎲 Congratz ${winners
+				.map(g => g.toString())
+				.join(', ')
+				.substring(0, 1800)}! You won the giveaway for *${g.title}* on a reroll!`,
+		);
 	}
 }

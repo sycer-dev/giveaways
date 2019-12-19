@@ -24,7 +24,7 @@ export default class JSONTwitterCommand extends Command {
 	}
 
 	public async exec(msg: Message, { token }: { token: string }): Promise<Message | Message[] | void> {
-		const m = await msg.channel.send('Checking bot account...') as Message;
+		const m = await msg.channel.send('Checking bot account...');
 		const client = new Client();
 		try {
 			await client.login(token);
@@ -37,7 +37,9 @@ export default class JSONTwitterCommand extends Command {
 
 		await this.client.settings!.new('child', { id, token });
 
-		return msg.util!.send(`Successfully created and launched 🚀 a new client for ${tag} (${id}).\nInvite link: <${invite}>`);
+		return msg.util!.send(
+			`Successfully created and launched 🚀 a new client for ${tag} (${id}).\nInvite link: <${invite}>`,
+		);
 	}
 
 	public async launchClient(id: string): Promise<string> {

@@ -4,7 +4,6 @@ import { inspect } from 'util';
 import { stripIndents } from 'common-tags';
 import { execSync } from 'child_process';
 
-
 export default class EvalCommand extends Command {
 	public constructor() {
 		super('eval', {
@@ -32,10 +31,13 @@ export default class EvalCommand extends Command {
 		});
 	}
 
-	public async exec(msg: Message, { code, terminal }: { code: string; terminal: boolean }): Promise<Message | Message[]> {
+	public async exec(
+		msg: Message,
+		{ code, terminal }: { code: string; terminal: boolean },
+	): Promise<Message | Message[]> {
 		if (terminal) {
 			try {
-				const exec = await execSync(code).toString();
+				const exec = execSync(code).toString();
 				return msg.util!.send(exec.substring(0, 1900), { code: 'fix' });
 			} catch (err) {
 				return msg.util!.send(err.toString(), { code: 'fix' });
@@ -65,7 +67,7 @@ export default class EvalCommand extends Command {
 		}
 		const end = Date.now();
 		if (!evaled) {
-			await msg.react('🤷‍').catch(() => {});
+			await msg.react('🤷‍').catch(() => msg);
 			return msg;
 		}
 		if (evaled.length > 1500) {

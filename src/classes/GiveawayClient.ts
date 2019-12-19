@@ -22,7 +22,6 @@ interface GiveawayOpts {
 	color: number;
 }
 
-
 export default class GiveawayClient extends AkairoClient {
 	public constructor(config: GiveawayOpts) {
 		super({
@@ -34,8 +33,9 @@ export default class GiveawayClient extends AkairoClient {
 
 		this.config = config;
 
-		this.listenerHandler
-			.on('load', i => this.logger.debug(`[LISTENER HANDLER] [${i.category.id.toUpperCase()}] Loaded ${i.id} listener!`));
+		this.listenerHandler.on('load', i =>
+			this.logger.debug(`[LISTENER HANDLER] [${i.category.id.toUpperCase()}] Loaded ${i.id} listener!`),
+		);
 	}
 
 	public config: GiveawayOpts;
@@ -49,12 +49,14 @@ export default class GiveawayClient extends AkairoClient {
 			format.timestamp({ format: 'MM/DD/YYYY HH:mm:ss' }),
 			format.printf((data: any) => {
 				const { timestamp, level, message, ...rest } = data;
-				return `[${timestamp}] ${level}: ${message}${Object.keys(rest).length ? `\n${JSON.stringify(rest, null, 2)}` : ''}`;
+				return `[${timestamp}] ${level}: ${message}${
+					Object.keys(rest).length ? `\n${JSON.stringify(rest, null, 2)}` : ''
+				}`;
 			}),
 		),
 		transports: new transports.Console(),
 		level: 'custom',
-	});;
+	});
 
 	public giveawayHandler: GiveawayHandler = new GiveawayHandler(this);
 
@@ -62,7 +64,7 @@ export default class GiveawayClient extends AkairoClient {
 		directory: join(__dirname, '..', 'commands'),
 		prefix: (msg: Message): string => {
 			if (!msg.guild) return 'g';
-			const req = this.settings!.guild.get(msg.guild!.id);
+			const req = this.settings!.guild.get(msg.guild.id);
 			if (!req || !req.prefix) return 'g';
 			return req.prefix;
 		},
@@ -74,8 +76,10 @@ export default class GiveawayClient extends AkairoClient {
 		defaultCooldown: 3000,
 		argumentDefaults: {
 			prompt: {
-				modifyStart: (msg: Message, str: string) => `${msg.author} \`🎁\` ${str}\n...or type \`cancel\` to cancel this command.`,
-				modifyRetry: (msg: Message, str: string) => `${msg.author} \`🎁\` ${str}\n... or type \`cancel\` to cancel this command.`,
+				modifyStart: (msg: Message, str: string) =>
+					`${msg.author} \`🎁\` ${str}\n...or type \`cancel\` to cancel this command.`,
+				modifyRetry: (msg: Message, str: string) =>
+					`${msg.author} \`🎁\` ${str}\n... or type \`cancel\` to cancel this command.`,
 				timeout: 'You took too long. Command cancelled.',
 				ended: 'You took more than 3 tries! Command canclled',
 				cancel: 'Sure thing, command cancelled.',
@@ -86,9 +90,13 @@ export default class GiveawayClient extends AkairoClient {
 		},
 	});
 
-	public inhibitorHandler: InhibitorHandler = new InhibitorHandler(this, { directory: join(__dirname, '..', 'inhibitors') });
+	public inhibitorHandler: InhibitorHandler = new InhibitorHandler(this, {
+		directory: join(__dirname, '..', 'inhibitors'),
+	});
 
-	public listenerHandler: ListenerHandler = new ListenerHandler(this, { directory: join(__dirname, '..', 'listeners') });
+	public listenerHandler: ListenerHandler = new ListenerHandler(this, {
+		directory: join(__dirname, '..', 'listeners'),
+	});
 
 	private async load(): Promise<void> {
 		this.listenerHandler.setEmitters({

@@ -14,21 +14,14 @@ export default class InviteCommand extends Command {
 	}
 
 	public async exec(msg: Message): Promise<Message | Message[] | undefined> {
-		if (this.client.user!.id !== process.env.ID) {
-			try {
-				await msg.react('🤐');
-			} catch { }
-			return msg;
-		}
-
-		const embed = this.client.util.embed()
-			.setColor(msg.guild ? msg.guild!.me!.displayColor || this.client.config.color! : this.client.config.color!)
+		const embed = this.client.util.embed().setColor(msg.guild?.me?.displayColor || this.client.config.color)
 			.setDescription(stripIndents`
-                You can invite **${this.client.user!.username}** to your server with [\`this\`](${await this.client.generateInvite(346176)}) link!
-                You can join our **Support Server** by clicking [\`this link\`](https://discord.sycer.dev/)!
+                You can invite **${
+									this.client.user!.username
+								}** to your server with [this](${await this.client.generateInvite(346176)}) link!
+                You can join our **Support Server** by clicking [\`this link\`](https://fyko.net/discord)!
             `);
 
 		return msg.util!.send({ embed });
 	}
 }
-

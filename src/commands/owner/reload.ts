@@ -16,21 +16,27 @@ export default class ReloadCommand extends Command {
 
 	public *args(): object {
 		const type = yield {
-			'match': 'option',
-			'flag': ['type:'],
-			'type': [['command', 'c'], ['inhibitor', 'i'], ['listener', 'l']],
-			'default': 'command',
+			match: 'option',
+			flag: ['type:'],
+			type: [
+				['command', 'c'],
+				['inhibitor', 'i'],
+				['listener', 'l'],
+			],
+			default: 'command',
 		};
 
 		const mod = yield {
 			type: (msg: Message, phrase: string) => {
 				if (!phrase) return null;
 				// @ts-ignore
-				const resolver = this.handler.resolver.type({
-					command: 'commandAlias',
-					inhibitor: 'inhibitor',
-					listener: 'listener',
-				}[type]);
+				const resolver = this.handler.resolver.type(
+					{
+						command: 'commandAlias',
+						inhibitor: 'inhibitor',
+						listener: 'listener',
+					}[type],
+				);
 
 				return resolver(msg, phrase);
 			},
@@ -39,7 +45,10 @@ export default class ReloadCommand extends Command {
 		return { type, mod };
 	}
 
-	public exec(msg: Message, { type, mod }: { type: any; mod: Command | Inhibitor | Listener }): Promise<Message | Message[]> {
+	public exec(
+		msg: Message,
+		{ type, mod }: { type: any; mod: Command | Inhibitor | Listener },
+	): Promise<Message | Message[]> {
 		if (!mod) {
 			return msg.util!.reply(`Invalid ${type} ${type === 'command' ? 'alias' : 'ID'} specified to reload.`);
 		}

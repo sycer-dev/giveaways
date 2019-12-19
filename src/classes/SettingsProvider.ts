@@ -53,9 +53,13 @@ export default class SettingsProvider {
 	}
 
 	/* setting options of an existing document */
-	public async set(type: 'child' | 'giveaway' | 'guild', data: object, key: object): Promise<Child | Giveaway | Guild | null> {
+	public async set(
+		type: 'child' | 'giveaway' | 'guild',
+		data: object,
+		key: object,
+	): Promise<Child | Giveaway | Guild | null> {
 		const model = MODELS[type];
-		const doc = await model.findOneAndUpdate(data, { $set: key }, { 'new': true });
+		const doc = await model.findOneAndUpdate(data, { $set: key }, { new: true });
 		if (!doc) return null;
 		this.client.logger.info(`[DATABASE] Edited ${model.modelName} document with ID of ${doc._id}.`);
 		this[type].set(doc.id, doc as any);
@@ -100,7 +104,6 @@ export default class SettingsProvider {
 		await this.cacheGuilds();
 		return i;
 	}
-
 
 	/* connecting */
 	private async _connect(url: undefined | string): Promise<Logger | number> {

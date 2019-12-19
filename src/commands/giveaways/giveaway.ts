@@ -1,6 +1,7 @@
 import { Command } from 'discord-akairo';
 import { Message, MessageReaction, User, TextChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
+import prettyMilliseconds from 'pretty-ms';
 const ms = require('ms'); // eslint-disable-line
 
 export interface Entries {
@@ -63,7 +64,7 @@ export default class Giveaways extends Command {
 	}
 
 	public async promptAndReturn(msg: Message): Promise<null | Message> {
-		const collect = await msg.channel.awaitMessages((m): boolean => msg.author!.id === m.author.id, {
+		const collect = await msg.channel.awaitMessages((m): boolean => msg.author.id === m.author.id, {
 			max: 1,
 			time: 30000,
 		});
@@ -72,8 +73,8 @@ export default class Giveaways extends Command {
 	}
 
 	public async getEmoji(msg: Message): Promise<MessageReaction | null | Message | Message[]> {
-		const w = await msg.channel.send('Please react to this message with the emoji you wish to use.') as Message;
-		const collect = await w.awaitReactions((r: MessageReaction, u: User): boolean => msg.author!.id === u.id, {
+		const w = await msg.channel.send('Please react to this message with the emoji you wish to use.');
+		const collect = await w.awaitReactions((r: MessageReaction, u: User): boolean => msg.author.id === u.id, {
 			max: 1,
 			time: 30000,
 		});
@@ -81,7 +82,7 @@ export default class Giveaways extends Command {
 		const rawREACTION = collect.first()!;
 		if (w.deletable) await w.delete();
 		if (rawREACTION.emoji.id && !this.client.emojis.get(rawREACTION.emoji.id)) {
-			const m = await msg.channel.send('I don\'t have access to that emoji! Please try again.') as Message;
+			const m = await msg.channel.send("I don't have access to that emoji! Please try again.");
 			await m.delete({ timeout: 3500 });
 			return null;
 		}
@@ -89,14 +90,17 @@ export default class Giveaways extends Command {
 	}
 
 	public async getChannel(msg: Message): Promise<null | Message | Message[] | TextChannel> {
-		const w = await msg.channel.send('What would you like to set the giveaway channel to?') as Message;
+		const w = await msg.channel.send('What would you like to set the giveaway channel to?');
 		const collect = await this.promptAndReturn(msg);
 		if (!collect) return msg.util!.reply('you took too long! Giveaway builder closed.');
-		const chan = this.client.util.resolveChannel(collect.content, msg.guild!.channels.filter(c => c.type === 'text'));
+		const chan = this.client.util.resolveChannel(
+			collect.content,
+			msg.guild!.channels.filter(c => c.type === 'text'),
+		);
 		if (w.deletable) await w.delete();
 		if (collect.deletable) await collect.delete();
 		if (!chan) {
-			const m = await msg.channel.send('Invalid channel, please try agian.') as Message;
+			const m = await msg.channel.send('Invalid channel, please try agian.');
 			await m.delete({ timeout: 3500 });
 			return null;
 		}
@@ -122,20 +126,26 @@ export default class Giveaways extends Command {
 		let duration;
 		let rawEMOJI = emoji;
 		const entries: Entries[] = [];
-		const m = await msg.channel.send('Traditional Giveaway Builder') as Message;
+		const m = await msg.channel.send('Traditional Giveaway Builder');
 		for (const e of EMOJIS) await m.react(e);
 		while (live) {
-			const embed = this.client.util.embed()
-				.setColor(msg.guild!.me!.displayColor || this.client.config.color)
-				.addField('Possible Methods', stripIndents`
+			const embed = this.client.util
+				.embed()
+				.setColor(msg.guild?.me?.displayColor || this.client.config.color)
+				.addField(
+					'Possible Methods',
+					stripIndents`
 						\`📋\` - Title
 						\`💰\` - Winner Count
 						\`📦\` - Channel
 						\`🎉\` - Emoji
 						\`⏰\` - Duration
 						\`📊\` - Role-based Extra Entries
-					`)
-				.addField('Current Settings', stripIndents`
+					`,
+				)
+				.addField(
+					'Current Settings',
+					stripIndents`
 						\`📋\` Title - ${title || 'None set yet.'}
 
 						\`💰\` Winner Count - ${winnerCount || 'None set yet.'}
@@ -144,12 +154,13 @@ export default class Giveaways extends Command {
 
 						\`🎉\` Emoij - ${rawEMOJI}
 
-						\`⏰\` Duration - ${duration ? ms(duration, { 'long': true }) : 'None set yet.'}
+						\`⏰\` Duration - ${duration ? ms(duration, { long: true }) : 'None set yet.'}
 
 						__Role-based Extra Entries__
 						Default - \`1\` Entry
 						${entries.map(e => `<@&${e.string}> - \`${e.entries}\` entries`).join('\n')}
-					`);
+					`,
+				);
 			await m.edit({ embed });
 
 			if (title && winnerCount && channel && rawEMOJI && duration) {
@@ -157,17 +168,20 @@ export default class Giveaways extends Command {
 				EMOJIS.push('✅');
 			}
 
-			const collector = await m.awaitReactions((r: MessageReaction, u: User): boolean => msg.author!.id === u.id && EMOJIS.includes(r.emoji.name), {
-				max: 1,
-				time: 60000,
-			});
+			const collector = await m.awaitReactions(
+				(r: MessageReaction, u: User): boolean => msg.author.id === u.id && EMOJIS.includes(r.emoji.name),
+				{
+					max: 1,
+					time: 60000,
+				},
+			);
 			if (!collector || collector.size !== 1) {
 				if (m.editable) await m.edit('You took too long! Giveaway builder closed.', { embed: null });
 				m.reactions.removeAll();
 				return m;
 			}
 			const emote = collector.first()!.emoji.name;
-			await m.reactions.get(emote)!.users.remove(msg.author!.id);
+			await m.reactions.get(emote)!.users.remove(msg.author.id);
 
 			if (emote === '📋') {
 				const get = await this.getTitle(msg);
@@ -177,14 +191,16 @@ export default class Giveaways extends Command {
 				await m.reactions.removeAll();
 				return m;
 			} else if (emote === '💰') {
-				const w = await msg.channel.send('What would you like to set the winner count to?') as Message;
+				const w = await msg.channel.send('What would you like to set the winner count to?');
 				const collect = await this.promptAndReturn(msg);
 				if (!collect) return msg.util!.reply('you took too long! Giveaway builder closed.');
 				const number = parseInt(collect.content, 10);
 				if (!number || (number && number < 1 && !isNaN(number))) {
-					const m = await msg.channel.send('Invalid number, please try agian.') as Message;
+					const m = await msg.channel.send('Invalid number, please try agian.');
 					await m.delete({ timeout: 3500 });
-				} else { winnerCount = number; }
+				} else {
+					winnerCount = number;
+				}
 				if (w.deletable) await w.delete();
 				if (collect.deletable) await collect.delete();
 			} else if (emote === '📦') {
@@ -197,21 +213,27 @@ export default class Giveaways extends Command {
 					rawEMOJI = get.emoji.toString();
 				}
 			} else if (emote === '⏰') {
-				const w = await msg.channel.send('How long would you like the giveaway to last? Please say something like `5 minutes` or `3d`.') as Message;
+				const w = await msg.channel.send(
+					'How long would you like the giveaway to last? Please say something like `5 minutes` or `3d`.',
+				);
 				const collect = await this.promptAndReturn(msg);
 				if (!collect) return msg.util!.reply('you took too long! Giveaway builder closed.');
 				const dur = ms(collect.content);
 				if (!dur || dur < 3000 || isNaN(dur)) {
-					const m = await msg.channel.send('Invalid duration, please try agian. Remeber, it must be greater than 3 seconds.') as Message;
+					const m = await msg.channel.send(
+						'Invalid duration, please try agian. Remeber, it must be greater than 3 seconds.',
+					);
 					await m.delete({ timeout: 3500 });
 				} else if (dur >= 1000 * 60 * 60 * 24 * 31) {
-					const m = await msg.channel.send('You cannot run a giveaway for longer than 1 month.') as Message;
+					const m = await msg.channel.send('You cannot run a giveaway for longer than 1 month.');
 					await m.delete({ timeout: 3500 });
-				} else { duration = dur; }
+				} else {
+					duration = dur;
+				}
 				if (w.deletable) await w.delete();
 				if (collect.deletable) await collect.delete();
 			} else if (emote === '📊') {
-				const w = await msg.channel.send('What is the role you wish to add an entry boost for?') as Message;
+				const w = await msg.channel.send('What is the role you wish to add an entry boost for?');
 				const collect = await this.promptAndReturn(msg);
 				if (!collect) return msg.util!.reply('you took too long! Giveaway builder closed.');
 				const role = this.client.util.resolveRole(collect.content, await msg.guild!.roles.fetch());
@@ -219,17 +241,19 @@ export default class Giveaways extends Command {
 				if (collect.deletable) await collect.delete();
 
 				if (role === undefined) {
-					const m = await msg.channel.send('Invalid role. Please try again.') as Message;
+					const m = await msg.channel.send('Invalid role. Please try again.');
 					await m.delete({ timeout: 3500 });
 				} else {
-					const x = await msg.channel.send(`How many extra entries do you want **${role.name}** to get?`) as Message;
+					const x = await msg.channel.send(`How many extra entries do you want **${role.name}** to get?`);
 					const collect2 = await this.promptAndReturn(msg);
 					if (!collect2) return msg.util!.reply('you took too long! Giveaway builder closed.');
 					const number = parseInt(collect2.content, 10);
 					if (!number || (number < 1 && isNaN(number))) {
-						const m = await msg.channel.send('Invalid number. Please try again.') as Message;
+						const m = await msg.channel.send('Invalid number. Please try again.');
 						await m.delete({ timeout: 3500 });
-					} else { entries.push({ string: role.id, entries: number }); }
+					} else {
+						entries.push({ string: role.id, entries: number });
+					}
 					if (x.deletable) await x.delete();
 					if (collect2.deletable) await collect2.delete();
 				}
@@ -237,38 +261,47 @@ export default class Giveaways extends Command {
 				if (!title || !winnerCount || !emoji || !duration) {
 					const m = await msg.channel.send('You cannot create the giveaway until all parameters are provided!');
 					await m.delete({ timeout: 3500 });
-				} else if (channel instanceof TextChannel && !channel.permissionsFor(this.client.user!)!.has(['EMBED_LINKS', 'SEND_MESSAGES', 'ADD_REACTIONS'])) {
-					const m = await msg.channel.send(`Please ensure I have \`Embed Links\`, \`Send Messages\`, and \`Add Reactions\` in ${channel}`) as Message;
+				} else if (
+					channel instanceof TextChannel &&
+					!channel.permissionsFor(this.client.user!)!.has(['EMBED_LINKS', 'SEND_MESSAGES', 'ADD_REACTIONS'])
+				) {
+					const m = await msg.channel.send(
+						`Please ensure I have \`Embed Links\`, \`Send Messages\`, and \`Add Reactions\` in ${channel}`,
+					);
 					await m.delete({ timeout: 3500 });
 				} else if (emoji.length > 2 && !this.client.emojis.get(emoji)) {
-					const m = await msg.channel.send(`I don\'t have access to the emoji you provided. Please change the emoji and try again.`) as Message;
+					const m = await msg.channel.send(
+						`I don\'t have access to the emoji you provided. Please change the emoji and try again.`,
+					);
 					await m.delete({ timeout: 3500 });
 				} else {
 					try {
-						const embed = this.client.util.embed()
-							.setColor(msg.guild!.me!.displayColor || this.client.config.color)
-							.setFooter('Ends at')
+						const embed = this.client.util
+							.embed()
+							.setColor(msg.guild?.me?.displayColor || this.client.config.color)
+							.setFooter(`${winnerCount} Winner${winnerCount === 1 ? '' : 's'} • Ends at`)
 							.setTimestamp(new Date(Date.now() + (duration as number)))
-							.setTitle(`**${title}**`)
-							.setDescription(stripIndents`
-									**Time Remaining**: ${ms(duration, { 'long': true })}
-									
-									React with ${rawEMOJI} to enter!
-
-									__Entries__
-									${msg.guild!.roles.everyone} - \`1\` Entry
-									${entries.map(e => `<@&${e.string}> - \`${e.entries}\` entries`).join('\n')}
-									
-								`);
-						const mss = await channel!.send('🎉 **GIVEAWAY** 🎉', { embed }) as Message;
+							.setTitle(title)
+							.addField('Time Remaining', `\`${prettyMilliseconds(duration, { verbose: true })}\``)
+							.addField(
+								'Entries',
+								stripIndents`
+								${msg.guild!.roles.everyone} - \`1\` Entry
+								${entries.map(e => `<@&${e.string}> - \`${e.entries}\` entries`).join('\n')}
+							`,
+							)
+							.addField('Host', `${msg.author} [\`${msg.author.tag}\`]`)
+							.setDescription(`React with ${rawEMOJI} to enter!`);
+						const mss = await channel!.send('🎉 **GIVEAWAY** 🎉', { embed });
 						await this.client.settings!.new('giveaway', {
-							title, emoji,
+							title,
+							emoji,
 							guildID: msg.guild!.id,
 							channelID: channel!.id,
 							messageID: mss.id,
 							winnerCount,
 							endsAt: new Date(Date.now() + (duration as number)),
-							createdBy: msg.author!.id,
+							createdBy: msg.author.id,
 							boosted: entries,
 						});
 						await mss.react(emoji);
@@ -280,7 +313,7 @@ export default class Giveaways extends Command {
 						return msg.util!.send(`Successfully started giveaway in ${channel}.`);
 					} catch (err) {
 						await m.edit('', { embed: null });
-						const ms = await msg.channel.send(`An error occured when trying to start that giveaway: ${err}.`) as Message;
+						const ms = await msg.channel.send(`An error occured when trying to start that giveaway: ${err}.`);
 						return ms.delete({ timeout: 5000 });
 					}
 				}
@@ -297,18 +330,24 @@ export default class Giveaways extends Command {
 		let channel: TextChannel | null = null;
 		let emoji = '🎉';
 		let rawEMOJI = emoji;
-		const m = await msg.channel.send('First Come, First Serve Giveaway Builder') as Message;
+		const m = await msg.channel.send('First Come, First Serve Giveaway Builder');
 		for (const e of EMOJIS) await m.react(e);
 		while (live) {
-			const embed = this.client.util.embed()
-				.setColor(msg.guild!.me!.displayColor || this.client.config.color)
-				.addField('Possible Methods', stripIndents`
+			const embed = this.client.util
+				.embed()
+				.setColor(msg.guild?.me?.displayColor || this.client.config.color)
+				.addField(
+					'Possible Methods',
+					stripIndents`
 					\`📋\` - Title
 					\`💰\` - Winner Count
 					\`📦\` - Channel
 					\`🎉\` - Emoji
-				`)
-				.addField('Current Settings', stripIndents`
+				`,
+				)
+				.addField(
+					'Current Settings',
+					stripIndents`
 					\`📋\` Title - ${title || 'None set yet.'}
 
 					\`💰\` Winner Count - ${winnerCount || 'None set yet.'}
@@ -316,7 +355,8 @@ export default class Giveaways extends Command {
 					\`📦\` Channel - ${channel || 'None set yet.'}
 
 					\`🎉\` Emoij - ${rawEMOJI}
-				`);
+				`,
+				);
 			await m.edit({ embed });
 
 			if (title && winnerCount && channel && emoji) {
@@ -324,17 +364,20 @@ export default class Giveaways extends Command {
 				EMOJIS.push('✅');
 			}
 
-			const collector = await m.awaitReactions((r: MessageReaction, u: User): boolean => msg.author!.id === u.id && EMOJIS.includes(r.emoji.name), {
-				max: 1,
-				time: 60000,
-			});
+			const collector = await m.awaitReactions(
+				(r: MessageReaction, u: User): boolean => msg.author.id === u.id && EMOJIS.includes(r.emoji.name),
+				{
+					max: 1,
+					time: 60000,
+				},
+			);
 			if (!collector || collector.size !== 1) {
 				if (m.editable) await m.edit('You took too long! Giveaway builder closed.', { embed: null });
 				m.reactions.removeAll();
 				return m;
 			}
 			const emote = collector.first()!.emoji.name;
-			await m.reactions.get(emote)!.users.remove(msg.author!.id);
+			await m.reactions.get(emote)!.users.remove(msg.author.id);
 
 			if (emote === '📋') {
 				const get = await this.getTitle(msg);
@@ -344,14 +387,16 @@ export default class Giveaways extends Command {
 				await m.reactions.removeAll();
 				return m;
 			} else if (emote === '💰') {
-				const w = await msg.channel.send('What would you like to set the winner count to?') as Message;
+				const w = await msg.channel.send('What would you like to set the winner count to?');
 				const collect = await this.promptAndReturn(msg);
 				if (!collect) return msg.util!.reply('you took too long! Giveaway builder closed.');
 				const number = parseInt(collect.content, 10);
 				if (!number || (number && number < 1 && !isNaN(number))) {
-					const m = await msg.channel.send('Invalid number, please try agian.') as Message;
+					const m = await msg.channel.send('Invalid number, please try agian.');
 					await m.delete({ timeout: 3500 });
-				} else { winnerCount = number; }
+				} else {
+					winnerCount = number;
+				}
 				if (w.deletable) await w.delete();
 				if (collect.deletable) await collect.delete();
 			} else if (emote === '📦') {
@@ -367,32 +412,40 @@ export default class Giveaways extends Command {
 				if (!title || !winnerCount || !emoji) {
 					const m = await msg.channel.send('You cannot create the giveaway until all parameters are provided!');
 					await m.delete({ timeout: 3500 });
-				} else if (channel instanceof TextChannel && !channel.permissionsFor(this.client.user!)!.has(['EMBED_LINKS', 'SEND_MESSAGES', 'ADD_REACTIONS'])) {
-					const m = await msg.channel.send(`Please ensure I have \`Embed Links\`, \`Send Messages\`, and \`Add Reactions\` in ${channel}`) as Message;
+				} else if (
+					channel instanceof TextChannel &&
+					!channel.permissionsFor(this.client.user!)!.has(['EMBED_LINKS', 'SEND_MESSAGES', 'ADD_REACTIONS'])
+				) {
+					const m = await msg.channel.send(
+						`Please ensure I have \`Embed Links\`, \`Send Messages\`, and \`Add Reactions\` in ${channel}`,
+					);
 					await m.delete({ timeout: 3500 });
 				} else if (emoji.length > 2 && !this.client.emojis.get(emoji)) {
-					const m = await msg.channel.send(`I don\'t have access to the emoji you provided. Please change the emoji and try again.`) as Message;
+					const m = await msg.channel.send(
+						`I don\'t have access to the emoji you provided. Please change the emoji and try again.`,
+					);
 					await m.delete({ timeout: 3500 });
 				} else {
 					try {
-						const embed = this.client.util.embed()
-							.setColor(msg.guild!.me!.displayColor || this.client.config.color)
+						const embed = this.client.util.embed().setColor(msg.guild?.me?.displayColor || this.client.config.color)
 							.setDescription(stripIndents`
-								The first ${winnerCount === 1 ? `\`${winnerCount}\` people` : 'person'} to react with ${rawEMOJI} will win the drop for...
+								The first ${
+									winnerCount === 1 ? `\`${winnerCount}\` people` : 'person'
+								} to react with ${rawEMOJI} will win the drop for...
 								
 								**${title}**!
 								
 								React before there are no more slots left!
-							`)
-							.setThumbnail('https://cdn.discordapp.com/emojis/552032115139543050.gif?v=1');
-						const mss = await channel!.send('🎉 **FIRST COME, FIRST SERVE** 🎉', { embed }) as Message;
+							`);
+						const mss = await channel!.send('🎉 **FIRST COME, FIRST SERVE** 🎉', { embed });
 						await this.client.settings!.new('giveaway', {
-							title, emoji,
+							title,
+							emoji,
 							guildID: msg.guild!.id,
 							channelID: channel!.id,
 							messageID: mss.id,
 							winnerCount,
-							createdBy: msg.author!.id,
+							createdBy: msg.author.id,
 							fcfs: true,
 						});
 						await mss.react(emoji);
@@ -404,7 +457,7 @@ export default class Giveaways extends Command {
 						return msg.util!.send(`Successfully started giveaway in ${channel}.`);
 					} catch (err) {
 						await m.edit('', { embed: null });
-						const alsoM = await msg.channel.send(`An error occured when trying to start that giveaway: ${err}.`) as Message;
+						const alsoM = await msg.channel.send(`An error occured when trying to start that giveaway: ${err}.`);
 						return alsoM.delete({ timeout: 5000 });
 					}
 				}
@@ -423,20 +476,26 @@ export default class Giveaways extends Command {
 		let emoji = '🎉';
 		let rawEMOJI = emoji;
 		let duration;
-		const m = await msg.channel.send('Limited Entries Giveaway Builder') as Message;
+		const m = await msg.channel.send('Limited Entries Giveaway Builder');
 		for (const e of EMOJIS) await m.react(e);
 		while (live) {
-			const embed = this.client.util.embed()
-				.setColor(msg.guild!.me!.displayColor || this.client.config.color)
-				.addField('Possible Methods', stripIndents`
+			const embed = this.client.util
+				.embed()
+				.setColor(msg.guild?.me?.displayColor || this.client.config.color)
+				.addField(
+					'Possible Methods',
+					stripIndents`
 					\`📋\` - Title
 					\`👥\` - Max Entries
 					\`💰\` - Winner Count
 					\`📦\` - Channel
 					\`⏰\` - Duration (if the max entries is not hit)
 					\`🎉\` - Emoji
-				`)
-				.addField('Current Settings', stripIndents`
+				`,
+				)
+				.addField(
+					'Current Settings',
+					stripIndents`
 					\`📋\` Title - ${title || 'None set yet.'}
 
 					\`👥\` Max Entries - ${maxEntries || 'None set yet.'}
@@ -445,10 +504,11 @@ export default class Giveaways extends Command {
 
 					\`📦\` Channel - ${channel || 'None set yet.'}
 
-					\`⏰\` Duration -  ${duration ? ms(duration, { 'long': true }) : 'None set yet.'}
+					\`⏰\` Duration -  ${duration ? ms(duration, { long: true }) : 'None set yet.'}
 
-					\`🎉\` Emoij - ${rawEMOJI}
-				`);
+					\`🎉\` Emoji - ${rawEMOJI}
+				`,
+				);
 			await m.edit({ embed });
 
 			if (title && maxEntries && channel && emoji && winnerCount && duration) {
@@ -456,17 +516,20 @@ export default class Giveaways extends Command {
 				EMOJIS.push('✅');
 			}
 
-			const collector = await m.awaitReactions((r: MessageReaction, u: User): boolean => msg.author!.id === u.id && EMOJIS.includes(r.emoji.name), {
-				max: 1,
-				time: 60000,
-			});
+			const collector = await m.awaitReactions(
+				(r: MessageReaction, u: User): boolean => msg.author.id === u.id && EMOJIS.includes(r.emoji.name),
+				{
+					max: 1,
+					time: 60000,
+				},
+			);
 			if (!collector || collector.size !== 1) {
 				if (m.editable) await m.edit('You took too long! Giveaway builder closed.', { embed: null });
 				m.reactions.removeAll();
 				return m;
 			}
 			const emote = collector.first()!.emoji.name;
-			await m.reactions.get(emote)!.users.remove(msg.author!.id);
+			await m.reactions.get(emote)!.users.remove(msg.author.id);
 
 			if (emote === '📋') {
 				const get = await this.getTitle(msg);
@@ -476,25 +539,29 @@ export default class Giveaways extends Command {
 				await m.reactions.removeAll();
 				return m;
 			} else if (emote === '💰') {
-				const w = await msg.channel.send('What would you like to set the number of winners to?') as Message;
+				const w = await msg.channel.send('What would you like to set the number of winners to?');
 				const collect = await this.promptAndReturn(msg);
 				if (!collect) return msg.util!.reply('you took too long! Giveaway builder closed.');
 				const number = parseInt(collect.content, 10);
 				if (!number || (number && number < 1 && !isNaN(number))) {
-					const m = await msg.channel.send('Invalid number, please try agian.') as Message;
+					const m = await msg.channel.send('Invalid number, please try agian.');
 					await m.delete({ timeout: 3500 });
-				} else { winnerCount = number; }
+				} else {
+					winnerCount = number;
+				}
 				if (w.deletable) await w.delete();
 				if (collect.deletable) await collect.delete();
 			} else if (emote === '👥') {
-				const w = await msg.channel.send('What would you like to set the max number of entries to?') as Message;
+				const w = await msg.channel.send('What would you like to set the max number of entries to?');
 				const collect = await this.promptAndReturn(msg);
 				if (!collect) return msg.util!.reply('you took too long! Giveaway builder closed.');
 				const number = parseInt(collect.content, 10);
 				if (!number || (number && number < 1 && !isNaN(number))) {
-					const m = await msg.channel.send('Invalid number, please try agian.') as Message;
+					const m = await msg.channel.send('Invalid number, please try agian.');
 					await m.delete({ timeout: 3500 });
-				} else { maxEntries = number; }
+				} else {
+					maxEntries = number;
+				}
 				if (w.deletable) await w.delete();
 				if (collect.deletable) await collect.delete();
 			} else if (emote === '📦') {
@@ -507,51 +574,67 @@ export default class Giveaways extends Command {
 					rawEMOJI = get.emoji.toString();
 				}
 			} else if (emote === '⏰') {
-				const w = await msg.channel.send('How long would you like the giveaway to last? Please say something like `5 minutes` or `3d`.') as Message;
+				const w = await msg.channel.send(
+					'How long would you like the giveaway to last? Please say something like `5 minutes` or `3d`.',
+				);
 				const collect = await this.promptAndReturn(msg);
 				if (!collect) return msg.util!.reply('you took too long! Giveaway builder closed.');
 				const dur = ms(collect.content);
 				if (!dur || isNaN(dur)) {
-					const m = await msg.channel.send('Invalid duration, please try agian. Remeber, it must be greater than 3 seconds.') as Message;
+					const m = await msg.channel.send(
+						'Invalid duration, please try agian. Remeber, it must be greater than 3 seconds.',
+					);
 					await m.delete({ timeout: 3500 });
 				} else if (dur >= 1000 * 60 * 60 * 24 * 31) {
-					const m = await msg.channel.send('You cannot run a giveaway for longer than 1 month.') as Message;
+					const m = await msg.channel.send('You cannot run a giveaway for longer than 1 month.');
 					await m.delete({ timeout: 3500 });
 				} else if (dur <= 3000) {
-					const m = await msg.channel.send('You cannot run a giveaway for shorter than 3 seconds.') as Message;
+					const m = await msg.channel.send('You cannot run a giveaway for shorter than 3 seconds.');
 					await m.delete({ timeout: 3500 });
-				} else { duration = dur; }
+				} else {
+					duration = dur;
+				}
 				if (w.deletable) await w.delete();
 				if (collect.deletable) await collect.delete();
 			} else if (emote === '✅') {
 				if (!title || !maxEntries || !emoji || !winnerCount || !channel) {
 					const m = await msg.channel.send('You cannot create the giveaway until all parameters are provided!');
 					await m.delete({ timeout: 3500 });
-				} else if (channel instanceof TextChannel && !channel.permissionsFor(this.client.user!)!.has(['EMBED_LINKS', 'SEND_MESSAGES', 'ADD_REACTIONS'])) {
-					const m = await msg.channel.send(`Please ensure I have \`Embed Links\`, \`Send Messages\`, and \`Add Reactions\` in ${channel}`) as Message;
+				} else if (
+					channel instanceof TextChannel &&
+					!channel.permissionsFor(this.client.user!)!.has(['EMBED_LINKS', 'SEND_MESSAGES', 'ADD_REACTIONS'])
+				) {
+					const m = await msg.channel.send(
+						`Please ensure I have \`Embed Links\`, \`Send Messages\`, and \`Add Reactions\` in ${channel}`,
+					);
 					await m.delete({ timeout: 3500 });
 				} else if (emoji.length > 2 && !this.client.emojis.get(emoji)) {
-					const m = await msg.channel.send(`I don\'t have access to the emoji you provided. Please change the emoji and try again.`) as Message;
+					const m = await msg.channel.send(
+						`I don\'t have access to the emoji you provided. Please change the emoji and try again.`,
+					);
 					await m.delete({ timeout: 3500 });
 				} else {
 					try {
-						const embed = this.client.util.embed()
-							.setColor(msg.guild!.me!.displayColor || this.client.config.color)
-							.setTitle(title)
-							.setDescription(stripIndents`
-								This giveaway will draw **${winnerCount}** ${winnerCount === 1 ? 'winner' : 'winners'} after **${maxEntries}** ${maxEntries === 1 ? 'person has' : 'people have'} entered.
+						const embed = this.client.util
+							.embed()
+							.setColor(msg.guild?.me?.displayColor || this.client.config.color)
+							.setTitle(title).setDescription(stripIndents`
+								This giveaway will draw **${winnerCount}** ${winnerCount === 1 ? 'winner' : 'winners'} after **${maxEntries}** ${
+							maxEntries === 1 ? 'person has' : 'people have'
+						} entered.
 
 								Once **${maxEntries}** entry is reached, the lucky winner${maxEntries === 1 ? '' : 's'} will be decided!
-							`)
-							.setThumbnail('https://cdn.discordapp.com/emojis/558728070580666368.gif?v=1');
-						const mss = await channel!.send('🎉 **LIMITED ENTRIES** 🎉', { embed }) as Message;
+							`);
+						const mss = await channel.send('🎉 **LIMITED ENTRIES** 🎉', { embed });
 						await this.client.settings!.new('giveaway', {
-							title, emoji, winnerCount,
+							title,
+							emoji,
+							winnerCount,
 							guildID: msg.guild!.id,
-							channelID: channel!.id,
+							channelID: channel.id,
 							messageID: mss.id,
 							maxEntries,
-							createdBy: msg.author!.id,
+							createdBy: msg.author.id,
 						});
 						await mss.react(emoji);
 
@@ -562,7 +645,7 @@ export default class Giveaways extends Command {
 						return msg.util!.send(`Successfully started giveaway in ${channel}.`);
 					} catch (err) {
 						await m.edit('', { embed: null });
-						const alsoM = await msg.channel.send(`An error occured when trying to start that giveaway: ${err}.`) as Message;
+						const alsoM = await msg.channel.send(`An error occured when trying to start that giveaway: ${err}.`);
 						return alsoM.delete({ timeout: 5000 });
 					}
 				}
@@ -571,4 +654,3 @@ export default class Giveaways extends Command {
 		return msg;
 	}
 }
-

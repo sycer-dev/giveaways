@@ -6,21 +6,24 @@ export interface Child extends Document {
 	color: number;
 }
 
-const Child: Schema = new Schema({
-	id: {
-		type: String,
-		required: true,
+const Child: Schema = new Schema(
+	{
+		id: {
+			type: String,
+			required: true,
+		},
+		token: {
+			type: String,
+			required: true,
+		},
+		color: {
+			type: Number,
+			default: process.env.COLOR,
+		},
 	},
-	token: {
-		type: String,
-		required: true,
+	{
+		strict: false,
 	},
-	color: {
-		'type': Number,
-		'default': process.env.COLOR,
-	},
-}, {
-	strict: false,
-});
+);
 
 export default model<Child>('Child', Child);

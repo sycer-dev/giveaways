@@ -22,15 +22,17 @@ export default class ListCommand extends Command {
 
 	public async exec(msg: Message): Promise<Message | Message[]> {
 		const giveaways = this.client.settings!.giveaway.filter(g => !g.complete && g.guildID === msg.guild!.id);
-		if (!giveaways.size) return msg.util!.reply('sorry! I couldn\'t find any ongoing giveaways.');
+		if (!giveaways.size) return msg.util!.reply("sorry! I couldn't find any ongoing giveaways.");
 
 		const gs = giveaways.array().map((g, i) => {
 			const type = g.fcfs ? 'FCFS' : g.maxEntries ? 'Limited Entries' : 'Traditional';
-			return `\`[${i + 1}]\` - ${type} Giveaway in ${this.client.channels.get(g.channelID) || '#deleted-channel'}. [Jump](https://discordapp.com/channels/${g.guildID}/${g.channelID}/${g.messageID}/)`;
+			return `\`[${i + 1}]\` - ${type} Giveaway in ${this.client.channels.get(g.channelID) ||
+				'#deleted-channel'}. [Jump](https://discordapp.com/channels/${g.guildID}/${g.channelID}/${g.messageID}/)`;
 		});
 
-		const embed = this.client.util.embed()
-			.setColor(msg.guild ? msg.guild!.me!.displayColor || this.client.config.color! : this.client.config.color!)
+		const embed = this.client.util
+			.embed()
+			.setColor(msg.guild?.me?.displayColor || this.client.config.color)
 			.setAuthor('Live Giveaways', msg.guild!.iconURL() || this.client.user!.displayAvatarURL())
 			.setDescription(gs.join('\n').substring(0, 1800));
 

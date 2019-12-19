@@ -12,14 +12,15 @@ export default class CommandStartedListener extends Listener {
 
 	public exec(msg: Message, command: Command): void {
 		if (msg.util!.parsed!.command) return;
-		const where = msg.guild ? msg.guild.name : msg.author!.tag;
+		const where = msg.guild ? msg.guild.name : msg.author.tag;
 		this.client.logger.info(`[COMMAND STARTED] ${command.id} in ${where}`);
-		const embed = this.client.util.embed()
+		const embed = this.client.util
+			.embed()
 			.setColor(this.client.config.color)
 			.addField('Guild', msg.guild ? msg.guild.name : 'DMs')
 			.addField('Command', command.id)
 			.addField('Message Content', msg.content ? msg.content.substring(0, 200) : 'No message content')
-			.addField('User', `${msg.author!.tag} \`[${msg.author!.id}]\``)
+			.addField('User', `${msg.author.tag} \`[${msg.author.id}]\``)
 			.setTimestamp();
 		try {
 			const client = new WebhookClient(process.env.CMDLOGID!, process.env.CMDLOGTOKEN!);

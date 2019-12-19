@@ -6,7 +6,7 @@ export default class PingCommand extends Command {
 		super('ping', {
 			aliases: ['ping', 'latency', 'test'],
 			description: {
-				content: 'Checks the bot\'s ping to Discord.',
+				content: "Checks the bot's ping to Discord.",
 			},
 			category: 'utilities',
 		});
@@ -25,12 +25,12 @@ export default class PingCommand extends Command {
 			'Polling...',
 			'Pinging...',
 			'Did you even see this message?',
-			'Don\'t look at me that way!',
+			"Don't look at me that way!",
 			'imag was here',
 		];
 		const first = starters[Math.floor(Math.random() * starters.length)];
 
-		const message = await msg.channel.send(first) as Message;
+		const message = await msg.channel.send(first);
 		const responses = [
 			'If you say so... `$(ping) ms`',
 			'Whatever. `$(ping) ms`',
@@ -39,8 +39,8 @@ export default class PingCommand extends Command {
 			'Do I have a choice? `$(ping) ms`',
 			'Gah! Why do you make me do this? `$(ping) ms`',
 			'Magic 8 ball says try again later. 🔮',
-			'What\'s the point of this? `$(ping) ms`',
-			'Hmmm. I\'d have to guess around `$(ping) ms`.',
+			"What's the point of this? `$(ping) ms`",
+			"Hmmm. I'd have to guess around `$(ping) ms`.",
 			'Maybe later.',
 			'Ugh! Not now!',
 			'k `$(ping) ms`',
@@ -55,4 +55,3 @@ export default class PingCommand extends Command {
 		return message.edit(text);
 	}
 }
-

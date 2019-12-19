@@ -1,6 +1,16 @@
-import { Command } from 'discord-akairo';
-import { Message, PermissionResolvable } from 'discord.js';
 import { stripIndents } from 'common-tags';
+import { Argument, Category, Command, PrefixSupplier } from 'discord-akairo';
+import { Message } from 'discord.js';
+
+export interface Emojis {
+	[key: string]: string;
+}
+
+const EMOJIS: Emojis = {
+	GIVEAWAYS: '🎉',
+	OWNER: '👑',
+	UTILITIES: '🚨',
+};
 
 export default class HelpCommand extends Command {
 	public constructor() {
@@ -12,13 +22,19 @@ export default class HelpCommand extends Command {
 				usage: '[command]',
 				examples: ['', 'ebay', 'size'],
 			},
+			clientPermissions: ['EMBED_LINKS'],
 			args: [
 				{
-					id: 'command',
-					type: 'commandAlias',
+					id: 'arg',
+					type: Argument.union('commandAlias', (_: Message, str: string): null | Category<string, Command> => {
+						if (!str) return null;
+						const c = this.handler.categories.get(str.toLowerCase());
+						if (c) return c;
+						return null;
+					}),
 					prompt: {
-						start: 'Which command would you like more info on?',
-						retry: 'Please provide a valid command.',
+						start: 'Which category or command would you like more info on?',
+						retry: 'Please provide a valid categiry or command.',
 						optional: true,
 					},
 				},
@@ -26,32 +42,72 @@ export default class HelpCommand extends Command {
 		});
 	}
 
-	public async exec(msg: Message, { command }: { command: undefined | Command}): Promise<Message | Message[]> {
-		if (!command) {
-			const prefix = await msg.util!.parsed!.prefix;
-			const embed = this.client.util.embed()
-				.setColor(this.client.config.color!)
-				.setTitle('📝 Commands')
-				.setDescription(stripIndents`
-					This is a list of the available commands.
-                    For more info on a command, type \`${prefix}help <command>\`
+	public async exec(
+		msg: Message,
+		{ arg }: { arg: undefined | Command | Category<string, Command> },
+	): Promise<Message | Message[]> {
+		const prefix = (this.handler.prefix as PrefixSupplier)(msg);
+		if (!arg) {
+			const embed = this.client.util
+				.embed()
+				.setColor(msg.guild?.me?.displayColor || this.client.config.color)
+				.setTitle('📝 Commands').setDescription(stripIndents`
+					This is a list of the available categories and commands.
+                    For more info on category or command, type \`${prefix}help <category/command>\`
                 `);
 
 			for (const category of this.handler.categories.values()) {
-				if (category.id === 'owner' && !this.client.ownerID.includes(msg.author!.id)) continue;
-				embed.addField(`\`🎉\` ${category.id.replace(/(\b\w)/gi, lc => lc.toUpperCase())}`, `${category.filter(cmd => cmd.aliases.length > 0).map(cmd => `\`${cmd.aliases[0]}\`${cmd.description && cmd.description.content ? ` - ${cmd.description.content.split('\n')[0].substring(0, 120)}` : ''}`).join('\n') || 'Nothin\' to see here! '}`);
+				if (category.id === 'owner' && !this.client.ownerID.includes(msg.author.id)) continue;
+				const commands = category
+					.filter(c => c.aliases.length > 0)
+					.map(cmd => `\`${cmd.aliases[0]}\``)
+					.join(', ');
+				embed.addField(
+					`\`${EMOJIS[category.id.toUpperCase()]}\` ${category.id.replace(/(\b\w)/gi, lc => lc.toUpperCase())}`,
+					commands,
+				);
 			}
 
 			return msg.util!.send({ embed });
 		}
-		const embed = this.client.util.embed()
-			.setColor(this.client.config.color!)
-			.setTitle(`\`${command.aliases[0]} ${command.description.usage ? command.description.usage : ''}\``)
-			.addField('\`🎉\` Description', command.description.content || '\u200b');
+		if (arg instanceof Command) {
+			const embed = this.client.util
+				.embed()
+				.setColor(msg.guild?.me?.displayColor || this.client.config.color)
+				.setTitle(`\`${arg.aliases[0]} ${arg.description.usage ? arg.description.usage : ''}\``)
+				.addField('🎉 Description', arg.description.content || '\u200b');
 
-		if (command.aliases.length > 1) embed.addField('\`🎉\` Aliases', `\`${command.aliases.join('`, `')}\``);
-		if (command.description.examples && command.description.examples.length) embed.addField('\`🎉\` Examples', `\`${command.aliases[0]} ${command.description.examples.join(`\`\n\`${command.aliases[0]} `)}\``);
+			if (arg.aliases.length > 1) embed.addField('🎉 Aliases', `\`${arg.aliases.join('`, `')}\``);
+			if (arg.description.examples && arg.description.examples.length)
+				embed.addField(
+					'🎉 Examples',
+					`\`${arg.aliases[0]} ${arg.description.examples.join(`\`\n\`${arg.aliases[0]} `)}\``,
+				);
 
+			return msg.util!.send({ embed });
+		}
+
+		const name = arg.id.replace(/(\b\w)/gi, lc => lc.toUpperCase());
+		const embed = this.client.util
+			.embed()
+			.setColor(msg.guild?.me?.displayColor || this.client.config.color)
+			.setTitle(`${EMOJIS[arg.id.toUpperCase()]} ${name}`).setDescription(stripIndents`
+				This is a list of all commands within the \`${name}\` category.
+				For more info on a command, type \`${prefix}help <command>\`
+			`);
+		const commands = arg
+			.array()
+			.filter(c => c.aliases.length > 0)
+			.map(
+				cmd =>
+					`\`${cmd.aliases[0]}\`${
+						cmd.description && cmd.description.content
+							? ` - ${cmd.description.content.split('\n')[0].substring(0, 120)}`
+							: ''
+					}`,
+			)
+			.join('\n');
+		embed.addField('Commands', commands);
 		return msg.util!.send({ embed });
 	}
 }
