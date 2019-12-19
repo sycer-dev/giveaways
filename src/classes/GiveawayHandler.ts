@@ -88,9 +88,14 @@ export default class GiveawayHandler {
 		} catch {}
 		if (!message || !message.embeds.length) return;
 		const embed = this.client.util.embed(message.embeds[0]);
-		let field = embed.fields.find(f => f.name === 'Time Remaining');
-		if (field)
-			field = { name: 'Time Remaining', value: `\`${prettyMS(g.endsAt.getTime() - Date.now(), { verbose: true })}\`` };
+		const field = embed.fields.find(f => f.name === 'Time Remaining');
+		if (field) {
+			const index = embed.fields.indexOf(field);
+			embed.fields[index] = {
+				name: 'Time Remaining',
+				value: `\`${prettyMS(g.endsAt.getTime() - Date.now(), { verbose: true })}\``,
+			};
+		}
 		if (message.editable) message.edit({ embed });
 	}
 
