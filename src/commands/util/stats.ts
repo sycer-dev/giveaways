@@ -37,8 +37,8 @@ export default class StatsCommand extends Command {
 			.addField(
 				'🔢 Giveaway Stats',
 				stripIndents`
-				• Current: ${this.client.settings!.giveaway.filter(r => !r.complete).size}
-				• Lifetime: ${this.client.settings!.giveaway.size}
+				• Current: ${this.client.settings.giveaway.filter(r => !r.complete).size}
+				• Lifetime: ${this.client.settings.giveaway.size}
 			`,
 			)
 			.addField(

@@ -35,7 +35,7 @@ export default class JSONTwitterCommand extends Command {
 		const invite = await client.generateInvite(346176);
 		client.destroy();
 
-		await this.client.settings!.new('child', { id, token });
+		await this.client.settings.new('child', { id, token });
 
 		return msg.util!.send(
 			`Successfully created and launched 🚀 a new client for ${tag} (${id}).\nInvite link: <${invite}>`,
@@ -43,7 +43,7 @@ export default class JSONTwitterCommand extends Command {
 	}
 
 	public async launchClient(id: string): Promise<string> {
-		const doc = this.client.settings!.child.get(id)!;
+		const doc = this.client.settings.child.get(id)!;
 
 		const child = new GiveawayClient({
 			token: doc.token,

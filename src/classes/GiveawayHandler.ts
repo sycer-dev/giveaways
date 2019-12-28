@@ -19,7 +19,7 @@ export default class GiveawayHandler {
 	}
 
 	public async end(g: Giveaway): Promise<Message | Message[] | void> {
-		await this.client.settings!.set('giveaway', { messageID: g.messageID }, { complete: true });
+		await this.client.settings.set('giveaway', { messageID: g.messageID }, { complete: true });
 
 		let message: Message | undefined;
 		try {
@@ -121,7 +121,7 @@ export default class GiveawayHandler {
 	}
 
 	private _check(): void {
-		const giveaways = this.client.settings!.giveaway.filter(g => !g.fcfs && !g.complete && !g.maxEntries);
+		const giveaways = this.client.settings.giveaway.filter(g => !g.fcfs && !g.complete && !g.maxEntries);
 		const now = Date.now();
 		if (giveaways.size === 0) return;
 		for (const g of giveaways.values()) {

@@ -1,13 +1,19 @@
-import DashClient from './GiveawayClient';
 import { Collection } from 'discord.js';
-import { connect, Model } from 'mongoose';
+import { connect, Model, connection, Connection } from 'mongoose';
 import ChildModel, { Child } from '../models/Child';
 import GiveawayModel, { Giveaway } from '../models/Giveaway';
 import GuildModel, { Guild } from '../models/Guild';
-
 import { Logger } from 'winston';
+import { MONGO_EVENTS } from '../util/Constants';
+import GiveawayClient from './GiveawayClient';
 
 let i = 0;
+
+export interface Models {
+	[key: string]: Model<any>;
+}
+export type Types = 'child' | 'giveaway' | 'guild';
+export type ModelTypes = Child | Giveaway | Guild;
 
 const MODELS = {
 	child: ChildModel,
@@ -15,8 +21,11 @@ const MODELS = {
 	guild: GuildModel,
 };
 
+/**
+ * The Settings Provider that handles all database reads and rights.
+ */
 export default class SettingsProvider {
-	public client: DashClient;
+	public client: GiveawayClient;
 
 	public child: Collection<string, Child>;
 	public giveaway: Collection<string, Giveaway>;
@@ -25,8 +34,11 @@ export default class SettingsProvider {
 	public ChildModel: Model<Child>;
 	public GiveawayModel: Model<Giveaway>;
 	public GuildModel: Model<Guild>;
-
-	public constructor(client: DashClient) {
+	/**
+	 *
+	 * @param {SapotoClient} client - The extended Akairo Client
+	 */
+	public constructor(client: GiveawayClient) {
 		/* our cient model */
 		this.client = client;
 
@@ -41,72 +53,80 @@ export default class SettingsProvider {
 		this.GuildModel = GuildModel;
 	}
 
-	/* creates new model with provided data */
-	public async new(type: 'child' | 'giveaway' | 'guild', data: object): Promise<Child | Giveaway | Guild | null> {
+	/**
+	 * Creates a new database document with the provided collection name and data.
+	 * @param {Types} type - The collection name
+	 * @param {object} data - The data for the new document
+	 */
+	public async new(type: Types, data: object): Promise<ModelTypes> {
 		const model = MODELS[type];
 		const doc = new model(data);
 		this[type].set(doc.id, doc as any);
 		// @ts-ignore
 		await doc.save();
-		this.client.logger.info(`[DATABASE] Made new ${model.modelName} document with ID of ${doc._id}.`);
+		this.client.logger.verbose(`[DATABASE] Made new ${model.modelName} document with ID of ${doc._id}.`);
 		return doc;
 	}
 
-	/* setting options of an existing document */
-	public async set(
-		type: 'child' | 'giveaway' | 'guild',
-		data: object,
-		key: object,
-	): Promise<Child | Giveaway | Guild | null> {
+	/**
+	 * Updates the a database document's data.
+	 * @param {Types} type - The collection name
+	 * @param {object} key - The search paramaters for the document
+	 * @param {object} data - The data you wish to overwrite in the update
+	 */
+	public async set(type: Types, key: object, data: object): Promise<ModelTypes | null> {
 		const model = MODELS[type];
-		const doc = await model.findOneAndUpdate(data, { $set: key }, { new: true });
+		const doc = await model.findOneAndUpdate(key, { $set: data }, { new: true });
 		if (!doc) return null;
-		this.client.logger.info(`[DATABASE] Edited ${model.modelName} document with ID of ${doc._id}.`);
+		this.client.logger.verbose(`[DATABASE] Edited ${model.modelName} document with ID of ${doc._id}.`);
 		this[type].set(doc.id, doc as any);
 		return doc;
 	}
 
-	/* removes a document with the provider query */
-	public async remove(type: 'child' | 'giveaway' | 'guild', data: any): Promise<Child | Giveaway | Guild | null> {
+	/**
+	 * Removes a database document.
+	 * @param {Types} type - The collection name
+	 * @param {object} data - The search paramaters for the document
+	 * @returns {Promise<ModelTypes | null>} The document that was removed, if any.
+	 */
+	public async remove(type: Types, data: any): Promise<ModelTypes | null> {
 		const model = MODELS[type];
 		const doc = await model.findOneAndDelete(data);
 		if (!doc) return null;
-		this.client.logger.info(`[DATABASE] Dleted ${model.modelName} document with ID of ${doc._id}.`);
-		this.cacheAll();
+		this[type].delete(doc.id);
+		this.client.logger.verbose(`[DATABASE] Deleted ${model.modelName} document with ID of ${doc._id}.`);
 		return doc;
 	}
 
-	public async cacheChildren(): Promise<Logger> {
-		const items = await this.ChildModel.find();
-		for (const i of items) this.child.set(i.id, i);
-		i += items.length;
-		return this.client.logger.info(`[DATABASE] Successfully cached ${items.length} Child documents.`);
-	}
-
-	public async cacheGiveaways(): Promise<Logger> {
-		const items = await this.GiveawayModel.find();
-		for (const i of items) this.giveaway.set(i.id, i);
-		i += items.length;
-		return this.client.logger.info(`[DATABASE] Successfully cached ${items.length} Giveaway documents.`);
-	}
-
-	public async cacheGuilds(): Promise<Logger> {
-		const items = await this.GuildModel.find();
-		for (const i of items) this.guild.set(i.id, i);
-		i += items.length;
-		return this.client.logger.info(`[DATABASE] Successfully cached ${items.length} Guild documents.`);
-	}
-
-	/* caching documents */
-	public async cacheAll(): Promise<number> {
-		await this.cacheChildren();
-		await this.cacheGiveaways();
-		await this.cacheGuilds();
+	/**
+	 * Caching all database documents.
+	 * @returns {number} The amount of documents cached total.
+	 */
+	private async _cacheAll(): Promise<number> {
+		const map = Object.entries(MODELS);
+		for (const [type, model] of map) await this._cache(type as any, model);
 		return i;
 	}
 
-	/* connecting */
-	private async _connect(url: undefined | string): Promise<Logger | number> {
+	/**
+	 * Caching each collection's documents.
+	 * @param {Types} type - The collection name
+	 * @param {Model<any>} model - The model (collection) that's being cached
+	 * @returns {number} The amount of documents cached from that collection.
+	 */
+	private async _cache(type: Types, model: Model<any>): Promise<any> {
+		const collection = this[type];
+		const items = await model.find();
+		for (const i of items) collection.set(i.id, i);
+		return (i += items.length);
+	}
+
+	/**
+	 * Connect to the database
+	 * @param {string} url - the mongodb uri
+	 * @returns {Promise<number | Logger>} Returns a
+	 */
+	private async _connect(url: string | undefined): Promise<Logger | number> {
 		if (url) {
 			const start = Date.now();
 			try {
@@ -114,6 +134,7 @@ export default class SettingsProvider {
 					useCreateIndex: true,
 					useNewUrlParser: true,
 					useFindAndModify: false,
+					useUnifiedTopology: true,
 				});
 			} catch (err) {
 				this.client.logger.error(`[DATABASE] Error when connecting to MongoDB:\n${err.stack}`);
@@ -125,9 +146,26 @@ export default class SettingsProvider {
 		return process.exit(1);
 	}
 
-	public async init(): Promise<Logger> {
+	/**
+	 * Adds all the listeners to the mongo connection.
+	 * @param connection - The mongoose connection
+	 * @returns {void}
+	 */
+	private _addListeners(connection: Connection): void {
+		for (const [event, msg] of Object.entries(MONGO_EVENTS)) {
+			connection.on(event, () => this.client.logger.verbose(`[MONGO]: ${msg}`));
+		}
+	}
+
+	/**
+	 * Starts the Settings Provider
+	 * @returns {SettingsProvider}
+	 */
+	public async init(): Promise<this> {
+		this._addListeners(connection);
 		await this._connect(process.env.MONGO);
-		await this.cacheAll();
-		return this.client.logger.info(`[DATABASE] [LAUNCHED] Successfully connected and cached ${i} documents.`);
+		await this._cacheAll();
+		this.client.logger.info(`[DATABASE] [LAUNCHED] Successfully connected and cached ${i} documents.`);
+		return this;
 	}
 }

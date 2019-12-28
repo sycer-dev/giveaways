@@ -1,18 +1,20 @@
-import { join } from 'path';
 import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler } from 'discord-akairo';
 import { Message } from 'discord.js';
-import { createLogger, transports, format, Logger } from 'winston';
-import Settings from './SettingsProvider';
+import { join } from 'path';
+import { createLogger, format, Logger, transports } from 'winston';
 import GiveawayHandler from './GiveawayHandler';
 import { LoggerConfig } from './LoggerConfig';
+import VoteHandler from './VoteHandler';
+import SettingsProvider from './SettingsProvider';
 
 declare module 'discord-akairo' {
 	interface AkairoClient {
 		logger: Logger;
 		commandHandler: CommandHandler;
 		config: GiveawayOpts;
-		settings?: Settings;
+		settings: SettingsProvider;
 		giveawayHandler: GiveawayHandler;
+		voteHandler: VoteHandler;
 	}
 }
 
@@ -25,7 +27,7 @@ interface GiveawayOpts {
 export default class GiveawayClient extends AkairoClient {
 	public constructor(config: GiveawayOpts) {
 		super({
-			messageCacheMaxSize: 5,
+			messageCacheMaxSize: 10,
 			ownerID: config.owners,
 			disabledEvents: ['TYPING_START'],
 			partials: ['MESSAGE'],
@@ -36,6 +38,8 @@ export default class GiveawayClient extends AkairoClient {
 		this.listenerHandler.on('load', i =>
 			this.logger.debug(`[LISTENER HANDLER] [${i.category.id.toUpperCase()}] Loaded ${i.id} listener!`),
 		);
+
+		this.launch();
 	}
 
 	public config: GiveawayOpts;
@@ -64,7 +68,7 @@ export default class GiveawayClient extends AkairoClient {
 		directory: join(__dirname, '..', 'commands'),
 		prefix: (msg: Message): string => {
 			if (!msg.guild) return 'g';
-			const req = this.settings!.guild.get(msg.guild.id);
+			const req = this.settings.guild.get(msg.guild.id);
 			if (!req || !req.prefix) return 'g';
 			return req.prefix;
 		},
@@ -99,6 +103,9 @@ export default class GiveawayClient extends AkairoClient {
 	});
 
 	private async load(): Promise<void> {
+		this.voteHandler = new VoteHandler(this);
+		this.settings = new SettingsProvider(this);
+
 		this.listenerHandler.setEmitters({
 			commandHandler: this.commandHandler,
 			inhibitorHandler: this.inhibitorHandler,
@@ -116,6 +123,7 @@ export default class GiveawayClient extends AkairoClient {
 
 	public async launch(): Promise<string> {
 		await this.load();
+		await this.settings.init();
 		return this.login(this.config.token);
 	}
 }

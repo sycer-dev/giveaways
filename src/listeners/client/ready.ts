@@ -16,18 +16,19 @@ export default class ReadyListener extends Listener {
 	}
 
 	public async exec(): Promise<void> {
-		this.client.logger.info(`[READY] ${this.client.user!.tag} is ready to cook 'sm shit.`);
+		this.client.logger.info(`[READY] ${this.client.user!.tag} is ready to host some giveaways.`);
 		this.client.giveawayHandler.init();
+		this.client.voteHandler.init();
 
 		for (const id of this.client.guilds.keys()) {
-			const existing = this.client.settings!.guild.get(id);
-			if (!existing) await this.client.settings!.new('guild', { id });
+			const existing = this.client.settings.guild.get(id);
+			if (!existing) await this.client.settings.new('guild', { id });
 		}
 
 		setInterval(async () => {
 			for (const g2 of this.client.guilds.values()) {
 				g2.presences.clear();
 			}
-		}, 900);
+		}, 1000 * 60 * 10);
 	}
 }

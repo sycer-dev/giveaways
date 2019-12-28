@@ -93,7 +93,7 @@ export default class Giveaways extends Command {
 
 	// @ts-ignore
 	public userPermissions(msg: Message): string | null {
-		const guild = this.client.settings!.guild.get(msg.guild!.id);
+		const guild = this.client.settings.guild.get(msg.guild!.id);
 		if (msg.member!.permissions.has('MANAGE_GUILD') || (guild && msg.member!.roles.has(guild.manager))) return null;
 		return 'notMaster';
 	}
@@ -118,7 +118,7 @@ export default class Giveaways extends Command {
 			.addField('Host', `${msg.author} [\`${msg.author.tag}\`]`)
 			.setDescription(`React with ${this.client.emojis.get(emoji) || emoji} to enter!`);
 		const m = await channel.send('🎉 **GIVEAWAY** 🎉', { embed });
-		await this.client.settings!.new('giveaway', {
+		await this.client.settings.new('giveaway', {
 			title,
 			emoji,
 			guildID: msg.guild!.id,

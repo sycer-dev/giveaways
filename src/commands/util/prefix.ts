@@ -29,11 +29,11 @@ export default class PrefixCommand extends Command {
 	public async exec(msg: Message, { prefix }: { prefix: string | null }): Promise<Message | Message[]> {
 		if (prefix && !msg.guild) prefix = null;
 		if (!prefix) {
-			const prefix = msg.guild ? this.client.settings!.guild.get(msg.guild.id)!.prefix : process.env.PREFIX;
+			const prefix = msg.guild ? this.client.settings.guild.get(msg.guild.id)!.prefix : process.env.PREFIX;
 			return msg.util!.reply(`the current prefix is \`${prefix}\`.`);
 		}
 
-		await this.client.settings!.set('guild', { id: msg.guild!.id }, { prefix });
+		await this.client.settings.set('guild', { id: msg.guild!.id }, { prefix });
 		return msg.util!.reply(`successfully set the prefix to \`${prefix}\`.`);
 	}
 }

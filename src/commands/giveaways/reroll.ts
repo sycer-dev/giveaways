@@ -33,13 +33,13 @@ export default class ManagerRole extends Command {
 
 	// @ts-ignore
 	public userPermissions(msg: Message): string | null {
-		const guild = this.client.settings!.guild.get(msg.guild!.id);
+		const guild = this.client.settings.guild.get(msg.guild!.id);
 		if (msg.member!.permissions.has('MANAGE_GUILD') || (guild && msg.member!.roles.has(guild.manager))) return null;
 		return 'notMaster';
 	}
 
 	public async exec(msg: Message, { count }: { count: number }): Promise<Message | Message[]> {
-		const giveaways = this.client.settings!.giveaway.filter(
+		const giveaways = this.client.settings.giveaway.filter(
 			g => g.complete && g.channelID === msg.channel.id && !g.fcfs && !g.maxEntries,
 		);
 		if (!giveaways.size) return msg.util!.reply("sorry! I couldn't find any ended giveaways in this channel");

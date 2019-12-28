@@ -1,4 +1,4 @@
-import { Command } from 'discord-akairo';
+import { Command, PrefixSupplier } from 'discord-akairo';
 import { Message, MessageReaction, User, TextChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import prettyMilliseconds from 'pretty-ms';
@@ -47,17 +47,27 @@ export default class Giveaways extends Command {
 
 	// @ts-ignore
 	public userPermissions(msg: Message): string | null {
-		const guild = this.client.settings!.guild.get(msg.guild!.id);
+		const guild = this.client.settings.guild.get(msg.guild!.id);
 		if (msg.member!.permissions.has('MANAGE_GUILD') || (guild && msg.member!.roles.has(guild.manager))) return null;
 		return 'notMaster';
 	}
 
-	public async exec(msg: Message, { type }: { type: string }): Promise<Message | Message[]> {
+	public async exec(msg: Message, { type }: { type: string }): Promise<Message | Message[] | void> {
+		const guild = this.client.settings.guild.get(msg.guild!.id);
+		const preifx = (this.handler.prefix as PrefixSupplier)(msg);
 		if (type === '1') {
 			return this.tierOne(msg);
 		} else if (type === '2') {
+			if (!guild?.premium)
+				return msg.util?.reply(
+					`sorry! This command is reserved for premium guilds. Vote for us on DiscordBots.org to recieve premium benifits. Run \`${preifx}vote\` for more info.`,
+				);
 			return this.tierTwo(msg);
 		} else if (type === '3') {
+			if (!guild?.premium)
+				return msg.util?.reply(
+					`sorry! This command is reserved for premium guilds. Vote for us on DiscordBots.org to recieve premium benifits. Run \`${preifx}vote\` for more info.`,
+				);
 			return this.tierThree(msg);
 		}
 		return msg.util!.reply('uhhhh, something went wrong. Please rerun this command.');
@@ -293,7 +303,7 @@ export default class Giveaways extends Command {
 							.addField('Host', `${msg.author} [\`${msg.author.tag}\`]`)
 							.setDescription(`React with ${rawEMOJI} to enter!`);
 						const mss = await channel!.send('🎉 **GIVEAWAY** 🎉', { embed });
-						await this.client.settings!.new('giveaway', {
+						await this.client.settings.new('giveaway', {
 							title,
 							emoji,
 							guildID: msg.guild!.id,
@@ -438,7 +448,7 @@ export default class Giveaways extends Command {
 								React before there are no more slots left!
 							`);
 						const mss = await channel!.send('🎉 **FIRST COME, FIRST SERVE** 🎉', { embed });
-						await this.client.settings!.new('giveaway', {
+						await this.client.settings.new('giveaway', {
 							title,
 							emoji,
 							guildID: msg.guild!.id,
@@ -626,7 +636,7 @@ export default class Giveaways extends Command {
 								Once **${maxEntries}** entry is reached, the lucky winner${maxEntries === 1 ? '' : 's'} will be decided!
 							`);
 						const mss = await channel.send('🎉 **LIMITED ENTRIES** 🎉', { embed });
-						await this.client.settings!.new('giveaway', {
+						await this.client.settings.new('giveaway', {
 							title,
 							emoji,
 							winnerCount,

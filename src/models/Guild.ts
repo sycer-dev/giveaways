@@ -4,6 +4,8 @@ export interface Guild extends Document {
 	id: string;
 	prefix: string;
 	manager: string;
+	premium: boolean;
+	expiresAt: Date;
 }
 
 const Guild: Schema = new Schema(
@@ -19,6 +21,13 @@ const Guild: Schema = new Schema(
 		manager: {
 			type: String,
 			required: false,
+		},
+		premium: {
+			type: Boolean,
+			default: false,
+		},
+		expiresAt: {
+			type: Date,
 		},
 	},
 	{
