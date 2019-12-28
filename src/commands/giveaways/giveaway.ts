@@ -60,13 +60,13 @@ export default class Giveaways extends Command {
 		} else if (type === '2') {
 			if (!guild?.premium)
 				return msg.util?.reply(
-					`sorry! This command is reserved for premium guilds. Vote for us on DiscordBots.org to recieve premium benifits. Run \`${preifx}vote\` for more info.`,
+					`sorry! This command is reserved for premium guilds. Vote for us on Top.gg to recieve premium benifits. Run \`${preifx}vote\` for more info.`,
 				);
 			return this.tierTwo(msg);
 		} else if (type === '3') {
 			if (!guild?.premium)
 				return msg.util?.reply(
-					`sorry! This command is reserved for premium guilds. Vote for us on DiscordBots.org to recieve premium benifits. Run \`${preifx}vote\` for more info.`,
+					`sorry! This command is reserved for premium guilds. Vote for us on Top.gg to recieve premium benifits. Run \`${preifx}vote\` for more info.`,
 				);
 			return this.tierThree(msg);
 		}
