@@ -50,6 +50,8 @@ export default class Giveaways extends Command {
 				{
 					id: 'emoji',
 					type: (_: Message, str: string): string | null => {
+						if (!str) return null;
+
 						const unicode = nodemoji.find(str);
 						if (unicode) return unicode.emoji;
 
