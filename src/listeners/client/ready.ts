@@ -25,6 +25,8 @@ export default class ReadyListener extends Listener {
 			if (!existing) await this.client.settings.new('guild', { id });
 		}
 
+		await this.client.user?.setActivity(`for @${this.client.user?.username} guide 🎁`, { type: 'WATCHING' });
+
 		setInterval(async () => {
 			for (const g2 of this.client.guilds.values()) {
 				g2.presences.clear();

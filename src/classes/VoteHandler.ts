@@ -133,7 +133,7 @@ export default class VoteHandler {
 			try {
 				const owner = await this.client.users.fetch(g.ownerID);
 				await owner.send(
-					`Oh no! Your premium benifits in **${g?.name}** has expired! You can vote again by running \`-vote\`!`,
+					`Oh no! Your premium benifits in **${g?.name}** has expired! You can vote again by running \`gvote\`!`,
 				);
 			} catch (err) {
 				this.client.logger.info(`[MUTE MANAGER] [EXPIRY DM]: ${err}`);
