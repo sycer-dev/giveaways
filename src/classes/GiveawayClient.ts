@@ -38,8 +38,6 @@ export default class GiveawayClient extends AkairoClient {
 		this.listenerHandler.on('load', i =>
 			this.logger.debug(`[LISTENER HANDLER] [${i.category.id.toUpperCase()}] Loaded ${i.id} listener!`),
 		);
-
-		this.launch();
 	}
 
 	public config: GiveawayOpts;
