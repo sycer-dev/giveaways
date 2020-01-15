@@ -135,6 +135,7 @@ export default class SettingsProvider {
 					useNewUrlParser: true,
 					useFindAndModify: false,
 					useUnifiedTopology: true,
+					sslValidate: false,
 				});
 			} catch (err) {
 				this.client.logger.error(`[DATABASE] Error when connecting to MongoDB:\n${err.stack}`);
