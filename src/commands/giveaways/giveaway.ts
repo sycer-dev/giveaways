@@ -2,7 +2,7 @@ import { Command, PrefixSupplier } from 'discord-akairo';
 import { Message, MessageReaction, User, TextChannel } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import prettyMilliseconds from 'pretty-ms';
-const ms = require('ms'); // eslint-disable-line
+import ms from 'ms';
 
 export interface Entries {
 	string: string;
@@ -290,7 +290,7 @@ export default class Giveaways extends Command {
 							.embed()
 							.setColor(msg.guild?.me?.displayColor || this.client.config.color)
 							.setFooter(`${winnerCount} Winner${winnerCount === 1 ? '' : 's'} • Ends at`)
-							.setTimestamp(new Date(Date.now() + (duration as number)))
+							.setTimestamp(new Date(Date.now() + duration))
 							.setTitle(title)
 							.addField('Time Remaining', `\`${prettyMilliseconds(duration, { verbose: true })}\``)
 							.addField(
@@ -310,7 +310,7 @@ export default class Giveaways extends Command {
 							channelID: channel!.id,
 							messageID: mss.id,
 							winnerCount,
-							endsAt: new Date(Date.now() + (duration as number)),
+							endsAt: new Date(Date.now() + duration),
 							createdBy: msg.author.id,
 							boosted: entries,
 						});

@@ -28,7 +28,7 @@ export default class MessageReactionAddListener extends Listener {
 
 		const embed = this.client.util
 			.embed()
-			.setColor(msg.guild.me!.displayColor || this.client.config.color)
+			.setColor(msg.guild.me?.displayColor || this.client.config.color)
 			.setThumbnail('https://cdn.discordapp.com/emojis/358336932343840769.png?v=1').setDescription(stripIndents`
                 Drop ended!
 
@@ -40,7 +40,7 @@ export default class MessageReactionAddListener extends Listener {
 		if (msg.editable) await msg.edit({ embed });
 		if (msg.channel instanceof TextChannel && msg.channel.permissionsFor(this.client.user!)!.has('SEND_MESSAGES')) {
 			await msg.channel.send(
-				`🎉 Congratz, ${users.map(u => u.toString()).join(', ')}! You won the FCFS drop for **${doc.title}**!`,
+				`🎉 Congratulations, ${users.map(u => u.toString()).join(', ')}! You won the FCFS drop for **${doc.title}**!`,
 			);
 		}
 	}
@@ -49,7 +49,7 @@ export default class MessageReactionAddListener extends Listener {
 		const msg = reaction.message;
 		const list = await reaction.users.fetch();
 		const users = list.array().filter(u => u.id !== msg.author.id);
-		if (g.winnerCount > users.length) return;
+		if (g.maxEntries < users.length) return;
 		this.client.giveawayHandler.end(g);
 	}
 }

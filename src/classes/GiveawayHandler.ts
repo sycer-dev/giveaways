@@ -74,7 +74,7 @@ export default class GiveawayHandler {
 		if (message && message.editable) await message.edit({ content: '🎉 **GIVEAWAY ENDED** 🎉', embed });
 		if ((message.channel as TextChannel).permissionsFor(this.client.user!)!.has('SEND_MESSAGES'))
 			message.channel.send(
-				`🎉 Congratz, ${winners
+				`🎉 Congratulations, ${winners
 					.map(u => u.toString())
 					.join(', ')
 					.substring(0, 1500)}! You won the giveaway for *${g.title}*!`,
