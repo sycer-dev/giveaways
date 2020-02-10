@@ -12,6 +12,7 @@ RUN apk add --update \
 && apk del .build-deps
 COPY . .
 RUN yarn build
+EXPOSE 5329
 ENV ID= \
 	DISCORD_TOKEN= \
 	OWNERS= \
