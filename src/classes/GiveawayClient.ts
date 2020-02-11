@@ -135,6 +135,8 @@ export default class GiveawayClient extends AkairoClient {
 	});
 
 	private async load(): Promise<void> {
+		this.on('message', () => this.prometheus.messageCounter.inc());
+
 		this.voteHandler = new VoteHandler(this);
 		this.settings = new SettingsProvider(this);
 
