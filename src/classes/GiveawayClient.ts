@@ -6,7 +6,7 @@ import GiveawayHandler from './GiveawayHandler';
 import { LoggerConfig } from './LoggerConfig';
 import VoteHandler from './VoteHandler';
 import SettingsProvider from './SettingsProvider';
-import { Counter, register, Histogram } from 'prom-client';
+import { Counter, register, Gauge } from 'prom-client';
 import { createServer, Server } from 'http';
 import { parse } from 'url';
 
@@ -20,8 +20,8 @@ declare module 'discord-akairo' {
 		voteHandler: VoteHandler;
 		prometheus: {
 			messageCounter: Counter;
-			userHistogram: Histogram;
-			guildHistogram: Histogram;
+			userHistogram: Gauge;
+			guildHistogram: Gauge;
 		};
 
 		promServer: Server;
@@ -111,15 +111,15 @@ export default class GiveawayClient extends AkairoClient {
 	});
 
 	public prometheus = {
-		messageCounter: new Counter({
+		messageCounter: new Gauge({
 			name: 'giveaway_bot_messages_total',
 			help: 'Total number of messages Giveaway Bot has seen.',
 		}),
-		userHistogram: new Histogram({
+		userHistogram: new Gauge({
 			name: 'giveaway_bot_user_histogram',
 			help: 'Histogram of all users Giveaway Bot has seen.',
 		}),
-		guildHistogram: new Histogram({
+		guildHistogram: new Gauge({
 			name: 'giveaway_bot_guild_histogram',
 			help: 'Histogram of all users Giveaway Bot has seen.',
 		}),

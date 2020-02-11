@@ -37,8 +37,8 @@ export default class ReadyListener extends Listener {
 
 		setInterval(() => {
 			const userCount = this.client.guilds.reduce((acc, g): number => (acc += g.memberCount), 0);
-			this.client.prometheus.userHistogram.observe(userCount);
-			this.client.prometheus.guildHistogram.observe(this.client.guilds.size);
+			this.client.prometheus.userHistogram.set(userCount);
+			this.client.prometheus.guildHistogram.set(this.client.guilds.size);
 		}, 1000 * 15);
 	}
 }
