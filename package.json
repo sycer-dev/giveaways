@@ -23,7 +23,8 @@
         "ms": "^2.1.2",
         "new-dblapi": "^2.2.0",
         "node-emoji": "^1.10.0",
-        "pretty-ms": "^5.1.0"
+        "pretty-ms": "^5.1.0",
+        "prom-client": "^11.5.3"
     },
     "devDependencies": {
         "@types/common-tags": "^1.8.0",

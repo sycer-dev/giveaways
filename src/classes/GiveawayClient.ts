@@ -6,6 +6,9 @@ import GiveawayHandler from './GiveawayHandler';
 import { LoggerConfig } from './LoggerConfig';
 import VoteHandler from './VoteHandler';
 import SettingsProvider from './SettingsProvider';
+import { Counter, register, Histogram } from 'prom-client';
+import { createServer, Server } from 'http';
+import { parse } from 'url';
 
 declare module 'discord-akairo' {
 	interface AkairoClient {
@@ -15,6 +18,13 @@ declare module 'discord-akairo' {
 		settings: SettingsProvider;
 		giveawayHandler: GiveawayHandler;
 		voteHandler: VoteHandler;
+		prometheus: {
+			messageCounter: Counter;
+			userHistogram: Histogram;
+			guildHistogram: Histogram;
+		};
+
+		promServer: Server;
 	}
 }
 
@@ -98,6 +108,30 @@ export default class GiveawayClient extends AkairoClient {
 
 	public listenerHandler: ListenerHandler = new ListenerHandler(this, {
 		directory: join(__dirname, '..', 'listeners'),
+	});
+
+	public prometheus = {
+		messageCounter: new Counter({
+			name: 'giveaway_bot_messages_total',
+			help: 'Total number of messages Giveaway Bot has seen.',
+		}),
+		userHistogram: new Histogram({
+			name: 'giveaway_bot_user_histogram',
+			help: 'Histogram of all users Giveaway Bot has seen.',
+		}),
+		guildHistogram: new Histogram({
+			name: 'giveaway_bot_guild_histogram',
+			help: 'Histogram of all users Giveaway Bot has seen.',
+		}),
+		register,
+	};
+
+	public promServer = createServer((req, res): void => {
+		if (parse(req.url!).pathname === '/metrics') {
+			res.writeHead(200, { 'Content-Type': this.prometheus.register.contentType });
+			res.write(this.prometheus.register.metrics());
+		}
+		res.end();
 	});
 
 	private async load(): Promise<void> {

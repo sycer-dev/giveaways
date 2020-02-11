@@ -25,12 +25,18 @@ export default class ReadyListener extends Listener {
 			if (!existing) await this.client.settings.new('guild', { id });
 		}
 
-		await this.client.user?.setActivity(`for @${this.client.user?.username} guide 🎁`, { type: 'WATCHING' });
+		await this.client.user?.setActivity(`for gguide 🎉`, { type: 'WATCHING' });
 
 		setInterval(async () => {
 			for (const g2 of this.client.guilds.values()) {
 				g2.presences.clear();
 			}
 		}, 1000 * 60 * 10);
+
+		setInterval(() => {
+			const userCount = this.client.guilds.reduce((acc, g): number => (acc = Number(g.memberCount)), 0);
+			this.client.prometheus.userHistogram.observe(userCount);
+			this.client.prometheus.guildHistogram.observe(this.client.guilds.size);
+		}, 1000 * 15);
 	}
 }
