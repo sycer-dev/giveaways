@@ -6,7 +6,7 @@ import GiveawayHandler from './GiveawayHandler';
 import { LoggerConfig } from './LoggerConfig';
 import VoteHandler from './VoteHandler';
 import SettingsProvider from './SettingsProvider';
-import { Counter, register, Gauge } from 'prom-client';
+import { register, Gauge } from 'prom-client';
 import { createServer, Server } from 'http';
 import { parse } from 'url';
 
@@ -134,6 +134,10 @@ export default class GiveawayClient extends AkairoClient {
 			name: 'giveaway_bot_command_total',
 			help: 'Total number of commands Giveaway Bot has ran.',
 		}),
+		eventCounter: new Gauge({
+			name: 'giveaway_bot_gateway_events_total',
+			help: 'Total number of events Giveawat Bot has recieved through the gateway.',
+		}),
 		register,
 	};
 
@@ -147,6 +151,7 @@ export default class GiveawayClient extends AkairoClient {
 
 	private async load(): Promise<void> {
 		this.on('message', () => this.prometheus.messageCounter.inc());
+		this.on('raw', () => this.prometheus.eventCounter.inc());
 		this.commandHandler.on('commandFinished', () => this.prometheus.commandCounter.inc());
 
 		this.voteHandler = new VoteHandler(this);
