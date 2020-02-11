@@ -20,6 +20,8 @@ export default class ReadyListener extends Listener {
 		this.client.giveawayHandler.init();
 		this.client.voteHandler.init();
 
+		this.client.promServer.listen(5501);
+
 		for (const id of this.client.guilds.keys()) {
 			const existing = this.client.settings.guild.get(id);
 			if (!existing) await this.client.settings.new('guild', { id });
