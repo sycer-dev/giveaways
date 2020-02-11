@@ -35,10 +35,13 @@ export default class ReadyListener extends Listener {
 			}
 		}, 1000 * 60 * 10);
 
-		setInterval(() => {
-			const userCount = this.client.guilds.reduce((acc, g): number => (acc += g.memberCount), 0);
-			this.client.prometheus.userHistogram.set(userCount);
-			this.client.prometheus.guildHistogram.set(this.client.guilds.size);
-		}, 1000 * 15);
+		setInterval(() => this._prometheus(), 1000 * 10);
+	}
+
+	private _prometheus(): void {
+		const userCount = this.client.guilds.reduce((acc, g): number => (acc += g.memberCount), 0);
+		this.client.prometheus.userHistogram.set(userCount);
+		this.client.prometheus.guildHistogram.set(this.client.guilds.size);
+		this.client.prometheus.giveawayCounter.set(this.client.settings.giveaway.size);
 	}
 }

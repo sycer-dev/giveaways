@@ -19,9 +19,11 @@ declare module 'discord-akairo' {
 		giveawayHandler: GiveawayHandler;
 		voteHandler: VoteHandler;
 		prometheus: {
-			messageCounter: Counter;
+			messageCounter: Gauge;
 			userHistogram: Gauge;
 			guildHistogram: Gauge;
+			giveawayCounter: Gauge;
+			commandCounter: Gauge;
 		};
 
 		promServer: Server;
@@ -75,10 +77,11 @@ export default class GiveawayClient extends AkairoClient {
 	public commandHandler: CommandHandler = new CommandHandler(this, {
 		directory: join(__dirname, '..', 'commands'),
 		prefix: (msg: Message): string => {
-			if (!msg.guild) return 'g';
-			const req = this.settings.guild.get(msg.guild.id);
-			if (!req || !req.prefix) return 'g';
-			return req.prefix;
+			if (msg.guild) {
+				const req = this.settings.guild.get(msg.guild.id);
+				return req?.prefix!;
+			}
+			return 'g';
 		},
 		aliasReplacement: /-/g,
 		allowMention: true,
@@ -123,6 +126,14 @@ export default class GiveawayClient extends AkairoClient {
 			name: 'giveaway_bot_guild_histogram',
 			help: 'Histogram of all users Giveaway Bot has seen.',
 		}),
+		giveawayCounter: new Gauge({
+			name: 'giveaway_bot_giveaways_total',
+			help: 'Total number of giveaways Giveaway Bot has hosted.',
+		}),
+		commandCounter: new Gauge({
+			name: 'giveaway_bot_command_total',
+			help: 'Total number of commands Giveaway Bot has ran.',
+		}),
 		register,
 	};
 
@@ -136,6 +147,7 @@ export default class GiveawayClient extends AkairoClient {
 
 	private async load(): Promise<void> {
 		this.on('message', () => this.prometheus.messageCounter.inc());
+		this.commandHandler.on('commandFinished', () => this.prometheus.commandCounter.inc());
 
 		this.voteHandler = new VoteHandler(this);
 		this.settings = new SettingsProvider(this);
