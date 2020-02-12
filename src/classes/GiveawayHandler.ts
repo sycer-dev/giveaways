@@ -23,11 +23,11 @@ export default class GiveawayHandler {
 
 		let message: Message | undefined;
 		try {
-			message = await (this.client.channels.get(g.channelID) as TextChannel).messages.fetch(g.messageID);
+			message = await (this.client.channels.cache.get(g.channelID) as TextChannel).messages.fetch(g.messageID);
 		} catch {}
 		if (!message) return;
 
-		const reaction = message.reactions.get(g.emoji);
+		const reaction = message.reactions.cache.get(g.emoji);
 		if (!reaction) return;
 
 		const users = await reaction.users.fetch();
@@ -36,8 +36,8 @@ export default class GiveawayHandler {
 		if (g.boosted!.length) {
 			const boosts = g.boosted!.sort((a, b) => b.entries - a.entries);
 			for (const b of boosts) {
-				for (const [id, m] of await message.guild!.members.fetch()) {
-					if (!m.roles.has(b.string)) continue;
+				for (const [id, m] of (await message.guild!.members.fetch()).cache) {
+					if (!m.roles.cache.has(b.string)) continue;
 					if (!used.includes(id)) {
 						for (let i = 0; i < b.entries; i++) list.push(m.user);
 						used.push(id);
@@ -84,7 +84,7 @@ export default class GiveawayHandler {
 	public async edit(g: Giveaway): Promise<void> {
 		let message;
 		try {
-			message = await (this.client.channels.get(g.channelID) as TextChannel).messages.fetch(g.messageID);
+			message = await (this.client.channels.cache.get(g.channelID) as TextChannel).messages.fetch(g.messageID);
 		} catch {}
 		if (!message || !message.embeds.length) return;
 		const embed = this.client.util.embed(message.embeds[0]);

@@ -20,7 +20,7 @@ export default class MissingPermissionsListener extends Listener {
 	}
 
 	public async exec(msg: Message, _: Command, type: any, missing: any): Promise<Message | Message[] | void> {
-		if (Object.keys(missing).includes(missing)) return msg.util!.reply(MISSING[missing]);
+		if (Object.keys(missing).includes(missing)) return msg.util?.reply(MISSING[missing]);
 
 		let text;
 		if (type === 'client') {
@@ -36,7 +36,7 @@ export default class MissingPermissionsListener extends Listener {
 			msg.channel instanceof TextChannel &&
 			msg.channel.permissionsFor(this.client.user!)!.has('SEND_MESSAGES')
 		) {
-			return msg.util!.reply(text);
+			return msg.util?.reply(text);
 		}
 	}
 

@@ -45,7 +45,7 @@ export default class HelpCommand extends Command {
 	public async exec(
 		msg: Message,
 		{ arg }: { arg: undefined | Command | Category<string, Command> },
-	): Promise<Message | Message[]> {
+	): Promise<Message | Message[] | void> {
 		const prefix = (this.handler.prefix as PrefixSupplier)(msg);
 		if (!arg) {
 			const embed = this.client.util
@@ -68,7 +68,7 @@ export default class HelpCommand extends Command {
 				);
 			}
 
-			return msg.util!.send({ embed });
+			return msg.util?.send({ embed });
 		}
 		if (arg instanceof Command) {
 			const embed = this.client.util
@@ -84,7 +84,7 @@ export default class HelpCommand extends Command {
 					`\`${arg.aliases[0]} ${arg.description.examples.join(`\`\n\`${arg.aliases[0]} `)}\``,
 				);
 
-			return msg.util!.send({ embed });
+			return msg.util?.send({ embed });
 		}
 
 		const name = arg.id.replace(/(\b\w)/gi, lc => lc.toUpperCase());
@@ -108,6 +108,6 @@ export default class HelpCommand extends Command {
 			)
 			.join('\n');
 		embed.addField('Commands', commands);
-		return msg.util!.send({ embed });
+		return msg.util?.send({ embed });
 	}
 }

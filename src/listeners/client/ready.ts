@@ -22,7 +22,7 @@ export default class ReadyListener extends Listener {
 
 		this.client.promServer.listen(5501);
 
-		for (const id of this.client.guilds.keys()) {
+		for (const id of this.client.guilds.cache.keys()) {
 			const existing = this.client.settings.guild.get(id);
 			if (!existing) await this.client.settings.new('guild', { id });
 		}
@@ -30,8 +30,8 @@ export default class ReadyListener extends Listener {
 		await this.client.user?.setActivity(`for gguide 🎉`, { type: 'WATCHING' });
 
 		setInterval(async () => {
-			for (const g2 of this.client.guilds.values()) {
-				g2.presences.clear();
+			for (const g2 of this.client.guilds.cache.values()) {
+				g2.presences.cache.clear();
 			}
 		}, 1000 * 60 * 10);
 
@@ -39,9 +39,9 @@ export default class ReadyListener extends Listener {
 	}
 
 	private _prometheus(): void {
-		const userCount = this.client.guilds.reduce((acc, g): number => (acc += g.memberCount), 0);
+		const userCount = this.client.guilds.cache.reduce((acc, g): number => (acc += g.memberCount), 0);
 		this.client.prometheus.userHistogram.set(userCount);
-		this.client.prometheus.guildHistogram.set(this.client.guilds.size);
+		this.client.prometheus.guildHistogram.set(this.client.guilds.cache.size);
 		this.client.prometheus.giveawayCounter.set(this.client.settings.giveaway.size);
 	}
 }

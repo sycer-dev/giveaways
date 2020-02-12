@@ -45,21 +45,21 @@ export default class ReloadCommand extends Command {
 		return { type, mod };
 	}
 
-	public exec(
+	public async exec(
 		msg: Message,
 		{ type, mod }: { type: any; mod: Command | Inhibitor | Listener },
-	): Promise<Message | Message[]> {
+	): Promise<Message | Message[] | void> {
 		if (!mod) {
-			return msg.util!.reply(`Invalid ${type} ${type === 'command' ? 'alias' : 'ID'} specified to reload.`);
+			return msg.util?.reply(`invalid ${type} ${type === 'command' ? 'alias' : 'ID'} specified to reload.`);
 		}
 
 		try {
 			mod.reload();
-			return msg.util!.reply(`Sucessfully reloaded ${type} \`${mod.id}\`.`);
+			return msg.util?.reply(`sucessfully reloaded ${type} \`${mod.id}\`.`);
 		} catch (err) {
 			this.client.logger.error(`Error occured reloading ${type} ${mod.id}`);
 			this.client.logger.error(err);
-			return msg.util!.reply(`Failed to reload ${type} \`${mod.id}\`.`);
+			return msg.util?.reply(`failed to reload ${type} \`${mod.id}\`.`);
 		}
 	}
 }

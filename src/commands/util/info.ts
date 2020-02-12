@@ -13,7 +13,7 @@ export default class GuideCommand extends Command {
 		});
 	}
 
-	public async exec(msg: Message): Promise<Message | Message[]> {
+	public async exec(msg: Message): Promise<Message | Message[] | void> {
 		const prefix = (this.handler.prefix as PrefixSupplier)(msg);
 		const embed = this.client.util
 			.embed()
@@ -53,6 +53,6 @@ export default class GuideCommand extends Command {
 			`,
 			);
 
-		return msg.util!.send({ embed });
+		return msg.util?.send({ embed });
 	}
 }

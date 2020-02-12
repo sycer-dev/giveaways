@@ -12,7 +12,7 @@ export default class PingCommand extends Command {
 		});
 	}
 
-	public async exec(msg: Message): Promise<Message | Message[]> {
+	public async exec(msg: Message): Promise<Message | Message[] | void> {
 		const starters = [
 			'Ping?',
 			'ooh! I love that game!',

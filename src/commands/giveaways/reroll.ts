@@ -34,26 +34,27 @@ export default class ManagerRole extends Command {
 	// @ts-ignore
 	public userPermissions(msg: Message): string | null {
 		const guild = this.client.settings.guild.get(msg.guild!.id);
-		if (msg.member!.permissions.has('MANAGE_GUILD') || (guild && msg.member!.roles.has(guild.manager))) return null;
+		if (msg.member!.permissions.has('MANAGE_GUILD') || (guild && msg.member!.roles.cache.has(guild.manager)))
+			return null;
 		return 'notMaster';
 	}
 
-	public async exec(msg: Message, { count }: { count: number }): Promise<Message | Message[]> {
+	public async exec(msg: Message, { count }: { count: number }): Promise<Message | Message[] | void> {
 		const giveaways = this.client.settings.giveaway.filter(
 			g => g.complete && g.channelID === msg.channel.id && !g.fcfs && !g.maxEntries,
 		);
-		if (!giveaways.size) return msg.util!.reply("sorry! I couldn't find any ended giveaways in this channel");
+		if (!giveaways.size) return msg.util?.reply("sorry! I couldn't find any ended giveaways in this channel");
 		const g =
 			giveaways.size === 1
 				? giveaways.first()!
 				: giveaways.sort((a, b) => b.endsAt.getTime() - a.endsAt.getTime()).first()!;
 
-		const message = await (this.client.channels.get(g.channelID) as TextChannel).messages
+		const message = await (this.client.channels.cache.get(g.channelID) as TextChannel).messages
 			.fetch(g.messageID)
 			.catch(() => null);
-		if (!message) return msg.util!.reply('looks like that giveaway was deleted!');
-		const reaction = message.reactions.get(g.emoji);
-		if (!reaction) return msg.util!.reply('looks like that giveaway was deleted!');
+		if (!message) return msg.util?.reply('looks like that giveaway was deleted!');
+		const reaction = message.reactions.cache.get(g.emoji);
+		if (!reaction) return msg.util?.reply('looks like that giveaway was deleted!');
 
 		const users = await reaction.users.fetch();
 		const list = users.array().filter(u => u.id !== message.author.id);

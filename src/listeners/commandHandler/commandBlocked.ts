@@ -34,7 +34,7 @@ export default class CommandBlockedListener extends Listener {
 				? msg.channel instanceof TextChannel && msg.channel.permissionsFor(this.client.user!)!.has('SEND_MESSAGES')
 				: true
 		) {
-			msg.util!.reply(res);
+			msg.util?.reply(res);
 		}
 	}
 }

@@ -50,7 +50,7 @@ export default class RescheduleCommand extends Command {
 	// @ts-ignore
 	public userPermissions(msg: Message): string | null {
 		const guild = this.client.settings.guild.get(msg.guild!.id);
-		if (msg.member!.permissions.has('MANAGE_GUILD') || (guild && msg.member!.roles.has(guild.manager))) return null;
+		if (msg.member!.permissions.has('MANAGE_GUILD') || (guild && msg.member!.roles.cache.has(guild.manager))) return null;
 		return 'notMaster';
 	}
 
@@ -62,7 +62,7 @@ export default class RescheduleCommand extends Command {
 			return msg.util?.reply(`you're too late! The giveaway has already been queued!`);
 		await this.client.settings.set('giveaway', { _id: giveaway._id }, { endsAt: new Date(Date.now() + duration) });
 		return msg.util?.reply(
-			`successfully rescheduled the giveaway in ${this.client.channels.get(
+			`successfully rescheduled the giveaway in ${this.client.channels.cache.get(
 				giveaway.channelID,
 			)}. It will end in \`${prettyMilliseconds(duration, { verbose: true })}\`.`,
 		);

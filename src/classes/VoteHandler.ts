@@ -29,9 +29,9 @@ export default class VoteHandler {
 		this.client.logger.info(`[VOTE MANAGER] [NEW VOTE]: New vote from ${user ? user.tag : 'Unknown#0000'}!`);
 		let theGuild: DiscordGuild;
 		if (!user) return;
-		const guilds = this.client.guilds
+		const guilds = this.client.guilds.cache
 			.filter((g): boolean => {
-				const m = g.members.get(user.id);
+				const m = g.members.cache.get(user.id);
 				if (m && m.permissions.has('MANAGE_GUILD')) return true;
 				return false;
 			})
@@ -126,7 +126,7 @@ export default class VoteHandler {
 	}
 
 	public async expire(guild: Guild): Promise<void> {
-		const g = this.client.guilds.get(guild.id);
+		const g = this.client.guilds.cache.get(guild.id);
 		if (g) {
 			this.client.logger.info(`[MUTE MANAGER] [EXPIRY]: ${g.name} just expired!`);
 			this.client.settings.set('guild', { id: guild.id }, { premium: false });

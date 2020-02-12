@@ -16,7 +16,7 @@ export default class StatsCommand extends Command {
 		});
 	}
 
-	public async exec(msg: Message): Promise<Message | Message[]> {
+	public async exec(msg: Message): Promise<Message | Message[] | void> {
 		const duration = moment.duration(this.client.uptime!).format(' D[d] H[h] m[m] s[s]');
 		const ownerID = typeof this.client.ownerID === 'object' ? this.client.ownerID[0] : this.client.ownerID;
 		const owner = await this.client.users.fetch(ownerID);
@@ -29,9 +29,9 @@ export default class StatsCommand extends Command {
 			.addField(
 				'📊 General Stats',
 				stripIndents`
-				• Servers: ${this.client.guilds.size.toLocaleString('en-US')}
-				• Channels: ${this.client.channels.size.toLocaleString('en-US')}
-				• Users: ${this.client.guilds.reduce((prev, val) => prev + val.memberCount, 0).toLocaleString('en-US')}
+				• Servers: ${this.client.guilds.cache.size.toLocaleString('en-US')}
+				• Channels: ${this.client.channels.cache.size.toLocaleString('en-US')}
+				• Users: ${this.client.guilds.cache.reduce((prev, val) => prev + val.memberCount, 0).toLocaleString('en-US')}
 			`,
 			)
 			.addField(
@@ -51,6 +51,6 @@ export default class StatsCommand extends Command {
 			)
 			.addField('👨‍💻 Lead Developer', `${owner.toString()} \`[${owner.tag}]\``, true)
 			.setColor(msg.guild ? msg.guild.me!.displayColor || this.client.config.color : this.client.config.color);
-		return msg.util!.send({ embed });
+		return msg.util?.send({ embed });
 	}
 }

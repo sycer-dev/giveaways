@@ -16,17 +16,18 @@ export default class ListCommand extends Command {
 	// @ts-ignore
 	public userPermissions(msg: Message): string | null {
 		const guild = this.client.settings.guild.get(msg.guild!.id);
-		if (msg.member!.permissions.has('MANAGE_GUILD') || (guild && msg.member!.roles.has(guild.manager))) return null;
+		if (msg.member!.permissions.has('MANAGE_GUILD') || (guild && msg.member!.roles.cache.has(guild.manager)))
+			return null;
 		return 'notMaster';
 	}
 
-	public async exec(msg: Message): Promise<Message | Message[]> {
+	public async exec(msg: Message): Promise<Message | Message[] | void> {
 		const giveaways = this.client.settings.giveaway.filter(g => !g.complete && g.guildID === msg.guild!.id);
-		if (!giveaways.size) return msg.util!.reply("sorry! I couldn't find any ongoing giveaways.");
+		if (!giveaways.size) return msg.util?.reply("sorry! I couldn't find any ongoing giveaways.");
 
 		const gs = giveaways.array().map((g, i) => {
 			const type = g.fcfs ? 'FCFS' : g.maxEntries ? 'Limited Entries' : 'Traditional';
-			return `\`[${i + 1}]\` - ${type} Giveaway in ${this.client.channels.get(g.channelID) ||
+			return `\`[${i + 1}]\` - ${type} Giveaway in ${this.client.channels.cache.get(g.channelID) ||
 				'#deleted-channel'}. [Jump](https://discordapp.com/channels/${g.guildID}/${g.channelID}/${g.messageID}/)`;
 		});
 
@@ -36,6 +37,6 @@ export default class ListCommand extends Command {
 			.setAuthor('Live Giveaways', msg.guild!.iconURL() || this.client.user!.displayAvatarURL())
 			.setDescription(gs.join('\n').substring(0, 1800));
 
-		return msg.util!.send({ embed });
+		return msg.util?.send({ embed });
 	}
 }

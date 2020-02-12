@@ -96,7 +96,8 @@ export default class Giveaways extends Command {
 	// @ts-ignore
 	public userPermissions(msg: Message): string | null {
 		const guild = this.client.settings.guild.get(msg.guild!.id);
-		if (msg.member!.permissions.has('MANAGE_GUILD') || (guild && msg.member!.roles.has(guild.manager))) return null;
+		if (msg.member!.permissions.has('MANAGE_GUILD') || (guild && msg.member!.roles.cache.has(guild.manager)))
+			return null;
 		return 'notMaster';
 	}
 
@@ -118,7 +119,7 @@ export default class Giveaways extends Command {
 			.setTitle(title)
 			.addField('Time Remaining', `\`${prettyMilliseconds(duration, { verbose: true })}\``)
 			.addField('Host', `${msg.author} [\`${msg.author.tag}\`]`)
-			.setDescription(`React with ${this.client.emojis.get(emoji) || emoji} to enter!`);
+			.setDescription(`React with ${this.client.emojis.cache.get(emoji) || emoji} to enter!`);
 		const m = await channel.send('🎉 **GIVEAWAY** 🎉', { embed });
 		await this.client.settings.new('giveaway', {
 			title,
@@ -132,6 +133,6 @@ export default class Giveaways extends Command {
 		});
 		await m.react(emoji);
 
-		return msg.util!.reply(`successfully started giveaway in ${channel}.`);
+		return msg.util?.reply(`successfully started giveaway in ${channel}.`);
 	}
 }

@@ -37,7 +37,7 @@ export default class JSONTwitterCommand extends Command {
 
 		await this.client.settings.new('child', { id, token });
 
-		return msg.util!.send(
+		return msg.util?.send(
 			`Successfully created and launched 🚀 a new client for ${tag} (${id}).\nInvite link: <${invite}>`,
 		);
 	}

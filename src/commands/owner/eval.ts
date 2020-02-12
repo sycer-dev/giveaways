@@ -34,13 +34,13 @@ export default class EvalCommand extends Command {
 	public async exec(
 		msg: Message,
 		{ code, terminal }: { code: string; terminal: boolean },
-	): Promise<Message | Message[]> {
+	): Promise<Message | Message[] | void> {
 		if (terminal) {
 			try {
 				const exec = execSync(code).toString();
-				return msg.util!.send(exec.substring(0, 1900), { code: 'fix' });
+				return msg.util?.send(exec.substring(0, 1900), { code: 'fix' });
 			} catch (err) {
-				return msg.util!.send(err.toString(), { code: 'fix' });
+				return msg.util?.send(err.toString(), { code: 'fix' });
 			}
 		}
 
@@ -59,7 +59,7 @@ export default class EvalCommand extends Command {
 				});
 			}
 		} catch (err) {
-			return msg.util!.send(stripIndents`
+			return msg.util?.send(stripIndents`
                 An error occured!
                 \`\`\`xl\n${err}
                 \`\`\`
@@ -73,7 +73,7 @@ export default class EvalCommand extends Command {
 		if (evaled.length > 1500) {
 			evaled = 'Response too long.';
 		}
-		return msg.util!.send(stripIndents`
+		return msg.util?.send(stripIndents`
             **Output**:
             \`\`\`js\n${evaled}
             \`\`\`

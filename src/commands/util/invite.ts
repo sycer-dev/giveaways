@@ -22,6 +22,6 @@ export default class InviteCommand extends Command {
                 You can join our **Support Server** by clicking [\`this link\`](https://fyko.net/discord)!
             `);
 
-		return msg.util!.send({ embed });
+		return msg.util?.send({ embed });
 	}
 }
