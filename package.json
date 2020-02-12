@@ -58,7 +58,7 @@
         "rules": {
             "comma-dangle": [
                 "error",
-                "always-multiline"
+                "never"
             ]
         }
     }

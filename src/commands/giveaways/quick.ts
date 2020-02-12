@@ -56,7 +56,7 @@ export default class Giveaways extends Command {
 						if (unicode) return unicode.emoji;
 
 						// @ts-ignore
-						const custom = this.client.util.resolveEmoji(str, this.client.emojis);
+						const custom = this.client.util.resolveEmoji(str, this.client.emojis.cache);
 						if (custom) return custom.id;
 						return null;
 					},
