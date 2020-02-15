@@ -140,7 +140,7 @@ export default class GiveawayClient extends AkairoClient {
 			help: 'The total number of active giveaways.',
 		}),
 		completedGiveawaysCounter: new Gauge({
-			name: 'giveaway_bot_completed giveaways',
+			name: 'giveaway_bot_completed_giveaways',
 			help: 'The total number of completed giveaways.',
 		}),
 		commandCounter: new Gauge({
