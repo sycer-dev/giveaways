@@ -6,7 +6,7 @@ import GiveawayHandler from './GiveawayHandler';
 import { LoggerConfig } from './LoggerConfig';
 import VoteHandler from './VoteHandler';
 import SettingsProvider from './SettingsProvider';
-import { register, Gauge } from 'prom-client';
+import { register, Gauge, Registry } from 'prom-client';
 import { createServer, Server } from 'http';
 import { parse } from 'url';
 
@@ -23,10 +23,12 @@ declare module 'discord-akairo' {
 			userCounter: Gauge;
 			guildCounter: Gauge;
 			giveawayCounter: Gauge;
-			completedGiveawaysCounter: Gauge;
 			activeGiveawaysCounter: Gauge;
+			completedGiveawaysCounter: Gauge;
 			commandCounter: Gauge;
 			eventCounter: Gauge;
+
+			register: Registry;
 		};
 
 		promServer: Server;
