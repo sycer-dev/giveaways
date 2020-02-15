@@ -20,10 +20,13 @@ declare module 'discord-akairo' {
 		voteHandler: VoteHandler;
 		prometheus: {
 			messageCounter: Gauge;
-			userHistogram: Gauge;
-			guildHistogram: Gauge;
+			userCounter: Gauge;
+			guildCounter: Gauge;
 			giveawayCounter: Gauge;
+			completedGiveawaysCounter: Gauge;
+			activeGiveawaysCounter: Gauge;
 			commandCounter: Gauge;
+			eventCounter: Gauge;
 		};
 
 		promServer: Server;
@@ -115,27 +118,35 @@ export default class GiveawayClient extends AkairoClient {
 
 	public prometheus = {
 		messageCounter: new Gauge({
-			name: 'giveaway_bot_messages_total',
+			name: 'giveaway_bot_messages',
 			help: 'Total number of messages Giveaway Bot has seen.',
 		}),
-		userHistogram: new Gauge({
-			name: 'giveaway_bot_user_histogram',
+		userCounter: new Gauge({
+			name: 'giveaway_bot_users',
 			help: 'Histogram of all users Giveaway Bot has seen.',
 		}),
-		guildHistogram: new Gauge({
-			name: 'giveaway_bot_guild_histogram',
+		guildCounter: new Gauge({
+			name: 'giveaway_bot_guilds',
 			help: 'Histogram of all users Giveaway Bot has seen.',
 		}),
 		giveawayCounter: new Gauge({
-			name: 'giveaway_bot_giveaways_total',
+			name: 'giveaway_bot_giveaways',
 			help: 'Total number of giveaways Giveaway Bot has hosted.',
 		}),
+		activeGiveawaysCounter: new Gauge({
+			name: 'giveaway_bot_active_giveaways',
+			help: 'The total number of active giveaways.',
+		}),
+		completedGiveawaysCounter: new Gauge({
+			name: 'giveaway_bot_completed giveaways',
+			help: 'The total number of completed giveaways.',
+		}),
 		commandCounter: new Gauge({
-			name: 'giveaway_bot_command_total',
+			name: 'giveaway_bot_commands',
 			help: 'Total number of commands Giveaway Bot has ran.',
 		}),
 		eventCounter: new Gauge({
-			name: 'giveaway_bot_gateway_events_total',
+			name: 'giveaway_bot_gateway_events',
 			help: 'Total number of events Giveawat Bot has recieved through the gateway.',
 		}),
 		register,

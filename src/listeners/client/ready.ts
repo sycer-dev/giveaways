@@ -40,8 +40,13 @@ export default class ReadyListener extends Listener {
 
 	private _prometheus(): void {
 		const userCount = this.client.guilds.cache.reduce((acc, g): number => (acc += g.memberCount), 0);
-		this.client.prometheus.userHistogram.set(userCount);
-		this.client.prometheus.guildHistogram.set(this.client.guilds.cache.size);
+		this.client.prometheus.userCounter.set(userCount);
+		this.client.prometheus.guildCounter.set(this.client.guilds.cache.size);
 		this.client.prometheus.giveawayCounter.set(this.client.settings.giveaway.size);
+		this.client.prometheus.activeGiveawaysCounter.set(this.client.settings.giveaway.filter(g => !g.complete).size);
+		this.client.prometheus.completedGiveawaysCounter.set(
+			this.client.settings.giveaway.filter(g => g.complete && g.endsAt >= new Date(Date.now() + 1000 * 60 * 60 * 24))
+				.size,
+		);
 	}
 }

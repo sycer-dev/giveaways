@@ -19,11 +19,11 @@
         "discord.js": "discordjs/discord.js",
         "moment": "^2.24.0",
         "moment-duration-format": "^2.3.2",
-        "mongoose": "^5.8.11",
+        "mongoose": "^5.9.1",
         "ms": "^2.1.2",
         "new-dblapi": "^2.2.0",
         "node-emoji": "^1.10.0",
-        "pretty-ms": "^5.1.0",
+        "pretty-ms": "^6.0.0",
         "prom-client": "^11.5.3"
     },
     "devDependencies": {
@@ -58,7 +58,7 @@
         "rules": {
             "comma-dangle": [
                 "error",
-                "never"
+                "always-multiline"
             ]
         }
     }

@@ -36,7 +36,7 @@ export default class GiveawayHandler {
 		if (g.boosted!.length) {
 			const boosts = g.boosted!.sort((a, b) => b.entries - a.entries);
 			for (const b of boosts) {
-				for (const [id, m] of (await message.guild!.members.fetch()).cache) {
+				for (const [id, m] of await message.guild!.members.fetch()) {
 					if (!m.roles.cache.has(b.string)) continue;
 					if (!used.includes(id)) {
 						for (let i = 0; i < b.entries; i++) list.push(m.user);
