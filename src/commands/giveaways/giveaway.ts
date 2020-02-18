@@ -1,5 +1,5 @@
 import { Command, PrefixSupplier } from 'discord-akairo';
-import { Message, MessageReaction, User, TextChannel } from 'discord.js';
+import { Message, MessageReaction, User, TextChannel, Permissions } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import prettyMilliseconds from 'pretty-ms';
 import ms from 'ms';
@@ -18,6 +18,12 @@ export default class Giveaways extends Command {
 			},
 			category: 'giveaways',
 			channel: 'guild',
+			clientPermissions: [
+				Permissions.FLAGS.ADD_REACTIONS,
+				Permissions.FLAGS.MANAGE_MESSAGES,
+				Permissions.FLAGS.EMBED_LINKS,
+				Permissions.FLAGS.ATTACH_FILES,
+			],
 			args: [
 				{
 					id: 'type',
