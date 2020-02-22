@@ -3,7 +3,7 @@ import { Message, TextChannel } from 'discord.js';
 
 export default class ErrorHandler extends Listener {
 	public constructor() {
-		super(Constants.CommandHandlerEvents.ERROR, {
+		super(`akairo-${Constants.CommandHandlerEvents.ERROR}`, {
 			category: 'commandHandler',
 			emitter: 'commandHandler',
 			event: Constants.CommandHandlerEvents.ERROR,
