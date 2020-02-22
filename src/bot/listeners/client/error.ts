@@ -1,11 +1,12 @@
 import { Listener } from 'discord-akairo';
+import { Constants } from 'discord.js';
 
 export default class ErrorListener extends Listener {
 	public constructor() {
-		super('err', {
+		super(Constants.Events.ERROR, {
 			category: 'client',
 			emitter: 'client',
-			event: 'error',
+			event: Constants.Events.ERROR,
 		});
 	}
 

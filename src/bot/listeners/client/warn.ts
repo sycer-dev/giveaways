@@ -1,11 +1,12 @@
 import { Listener } from 'discord-akairo';
+import { Constants } from 'discord.js';
 
 export default class WarnListener extends Listener {
 	public constructor() {
-		super('warn', {
+		super(Constants.Events.WARN, {
 			category: 'client',
 			emitter: 'client',
-			event: 'warn',
+			event: Constants.Events.WARN,
 		});
 	}
 

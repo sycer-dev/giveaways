@@ -1,4 +1,4 @@
-import { Listener, Command } from 'discord-akairo';
+import { Listener, Command, Constants } from 'discord-akairo';
 import { Message, TextChannel } from 'discord.js';
 
 export interface Text {
@@ -7,10 +7,10 @@ export interface Text {
 
 export default class CommandBlockedListener extends Listener {
 	public constructor() {
-		super('commandBlocked', {
+		super(Constants.CommandHandlerEvents.COMMAND_BLOCKED, {
 			category: 'commandHandler',
-			event: 'commandBlocked',
 			emitter: 'commandHandler',
+			event: Constants.CommandHandlerEvents.COMMAND_BLOCKED,
 		});
 	}
 

@@ -1,17 +1,17 @@
-import { Listener } from 'discord-akairo';
+import { Listener, Constants } from 'discord-akairo';
 import { Message } from 'discord.js';
 
 export default class CooldownListener extends Listener {
 	public constructor() {
-		super('cooldown', {
+		super(Constants.CommandHandlerEvents.COOLDOWN, {
 			category: 'commandHandler',
 			emitter: 'commandHandler',
-			event: 'cooldown',
+			event: Constants.CommandHandlerEvents.COOLDOWN,
 		});
 	}
 
 	public exec(msg: Message, _: any, time: number): Promise<Message | Message[]> | void {
 		time /= 1000;
-		return msg.util?.reply(`Chill out! You can use that command again in ${time.toFixed()} seconds.`);
+		return msg.util?.reply(`Slow down fella 🐌! You can use that command again in \`${time.toFixed()}\` seconds.`);
 	}
 }

@@ -1,12 +1,12 @@
-import { Listener } from 'discord-akairo';
+import { Listener, Constants } from 'discord-akairo';
 import { Message, TextChannel } from 'discord.js';
 
 export default class ErrorHandler extends Listener {
 	public constructor() {
-		super('error', {
+		super(Constants.CommandHandlerEvents.ERROR, {
 			category: 'commandHandler',
 			emitter: 'commandHandler',
-			event: 'error',
+			event: Constants.CommandHandlerEvents.ERROR,
 		});
 	}
 

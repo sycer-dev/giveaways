@@ -1,12 +1,12 @@
-import { Listener, Command } from 'discord-akairo';
+import { Listener, Command, Constants } from 'discord-akairo';
 import { Message, WebhookClient } from 'discord.js';
 
 export default class CommandStartedListener extends Listener {
 	public constructor() {
-		super('commandStarted', {
+		super(Constants.CommandHandlerEvents.COMMAND_STARTED, {
 			category: 'commandHandler',
 			emitter: 'commandHandler',
-			event: 'commandStarted',
+			event: Constants.CommandHandlerEvents.COMMAND_STARTED,
 		});
 	}
 

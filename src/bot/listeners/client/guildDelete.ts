@@ -1,39 +1,34 @@
 import { Listener } from 'discord-akairo';
 import { Guild, Constants } from 'discord.js';
 import { stripIndents } from 'common-tags';
-import moment from 'moment';
-import 'moment-duration-format';
+import prettyMilliseconds from 'pretty-ms';
 
-export default class GuildCreateListener extends Listener {
+export default class GuildDeleteListener extends Listener {
 	public constructor() {
-		super(Constants.Events.GUILD_CREATE, {
+		super(Constants.Events.GUILD_DELETE, {
 			category: 'client',
 			emitter: 'client',
-			event: Constants.Events.GUILD_CREATE,
+			event: Constants.Events.GUILD_DELETE,
 		});
 	}
 
 	public async exec(guild: Guild): Promise<void> {
-		this.client.logger.info(`[NEW GUILD] Joined ${guild.name} with ${guild.memberCount} members.`);
+		this.client.logger.info(`[LEFT GUILD] Left ${guild.name} with ${guild.memberCount} members.`);
 		const existing = this.client.settings.cache.guilds.get(guild.id);
 		if (!existing) this.client.settings.new('guild', { id: guild.id });
 
 		const owner = await this.client.users.fetch(guild.ownerID).catch(() => null);
-		const createdAgo = moment
-			.duration(new Date().getTime() - guild.createdTimestamp)
-			.format('D [days and] H [hours ago]');
+		const durationJoined = guild?.me?.joinedAt?.getTime()! - Date.now();
 		const embed = this.client.util
 			.embed()
-			.setColor('GREEN')
-			.setTitle('Joined a Server')
+			.setColor('RED')
+			.setTitle('Left a Server')
 			.addField(
 				'Information',
 				stripIndents`
 			**Member Count**: \`${guild.memberCount}\`
-			**Created**: ${createdAgo}
+			**Duration Joined**: ${prettyMilliseconds(durationJoined, { verbose: true })}
 			**Owner**: ${owner} \`[${owner?.tag}]\`
-
-			**Bot Count**: \`${guild.members.cache.filter(m => m.user.bot).size}\`
 		  `,
 			)
 			.setDescription(`${guild.name} \`[${guild.id}]\``)

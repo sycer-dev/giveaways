@@ -1,15 +1,16 @@
 import { Listener } from 'discord-akairo';
+import { Constants } from 'discord.js';
 
 export default class DebugListener extends Listener {
 	public constructor() {
-		super('debug', {
+		super(Constants.Events.DEBUG, {
 			category: 'client',
 			emitter: 'client',
-			event: 'debug',
+			event: Constants.Events.DEBUG,
 		});
 	}
 
-	public exec(event: any): void {
-		this.client.logger.debug(`[DEBUG]: ${event}`);
+	public exec(info: string): void {
+		this.client.logger.debug(`[DEBUG]: ${info}`);
 	}
 }

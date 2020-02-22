@@ -1,12 +1,12 @@
 import { Listener } from 'discord-akairo';
-import { Message } from 'discord.js';
+import { Message, Constants } from 'discord.js';
 
 export default class MessageDeleteListener extends Listener {
 	public constructor() {
-		super('messageDelete', {
+		super(Constants.Events.MESSAGE_DELETE, {
 			category: 'client',
 			emitter: 'client',
-			event: 'messageDelete',
+			event: Constants.Events.MESSAGE_DELETE,
 		});
 	}
 

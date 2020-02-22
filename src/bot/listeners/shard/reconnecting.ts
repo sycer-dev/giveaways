@@ -1,11 +1,12 @@
 import { Listener } from 'discord-akairo';
+import { Constants } from 'discord.js';
 
 export default class ShardReconnectingListener extends Listener {
 	public constructor() {
-		super('shardReconnecting', {
+		super(Constants.Events.SHARD_RECONNECTING, {
 			category: 'shard',
 			emitter: 'shard',
-			event: 'shardReconnecting',
+			event: Constants.Events.SHARD_RECONNECTING,
 		});
 	}
 

@@ -41,7 +41,7 @@ export default class SettingsProvider {
 
 	/**
 	 * Retuns all the collection caches.
-	 * @returns {[key: string]: Collection<string, Model<any>}
+	 * @returns {Object}
 	 */
 	public get cache() {
 		return {

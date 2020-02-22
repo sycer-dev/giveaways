@@ -1,4 +1,4 @@
-import { Listener, Command } from 'discord-akairo';
+import { Listener, Command, Constants } from 'discord-akairo';
 import { Message, User, TextChannel } from 'discord.js';
 
 export interface MISSING {
@@ -12,10 +12,10 @@ const MISSING: MISSING = {
 
 export default class MissingPermissionsListener extends Listener {
 	public constructor() {
-		super('missingPermissions', {
+		super(Constants.CommandHandlerEvents.MISSING_PERMISSIONS, {
 			category: 'commandHandler',
 			emitter: 'commandHandler',
-			event: 'missingPermissions',
+			event: Constants.CommandHandlerEvents.MISSING_PERMISSIONS,
 		});
 	}
 
