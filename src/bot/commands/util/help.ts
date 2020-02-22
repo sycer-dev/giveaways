@@ -1,6 +1,6 @@
 import { stripIndents } from 'common-tags';
 import { Argument, Category, Command, PrefixSupplier } from 'discord-akairo';
-import { Message } from 'discord.js';
+import { Message, Permissions } from 'discord.js';
 
 export interface Emojis {
 	[key: string]: string;
@@ -22,7 +22,7 @@ export default class HelpCommand extends Command {
 				usage: '[command]',
 				examples: ['', 'ebay', 'size'],
 			},
-			clientPermissions: ['EMBED_LINKS'],
+			clientPermissions: [Permissions.FLAGS.EMBED_LINKS],
 			args: [
 				{
 					id: 'arg',
@@ -63,7 +63,7 @@ export default class HelpCommand extends Command {
 					.map(cmd => `\`${cmd.aliases[0]}\``)
 					.join(', ');
 				embed.addField(
-					`\`${EMOJIS[category.id.toUpperCase()]}\` ${category.id.replace(/(\b\w)/gi, lc => lc.toUpperCase())}`,
+					`${EMOJIS[category.id.toUpperCase()]} ${category.id.replace(/(\b\w)/gi, lc => lc.toUpperCase())}`,
 					commands,
 				);
 			}
@@ -75,12 +75,12 @@ export default class HelpCommand extends Command {
 				.embed()
 				.setColor(msg.guild?.me?.displayColor || this.client.config.color)
 				.setTitle(`\`${arg.aliases[0]} ${arg.description.usage ? arg.description.usage : ''}\``)
-				.addField('🎉 Description', arg.description.content || '\u200b');
+				.addField('Description', arg.description.content || '\u200b');
 
-			if (arg.aliases.length > 1) embed.addField('🎉 Aliases', `\`${arg.aliases.join('`, `')}\``);
+			if (arg.aliases.length > 1) embed.addField('Aliases', `\`${arg.aliases.join('`, `')}\``);
 			if (arg.description.examples && arg.description.examples.length)
 				embed.addField(
-					'🎉 Examples',
+					'Examples',
 					`\`${arg.aliases[0]} ${arg.description.examples.join(`\`\n\`${arg.aliases[0]} `)}\``,
 				);
 

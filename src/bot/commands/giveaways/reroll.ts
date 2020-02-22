@@ -1,5 +1,5 @@
 import { Command } from 'discord-akairo';
-import { Message, TextChannel, User } from 'discord.js';
+import { Message, TextChannel, User, Permissions } from 'discord.js';
 
 export default class ManagerRole extends Command {
 	public constructor() {
@@ -33,14 +33,17 @@ export default class ManagerRole extends Command {
 
 	// @ts-ignore
 	public userPermissions(msg: Message): string | null {
-		const guild = this.client.settings.guild.get(msg.guild!.id);
-		if (msg.member!.permissions.has('MANAGE_GUILD') || (guild && msg.member!.roles.cache.has(guild.manager)))
+		const guild = this.client.settings.cache.guilds.get(msg.guild!.id);
+		if (
+			msg.member!.permissions.has(Permissions.FLAGS.MANAGE_GUILD) ||
+			(guild && msg.member!.roles.cache.has(guild.manager))
+		)
 			return null;
 		return 'notMaster';
 	}
 
 	public async exec(msg: Message, { count }: { count: number }): Promise<Message | Message[] | void> {
-		const giveaways = this.client.settings.giveaway.filter(
+		const giveaways = this.client.settings.cache.giveaways.filter(
 			g => g.complete && g.channelID === msg.channel.id && !g.fcfs && !g.maxEntries,
 		);
 		if (!giveaways.size) return msg.util?.reply("sorry! I couldn't find any ended giveaways in this channel");
@@ -70,7 +73,7 @@ export default class ManagerRole extends Command {
 		}
 
 		return msg.channel.send(
-			`🎲 Congratz ${winners
+			`🎲 Congratulations ${winners
 				.map(g => g.toString())
 				.join(', ')
 				.substring(0, 1800)}! You won the giveaway for *${g.title}* on a reroll!`,

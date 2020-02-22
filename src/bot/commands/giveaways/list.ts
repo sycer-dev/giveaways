@@ -15,14 +15,14 @@ export default class ListCommand extends Command {
 
 	// @ts-ignore
 	public userPermissions(msg: Message): string | null {
-		const guild = this.client.settings.guild.get(msg.guild!.id);
+		const guild = this.client.settings.cache.guilds.get(msg.guild!.id);
 		if (msg.member!.permissions.has('MANAGE_GUILD') || (guild && msg.member!.roles.cache.has(guild.manager)))
 			return null;
 		return 'notMaster';
 	}
 
 	public async exec(msg: Message): Promise<Message | Message[] | void> {
-		const giveaways = this.client.settings.giveaway.filter(g => !g.complete && g.guildID === msg.guild!.id);
+		const giveaways = this.client.settings.cache.giveaways.filter(g => !g.complete && g.guildID === msg.guild!.id);
 		if (!giveaways.size) return msg.util?.reply("sorry! I couldn't find any ongoing giveaways.");
 
 		const gs = giveaways.array().map((g, i) => {

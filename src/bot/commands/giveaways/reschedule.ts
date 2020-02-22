@@ -1,5 +1,5 @@
 import { Command } from 'discord-akairo';
-import { Message } from 'discord.js';
+import { Message, Permissions } from 'discord.js';
 import ms from 'ms';
 import prettyMilliseconds from 'pretty-ms';
 import { Giveaway } from '../../models/Giveaway';
@@ -20,7 +20,9 @@ export default class RescheduleCommand extends Command {
 					id: 'giveaway',
 					type: (msg: Message, str: string): Giveaway | null => {
 						if (str) {
-							const doc = this.client.settings.giveaway.find(g => g.messageID === str && g.guildID === msg.guild?.id);
+							const doc = this.client.settings.cache.giveaways.find(
+								g => g.messageID === str && g.guildID === msg.guild?.id,
+							);
 							if (doc) return doc;
 						}
 						return null;
@@ -49,8 +51,11 @@ export default class RescheduleCommand extends Command {
 
 	// @ts-ignore
 	public userPermissions(msg: Message): string | null {
-		const guild = this.client.settings.guild.get(msg.guild!.id);
-		if (msg.member!.permissions.has('MANAGE_GUILD') || (guild && msg.member!.roles.cache.has(guild.manager)))
+		const guild = this.client.settings.cache.guilds.get(msg.guild!.id);
+		if (
+			msg.member!.permissions.has(Permissions.FLAGS.MANAGE_GUILD) ||
+			(guild && msg.member!.roles.cache.has(guild.manager))
+		)
 			return null;
 		return 'notMaster';
 	}

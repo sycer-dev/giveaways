@@ -13,11 +13,13 @@ export interface DBLVote {
 }
 
 export default class VoteHandler {
-	protected client: GiveawayClient;
+	protected readonly client: GiveawayClient;
 
-	protected rate: number;
+	protected readonly rate: number;
 
 	protected interval!: NodeJS.Timeout;
+
+	private dbl: any;
 
 	public constructor(client: GiveawayClient, { rate = 1000 * 60 } = {}) {
 		this.client = client;
@@ -145,7 +147,7 @@ export default class VoteHandler {
 		this._check();
 		this.interval = this.client.setInterval(this._check.bind(this), this.rate);
 
-		const manager = new DBL(
+		this.dbl = new DBL(
 			process.env.DBL_TOKEN,
 			{
 				port: 5329,
@@ -154,11 +156,11 @@ export default class VoteHandler {
 			this.client,
 		);
 
-		manager.on('vote', (vote: DBLVote) => this._vote(vote));
+		this.dbl.on('vote', (vote: DBLVote) => this._vote(vote));
 	}
 
 	private _check(): void {
-		const guilds = this.client.settings.guild;
+		const guilds = this.client.settings.cache.guilds;
 		const now = Date.now();
 		this.client.logger.info(`[VOTE MANAGER] Checking ${guilds.size} guilds for votes.`);
 		for (const g of guilds.values()) {

@@ -5,10 +5,10 @@ import { createLogger, format, Logger, transports } from 'winston';
 import GiveawayHandler from './GiveawayHandler';
 import { LoggerConfig } from './LoggerConfig';
 import VoteHandler from './VoteHandler';
-import SettingsProvider from './SettingsProvider';
 import { register, Gauge, Registry } from 'prom-client';
 import { createServer, Server } from 'http';
 import { parse } from 'url';
+import SettingsProvider from '../../database/structures/SettingsProvider';
 
 declare module 'discord-akairo' {
 	interface AkairoClient {
@@ -83,7 +83,7 @@ export default class GiveawayClient extends AkairoClient {
 		directory: join(__dirname, '..', 'commands'),
 		prefix: (msg: Message): string => {
 			if (msg.guild) {
-				const req = this.settings.guild.get(msg.guild.id);
+				const req = this.settings.cache.guilds.get(msg.guild.id);
 				return req?.prefix!;
 			}
 			return 'g';

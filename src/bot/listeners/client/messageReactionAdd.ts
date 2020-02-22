@@ -17,7 +17,7 @@ export default class MessageReactionAddListener extends Listener {
 		if (msg.partial) await msg.fetch();
 		if (!msg.guild || user.bot) return;
 
-		const doc = this.client.settings.giveaway.find(g => g.messageID === msg.id);
+		const doc = this.client.settings.cache.giveaways.find(g => g.messageID === msg.id);
 		if (doc && !doc.complete && doc.maxEntries && [reaction.emoji.id, reaction.emoji.name].includes(doc.emoji))
 			return this.handleMax(reaction, user, doc);
 		if (!doc || doc.complete || !doc.fcfs || ![reaction.emoji.id, reaction.emoji.name].includes(doc.emoji)) return;

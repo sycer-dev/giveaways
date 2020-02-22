@@ -1,8 +1,8 @@
 import { Command } from 'discord-akairo';
-import { Message, TextChannel } from 'discord.js';
+import { Message, TextChannel, Permissions } from 'discord.js';
 import * as nodemoji from 'node-emoji';
 import prettyMilliseconds from 'pretty-ms';
-const ms = require('ms'); // eslint-disable-line
+import ms from 'ms';
 
 export interface Entries {
 	string: string;
@@ -95,8 +95,11 @@ export default class Giveaways extends Command {
 
 	// @ts-ignore
 	public userPermissions(msg: Message): string | null {
-		const guild = this.client.settings.guild.get(msg.guild!.id);
-		if (msg.member!.permissions.has('MANAGE_GUILD') || (guild && msg.member!.roles.cache.has(guild.manager)))
+		const guild = this.client.settings.cache.guilds.get(msg.guild!.id);
+		if (
+			msg.member!.permissions.has(Permissions.FLAGS.MANAGE_GUILD) ||
+			(guild && msg.member!.roles.cache.has(guild.manager))
+		)
 			return null;
 		return 'notMaster';
 	}

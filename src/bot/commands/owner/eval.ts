@@ -23,7 +23,6 @@ export default class EvalCommand extends Command {
 					match: 'flag',
 				},
 			],
-			clientPermissions: ['SEND_MESSAGES'],
 			description: {
 				content: 'Evaluate JavaScript code.',
 			},

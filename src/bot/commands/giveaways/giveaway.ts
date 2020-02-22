@@ -53,14 +53,17 @@ export default class Giveaways extends Command {
 
 	// @ts-ignore
 	public userPermissions(msg: Message): string | null {
-		const guild = this.client.settings.guild.get(msg.guild!.id);
-		if (msg.member!.permissions.has('MANAGE_GUILD') || (guild && msg.member!.roles.cache.has(guild.manager)))
+		const guild = this.client.settings.cache.guilds.get(msg.guild!.id);
+		if (
+			msg.member!.permissions.has(Permissions.FLAGS.MANAGE_GUILD) ||
+			(guild && msg.member!.roles.cache.has(guild.manager))
+		)
 			return null;
 		return 'notMaster';
 	}
 
 	public async exec(msg: Message, { type }: { type: string }): Promise<Message | Message[] | void> {
-		const guild = this.client.settings.guild.get(msg.guild!.id);
+		const guild = this.client.settings.cache.guilds.get(msg.guild!.id);
 		const preifx = (this.handler.prefix as PrefixSupplier)(msg);
 		if (type === '1') {
 			return this.tierOne(msg);

@@ -1,5 +1,5 @@
 import { Command, PrefixSupplier } from 'discord-akairo';
-import { Message } from 'discord.js';
+import { Message, Permissions } from 'discord.js';
 import { stripIndents } from 'common-tags';
 
 export default class GuideCommand extends Command {
@@ -10,6 +10,7 @@ export default class GuideCommand extends Command {
 				content: 'Returns a guide explaining how to use the bot.',
 			},
 			category: 'utilities',
+			clientPermissions: [Permissions.FLAGS.EMBED_LINKS],
 		});
 	}
 

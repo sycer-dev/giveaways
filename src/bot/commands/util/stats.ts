@@ -1,6 +1,6 @@
-import { Command, version as akairoversion } from 'discord-akairo';
-import { Message, version as djsversion } from 'discord.js';
 import { stripIndents } from 'common-tags';
+import { Command, version as akairoversion } from 'discord-akairo';
+import { Message, Permissions, version as djsversion } from 'discord.js';
 import * as moment from 'moment';
 import 'moment-duration-format';
 
@@ -8,11 +8,11 @@ export default class StatsCommand extends Command {
 	public constructor() {
 		super('stats', {
 			aliases: ['stats', 'uptime'],
-			clientPermissions: ['EMBED_LINKS'],
 			description: {
 				content: 'Provides some stats on the bot.',
 			},
 			category: 'utilities',
+			clientPermissions: [Permissions.FLAGS.EMBED_LINKS],
 		});
 	}
 
@@ -37,8 +37,8 @@ export default class StatsCommand extends Command {
 			.addField(
 				'🔢 Giveaway Stats',
 				stripIndents`
-				• Current: ${this.client.settings.giveaway.filter(r => !r.complete).size}
-				• Lifetime: ${this.client.settings.giveaway.size}
+				• Current: ${this.client.settings.cache.giveaways.filter(r => !r.complete).size}
+				• Lifetime: ${this.client.settings.cache.giveaways.size}
 			`,
 			)
 			.addField(

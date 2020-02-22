@@ -31,12 +31,13 @@ export default class GiveawayHandler {
 		if (!reaction) return;
 
 		const users = await reaction.users.fetch();
+		const members = await message.guild!.members.fetch();
 		const list = users.array().filter(u => u.id !== message!.author.id);
 		const used: string[] = [];
 		if (g.boosted!.length) {
 			const boosts = g.boosted!.sort((a, b) => b.entries - a.entries);
 			for (const b of boosts) {
-				for (const [id, m] of await message.guild!.members.fetch()) {
+				for (const [id, m] of members.cache) {
 					if (!m.roles.cache.has(b.string)) continue;
 					if (!used.includes(id)) {
 						for (let i = 0; i < b.entries; i++) list.push(m.user);
@@ -121,7 +122,7 @@ export default class GiveawayHandler {
 	}
 
 	private _check(): void {
-		const giveaways = this.client.settings.giveaway.filter(g => !g.fcfs && !g.complete && !g.maxEntries);
+		const giveaways = this.client.settings.cache.giveaways.filter(g => !g.fcfs && !g.complete && !g.maxEntries);
 		const now = Date.now();
 		if (giveaways.size === 0) return;
 		for (const g of giveaways.values()) {
