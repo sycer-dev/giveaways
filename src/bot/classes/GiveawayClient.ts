@@ -1,32 +1,33 @@
 import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler } from 'discord-akairo';
-import { Message } from 'discord.js';
+import { ColorResolvable, Message, WebhookClient } from 'discord.js';
+import { createServer, Server } from 'http';
 import { join } from 'path';
+import { Gauge, register, Registry } from 'prom-client';
+import { parse } from 'url';
 import { createLogger, format, Logger, transports } from 'winston';
+import SettingsProvider from '../../database/structures/SettingsProvider';
 import GiveawayHandler from './GiveawayHandler';
 import { LoggerConfig } from './LoggerConfig';
 import VoteHandler from './VoteHandler';
-import { register, Gauge, Registry } from 'prom-client';
-import { createServer, Server } from 'http';
-import { parse } from 'url';
-import SettingsProvider from '../../database/structures/SettingsProvider';
 
 declare module 'discord-akairo' {
 	interface AkairoClient {
 		logger: Logger;
 		commandHandler: CommandHandler;
 		config: GiveawayOpts;
+		devlog: WebhookClient;
 		settings: SettingsProvider;
 		giveawayHandler: GiveawayHandler;
 		voteHandler: VoteHandler;
 		prometheus: {
-			messageCounter: Gauge;
-			userCounter: Gauge;
-			guildCounter: Gauge;
-			giveawayCounter: Gauge;
-			activeGiveawaysCounter: Gauge;
-			completedGiveawaysCounter: Gauge;
-			commandCounter: Gauge;
-			eventCounter: Gauge;
+			messageCounter: Gauge<string>;
+			userCounter: Gauge<string>;
+			guildCounter: Gauge<string>;
+			giveawayCounter: Gauge<string>;
+			activeGiveawaysCounter: Gauge<string>;
+			completedGiveawaysCounter: Gauge<string>;
+			commandCounter: Gauge<string>;
+			eventCounter: Gauge<string>;
 
 			register: Registry;
 		};
@@ -38,7 +39,7 @@ declare module 'discord-akairo' {
 interface GiveawayOpts {
 	token: string;
 	owners: string | string[];
-	color: number;
+	color: ColorResolvable;
 }
 
 export default class GiveawayClient extends AkairoClient {
@@ -57,7 +58,9 @@ export default class GiveawayClient extends AkairoClient {
 		);
 	}
 
-	public config: GiveawayOpts;
+	public readonly config: GiveawayOpts;
+
+	public readonly devlog: WebhookClient = new WebhookClient(process.env.LOG_ID!, process.env.LOG_TOKEN!);
 
 	public logger: Logger = createLogger({
 		levels: LoggerConfig.levels,
