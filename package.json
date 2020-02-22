@@ -1,6 +1,6 @@
 {
     "name": "giveaways",
-    "version": "1.0.4",
+    "version": "2.0.0",
     "description": "A feature dense Discord Giveaways bot 🎉",
     "main": "build/giveaways.js",
     "scripts": {
