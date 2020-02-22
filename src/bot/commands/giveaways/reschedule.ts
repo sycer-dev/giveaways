@@ -2,7 +2,7 @@ import { Command } from 'discord-akairo';
 import { Message, Permissions } from 'discord.js';
 import ms from 'ms';
 import prettyMilliseconds from 'pretty-ms';
-import { Giveaway } from '../../models/Giveaway';
+import { Giveaway } from '../../../database/models/Giveaway';
 
 export default class RescheduleCommand extends Command {
 	public constructor() {

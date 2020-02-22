@@ -1,14 +1,14 @@
 import { Listener } from 'discord-akairo';
-import { User, MessageReaction, TextChannel } from 'discord.js';
+import { User, MessageReaction, TextChannel, Constants } from 'discord.js';
 import { stripIndents } from 'common-tags';
-import { Giveaway } from '../../models/Giveaway';
+import { Giveaway } from '../../../database/models/Giveaway';
 
 export default class MessageReactionAddListener extends Listener {
 	public constructor() {
-		super('messageReactionAdd', {
+		super(Constants.Events.MESSAGE_REACTION_ADD, {
 			category: 'client',
 			emitter: 'client',
-			event: 'messageReactionAdd',
+			event: Constants.Events.MESSAGE_REACTION_ADD,
 		});
 	}
 

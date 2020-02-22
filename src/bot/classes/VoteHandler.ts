@@ -1,7 +1,7 @@
 const DBL = require('new-dblapi'); // eslint-disable-line
-import { Guild } from '../models/Guild';
-import { Snowflake, Message, Guild as DiscordGuild, WebhookClient } from 'discord.js';
 import { stripIndents } from 'common-tags';
+import { Guild as DiscordGuild, Message, Snowflake, WebhookClient } from 'discord.js';
+import { Guild } from '../../database/models/Guild';
 import GiveawayClient from './GiveawayClient';
 
 export interface DBLVote {

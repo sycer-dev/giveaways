@@ -1,5 +1,5 @@
 import GiveawayClient from './GiveawayClient';
-import { Giveaway } from '../models/Giveaway';
+import { Giveaway } from '../../database/models/Giveaway';
 import { TextChannel, User, Message } from 'discord.js';
 import prettyMS from 'pretty-ms';
 
@@ -37,7 +37,7 @@ export default class GiveawayHandler {
 		if (g.boosted!.length) {
 			const boosts = g.boosted!.sort((a, b) => b.entries - a.entries);
 			for (const b of boosts) {
-				for (const [id, m] of members.cache) {
+				for (const [id, m] of members) {
 					if (!m.roles.cache.has(b.string)) continue;
 					if (!used.includes(id)) {
 						for (let i = 0; i < b.entries; i++) list.push(m.user);
