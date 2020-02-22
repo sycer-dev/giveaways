@@ -16,26 +16,26 @@
     "dependencies": {
         "common-tags": "^1.8.0",
         "discord-akairo": "github:discord-akairo/discord-akairo",
-        "discord.js": "discordjs/discord.js",
+        "discord.js": "discordjs/discord.js#master",
         "moment": "^2.24.0",
         "moment-duration-format": "^2.3.2",
-        "mongoose": "^5.9.1",
+        "mongoose": "^5.9.2",
         "ms": "^2.1.2",
         "new-dblapi": "^2.2.0",
         "node-emoji": "^1.10.0",
         "pretty-ms": "^6.0.0",
-        "prom-client": "^11.5.3"
+        "prom-client": "^12.0.0"
     },
     "devDependencies": {
         "@types/common-tags": "^1.8.0",
         "@types/moment-duration-format": "^2.2.2",
         "@types/mongoose": "^5.7.1",
         "@types/ms": "^0.7.31",
-        "@types/node": "^13.7.1",
+        "@types/node": "^13.7.4",
         "@types/node-emoji": "^1.8.1",
         "@types/ws": "^7.2.1",
-        "@typescript-eslint/eslint-plugin": "^2.19.2",
-        "@typescript-eslint/parser": "^2.19.2",
+        "@typescript-eslint/eslint-plugin": "^2.20.0",
+        "@typescript-eslint/parser": "^2.20.0",
         "dotenv": "^8.1.0",
         "eslint": "^6.8.0",
         "eslint-config-marine": "^6.0.0",
@@ -44,7 +44,7 @@
         "prettier": "^1.19.1",
         "rimraf": "^3.0.2",
         "ts-node": "^8.6.1",
-        "typescript": "^3.7.4",
+        "typescript": "^3.8.2",
         "winston": "^3.2.1"
     },
     "optionalDependencies": {
