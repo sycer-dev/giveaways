@@ -14,9 +14,12 @@
     "author": "Carter Himmel <fyko@sycer.dev>",
     "license": "GPL-3.0",
     "dependencies": {
+        "@commitlint/cli": "^8.3.5",
+        "@commitlint/config-angular": "^8.3.4",
         "common-tags": "^1.8.0",
         "discord-akairo": "github:discord-akairo/discord-akairo",
         "discord.js": "discordjs/discord.js#master",
+        "husky": "^4.2.3",
         "moment": "^2.24.0",
         "moment-duration-format": "^2.3.2",
         "mongoose": "^5.9.2",
@@ -59,6 +62,36 @@
             "comma-dangle": [
                 "error",
                 "always-multiline"
+            ]
+        }
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "npm test",
+            "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+        }
+    },
+    "commitlint": {
+        "extends": [
+            "@commitlint/config-angular"
+        ],
+        "rules": {
+            "type-enum": [
+                2,
+                "always",
+                [
+                    "chore",
+                    "build",
+                    "ci",
+                    "docs",
+                    "feat",
+                    "fix",
+                    "perf",
+                    "refactor",
+                    "revert",
+                    "style",
+                    "test"
+                ]
             ]
         }
     }
