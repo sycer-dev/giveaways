@@ -33,6 +33,6 @@ ENV ID= \
 	LOG_ID= \
 	LOG_TOKEN=
 
-RUN pnpm build
+RUN pnpm run build
 CMD ["node", "."]
 
