@@ -4,7 +4,7 @@ import GiveawayModel, { Giveaway } from '../models/Giveaway';
 import GuildModel, { Guild } from '../models/Guild';
 import { Logger } from 'winston';
 import { MONGO_EVENTS } from '../util/constants';
-import GiveawayClient from '../../bot/classes/GiveawayClient';
+import GiveawayClient from '../../bot/client/GiveawayClient';
 
 let i = 0;
 
@@ -57,7 +57,7 @@ export default class SettingsProvider {
 	public get combos(): Combo[] {
 		return [
 			{
-				key: 'giveaways',
+				key: 'giveaway',
 				model: this.GiveawayModel,
 				cache: this.giveaways,
 			},

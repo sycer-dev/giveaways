@@ -58,14 +58,14 @@ export default class HelpCommand extends Command {
 
 			for (const category of this.handler.categories.values()) {
 				if (category.id === 'owner' && !this.client.ownerID.includes(msg.author.id)) continue;
-				const commands = category
+				const value = category
 					.filter(c => c.aliases.length > 0)
 					.map(cmd => `\`${cmd.aliases[0]}\``)
 					.join(', ');
-				embed.addField(
-					`${EMOJIS[category.id.toUpperCase()]} ${category.id.replace(/(\b\w)/gi, lc => lc.toUpperCase())}`,
-					commands,
-				);
+				embed.addFields({
+					name: `${EMOJIS[category.id.toUpperCase()]} ${category.id.replace(/(\b\w)/gi, lc => lc.toUpperCase())}`,
+					value,
+				});
 			}
 
 			return msg.util?.send({ embed });
@@ -75,14 +75,14 @@ export default class HelpCommand extends Command {
 				.embed()
 				.setColor(msg.guild?.me?.displayColor || this.client.config.color)
 				.setTitle(`\`${arg.aliases[0]} ${arg.description.usage ? arg.description.usage : ''}\``)
-				.addField('Description', arg.description.content || '\u200b');
+				.addFields({ name: 'Description', value: arg.description.content || '\u200b' });
 
-			if (arg.aliases.length > 1) embed.addField('Aliases', `\`${arg.aliases.join('`, `')}\``);
+			if (arg.aliases.length > 1) embed.addFields({ name: 'Aliases', value: `\`${arg.aliases.join('`, `')}\`` });
 			if (arg.description.examples && arg.description.examples.length)
-				embed.addField(
-					'Examples',
-					`\`${arg.aliases[0]} ${arg.description.examples.join(`\`\n\`${arg.aliases[0]} `)}\``,
-				);
+				embed.addFields({
+					name: 'Examples',
+					value: `\`${arg.aliases[0]} ${arg.description.examples.join(`\`\n\`${arg.aliases[0]} `)}\``,
+				});
 
 			return msg.util?.send({ embed });
 		}
@@ -95,7 +95,7 @@ export default class HelpCommand extends Command {
 				This is a list of all commands within the \`${name}\` category.
 				For more info on a command, type \`${prefix}help <command>\`
 			`);
-		const commands = arg
+		const value = arg
 			.array()
 			.filter(c => c.aliases.length > 0)
 			.map(
@@ -107,7 +107,7 @@ export default class HelpCommand extends Command {
 					}`,
 			)
 			.join('\n');
-		embed.addField('Commands', commands);
+		embed.addFields({ name: 'Commands', value });
 		return msg.util?.send({ embed });
 	}
 }

@@ -26,16 +26,16 @@ export default class GuildCreateListener extends Listener {
 			.embed()
 			.setColor('GREEN')
 			.setTitle('Joined a Server')
-			.addField(
-				'Information',
-				stripIndents`
-			**Member Count**: \`${guild.memberCount}\`
-			**Created**: ${createdAgo}
-			**Owner**: ${owner} \`[${owner?.tag}]\`
+			.addFields({
+				name: 'Information',
+				value: stripIndents`
+		**Member Count**: \`${guild.memberCount}\`
+		**Created**: ${createdAgo}
+		**Owner**: ${owner} \`[${owner?.tag}]\`
 
-			**Bot Count**: \`${guild.members.cache.filter(m => m.user.bot).size}\`
-		  `,
-			)
+		**Bot Count**: \`${guild.members.cache.filter(m => m.user.bot).size}\`
+	  `,
+			})
 			.setDescription(`${guild.name} \`[${guild.id}]\``)
 			.setTimestamp();
 		if (guild.icon) embed.setThumbnail(guild.iconURL({ size: 2048, dynamic: true })!);

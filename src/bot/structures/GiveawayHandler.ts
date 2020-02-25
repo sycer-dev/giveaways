@@ -1,4 +1,4 @@
-import GiveawayClient from './GiveawayClient';
+import GiveawayClient from '../client/GiveawayClient';
 import { Giveaway } from '../../database/models/Giveaway';
 import { TextChannel, User, Message } from 'discord.js';
 import prettyMS from 'pretty-ms';
@@ -10,12 +10,11 @@ export default class GiveawayHandler {
 
 	protected interval!: NodeJS.Timeout;
 
-	public waiting: Set<string>;
+	public waiting: Set<string> = new Set();
 
-	public constructor(client: GiveawayClient, { rate = 1000 * 60 } = {}) {
+	public constructor(client: GiveawayClient, { rate = 1000 * 15 } = {}) {
 		this.client = client;
 		this.rate = rate;
-		this.waiting = new Set();
 	}
 
 	public async end(g: Giveaway): Promise<Message | Message[] | void> {
@@ -51,6 +50,7 @@ export default class GiveawayHandler {
 			.embed()
 			.setColor(3553599)
 			.setTimestamp();
+		if (message?.embeds?.length) embed.setTitle(message.embeds[0].title);
 		if (!list.length) {
 			embed.setFooter('Ended at').setDescription('No winners! 😒');
 			if (message.editable) return message.edit({ content: '🎉 **GIVEAWAY ENDED** 🎉', embed });
@@ -95,6 +95,7 @@ export default class GiveawayHandler {
 			embed.fields[index] = {
 				name: 'Time Remaining',
 				value: `\`${prettyMS(g.endsAt.getTime() - Date.now(), { verbose: true })}\``,
+				inline: false,
 			};
 		}
 		if (message.editable) message.edit({ embed });

@@ -23,14 +23,14 @@ export default class GuildDeleteListener extends Listener {
 			.embed()
 			.setColor('RED')
 			.setTitle('Left a Server')
-			.addField(
-				'Information',
-				stripIndents`
+			.addFields({
+				name: 'Information',
+				value: stripIndents`
 			**Member Count**: \`${guild.memberCount}\`
 			**Duration Joined**: ${prettyMilliseconds(durationJoined, { verbose: true })}
 			**Owner**: ${owner} \`[${owner?.tag}]\`
 		  `,
-			)
+			})
 			.setDescription(`${guild.name} \`[${guild.id}]\``)
 			.setTimestamp();
 		if (guild.icon) embed.setThumbnail(guild.iconURL({ size: 2048, dynamic: true })!);

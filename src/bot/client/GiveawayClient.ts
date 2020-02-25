@@ -6,9 +6,9 @@ import { Gauge, register, Registry } from 'prom-client';
 import { parse } from 'url';
 import { createLogger, format, Logger, transports } from 'winston';
 import SettingsProvider from '../../database/structures/SettingsProvider';
-import GiveawayHandler from './GiveawayHandler';
-import { LoggerConfig } from './LoggerConfig';
-import VoteHandler from './VoteHandler';
+import GiveawayHandler from '../structures/GiveawayHandler';
+import { LoggerConfig } from '../structures/LoggerConfig';
+import VoteHandler from '../structures/VoteHandler';
 
 declare module 'discord-akairo' {
 	interface AkairoClient {
