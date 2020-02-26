@@ -1,18 +1,23 @@
 FROM node:12-alpine
 
 LABEL name "Giveaway Bot"
-LABEL version "1.0.3"
+LABEL version "1.0.4"
 LABEL maintainer "Carter Himmel <fyko@sycer.dev>"
+EXPOSE 5329
+
 WORKDIR /usr/giveaways
-COPY package.json yarn.lock .yarnclean ./
+
+COPY package.json pnpm-lock.yaml ./
+
 RUN apk add --update \
 && apk add --no-cache ca-certificates \
 && apk add --no-cache --virtual .build-deps git curl build-base python g++ make \
-&& yarn install --ignore-engines \
+&& curl -L https://unpkg.com/@pnpm/self-installer | node \
+&& pnpm i \
 && apk del .build-deps
+
 COPY . .
-RUN yarn build
-EXPOSE 5329
+
 ENV ID= \
 	DISCORD_TOKEN= \
 	OWNERS= \
@@ -27,5 +32,7 @@ ENV ID= \
 	VOTE_TOKEN= \
 	LOG_ID= \
 	LOG_TOKEN=
+
+RUN pnpm run build
 CMD ["node", "."]
 

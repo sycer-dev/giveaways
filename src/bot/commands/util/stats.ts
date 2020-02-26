@@ -24,32 +24,33 @@ export default class StatsCommand extends Command {
 			.embed()
 			.setTitle(`${this.client.user!.username} Stats`)
 			.setThumbnail(this.client.user!.displayAvatarURL())
-			.addField('⏰ Uptime', duration)
-			.addField('💾 Memory Usage', `${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)}MB`)
-			.addField(
-				'📊 General Stats',
-				stripIndents`
-				• Servers: ${this.client.guilds.cache.size.toLocaleString('en-US')}
-				• Channels: ${this.client.channels.cache.size.toLocaleString('en-US')}
-				• Users: ${this.client.guilds.cache.reduce((prev, val) => prev + val.memberCount, 0).toLocaleString('en-US')}
-			`,
+			.addFields(
+				{ name: '⏰ Uptime', value: duration },
+				{ name: '💾 Memory Usage', value: `${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)}MB` },
+				{
+					name: '📊 General Stats',
+					value: stripIndents`
+						• Servers: ${this.client.guilds.cache.size.toLocaleString('en-US')}
+						• Channels: ${this.client.channels.cache.size.toLocaleString('en-US')}
+						• Users: ${this.client.guilds.cache.reduce((prev, val) => prev + val.memberCount, 0).toLocaleString('en-US')}
+					`,
+				},
+				{
+					name: '🔢 Giveaway Stats',
+					value: stripIndents`
+						• Current: ${this.client.settings.cache.giveaways.filter(r => !r.complete).size}
+						• Lifetime: ${this.client.settings.cache.giveaways.size}
+					`,
+				},
+				{
+					name: '`📚` Library Info',
+					value: stripIndents`
+							[Akairo Framework](https://discord-akairo.github.io/#/): ${akairoversion}
+							[Discord.js](https://discord.js.org/#/): ${djsversion}
+					`,
+				},
+				{ name: '👨‍💻 Lead Developer', value: `${owner.toString()} \`[${owner.tag}]\`` },
 			)
-			.addField(
-				'🔢 Giveaway Stats',
-				stripIndents`
-				• Current: ${this.client.settings.cache.giveaways.filter(r => !r.complete).size}
-				• Lifetime: ${this.client.settings.cache.giveaways.size}
-			`,
-			)
-			.addField(
-				'`📚` Library Info',
-				stripIndents`
-                    [Akairo Framework](https://discord-akairo.github.io/#/): ${akairoversion}
-                    [Discord.js](https://discord.js.org/#/): ${djsversion}
-        	`,
-				true,
-			)
-			.addField('👨‍💻 Lead Developer', `${owner.toString()} \`[${owner.tag}]\``, true)
 			.setColor(msg.guild ? msg.guild.me!.displayColor || this.client.config.color : this.client.config.color);
 		return msg.util?.send({ embed });
 	}

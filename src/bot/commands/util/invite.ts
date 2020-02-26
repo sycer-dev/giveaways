@@ -18,7 +18,7 @@ export default class InviteCommand extends Command {
 		const embed = this.client.util.embed().setColor(msg.guild?.me?.displayColor || this.client.config.color)
 			.setDescription(stripIndents`
                 You can invite **${
-									this.client.user!.username
+									this.client.user?.username
 								}** to your server with [this](${await this.client.generateInvite(346176)}) link!
                 You can join our **Support Server** by clicking [this link](https://fyko.net/discord)!
             `);

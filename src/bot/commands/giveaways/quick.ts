@@ -120,8 +120,13 @@ export default class Giveaways extends Command {
 			.setFooter(`${winnerCount} Winner${winnerCount === 1 ? '' : 's'} • Ends at`)
 			.setTimestamp(new Date(Date.now() + duration))
 			.setTitle(title)
-			.addField('Time Remaining', `\`${prettyMilliseconds(duration, { verbose: true })}\``)
-			.addField('Host', `${msg.author} [\`${msg.author.tag}\`]`)
+			.addFields(
+				{ name: 'Time Remaining', value: `\`${prettyMilliseconds(duration, { verbose: true })}\`` },
+				{
+					name: 'Host',
+					value: `${msg.author} [\`${msg.author.tag}\`]`,
+				},
+			)
 			.setDescription(`React with ${this.client.emojis.cache.get(emoji) || emoji} to enter!`);
 		const m = await channel.send('🎉 **GIVEAWAY** 🎉', { embed });
 		await this.client.settings.new('giveaway', {

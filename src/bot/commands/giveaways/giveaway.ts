@@ -152,34 +152,36 @@ export default class Giveaways extends Command {
 			const embed = this.client.util
 				.embed()
 				.setColor(msg.guild?.me?.displayColor || this.client.config.color)
-				.addField(
-					'Possible Methods',
-					stripIndents`
-						\`📋\` - Title
-						\`💰\` - Winner Count
-						\`📦\` - Channel
-						\`🎉\` - Emoji
-						\`⏰\` - Duration
-						\`📊\` - Role-based Extra Entries
-					`,
-				)
-				.addField(
-					'Current Settings',
-					stripIndents`
-						\`📋\` Title - ${title || 'None set yet.'}
+				.addFields(
+					{
+						name: 'Possible Methods',
+						value: stripIndents`
+							\`📋\` - Title
+							\`💰\` - Winner Count
+							\`📦\` - Channel
+							\`🎉\` - Emoji
+							\`⏰\` - Duration
+							\`📊\` - Role-based Extra Entries
+						`,
+					},
+					{
+						name: 'Current Settings',
+						value: stripIndents`
+							\`📋\` Title - ${title || 'None set yet.'}
 
-						\`💰\` Winner Count - ${winnerCount || 'None set yet.'}
+							\`💰\` Winner Count - ${winnerCount || 'None set yet.'}
 
-						\`📦\` Channel - ${channel || 'None set yet.'}
+							\`📦\` Channel - ${channel || 'None set yet.'}
 
-						\`🎉\` Emoij - ${rawEMOJI}
+							\`🎉\` Emoij - ${rawEMOJI}
 
-						\`⏰\` Duration - ${duration ? ms(duration, { long: true }) : 'None set yet.'}
+							\`⏰\` Duration - ${duration ? ms(duration, { long: true }) : 'None set yet.'}
 
-						__Role-based Extra Entries__
-						Default - \`1\` Entry
-						${entries.map(e => `<@&${e.string}> - \`${e.entries}\` entries`).join('\n')}
-					`,
+							__Role-based Extra Entries__
+							Default - \`1\` Entry
+							${entries.map(e => `<@&${e.string}> - \`${e.entries}\` entries`).join('\n')}
+						`,
+					},
 				);
 			await m.edit({ embed });
 
@@ -302,15 +304,17 @@ export default class Giveaways extends Command {
 							.setFooter(`${winnerCount} Winner${winnerCount === 1 ? '' : 's'} • Ends at`)
 							.setTimestamp(new Date(Date.now() + duration))
 							.setTitle(title)
-							.addField('Time Remaining', `\`${prettyMilliseconds(duration, { verbose: true })}\``)
-							.addField(
-								'Entries',
-								stripIndents`
-								${msg.guild!.roles.everyone} - \`1\` Entry
-								${entries.map(e => `<@&${e.string}> - \`${e.entries}\` entries`).join('\n')}
-							`,
+							.addFields(
+								{ name: 'Time Remaining', value: `\`${prettyMilliseconds(duration, { verbose: true })}\`` },
+								{
+									name: 'Entries',
+									value: stripIndents`
+										${msg.guild!.roles.everyone} - \`1\` Entry
+										${entries.map(e => `<@&${e.string}> - \`${e.entries}\` entries`).join('\n')}
+									`,
+								},
+								{ name: 'Host', value: `${msg.author} [\`${msg.author.tag}\`]` },
 							)
-							.addField('Host', `${msg.author} [\`${msg.author.tag}\`]`)
 							.setDescription(`React with ${rawEMOJI} to enter!`);
 						const mss = await channel!.send('🎉 **GIVEAWAY** 🎉', { embed });
 						await this.client.settings.new('giveaway', {
@@ -356,26 +360,28 @@ export default class Giveaways extends Command {
 			const embed = this.client.util
 				.embed()
 				.setColor(msg.guild?.me?.displayColor || this.client.config.color)
-				.addField(
-					'Possible Methods',
-					stripIndents`
-					\`📋\` - Title
-					\`💰\` - Winner Count
-					\`📦\` - Channel
-					\`🎉\` - Emoji
-				`,
-				)
-				.addField(
-					'Current Settings',
-					stripIndents`
-					\`📋\` Title - ${title || 'None set yet.'}
+				.addFields(
+					{
+						name: 'Possible Methods',
+						value: stripIndents`
+							\`📋\` - Title
+							\`💰\` - Winner Count
+							\`📦\` - Channel
+							\`🎉\` - Emoji
+						`,
+					},
+					{
+						name: 'Current Settings',
+						value: stripIndents`
+							\`📋\` Title - ${title || 'None set yet.'}
 
-					\`💰\` Winner Count - ${winnerCount || 'None set yet.'}
+							\`💰\` Winner Count - ${winnerCount || 'None set yet.'}
 
-					\`📦\` Channel - ${channel || 'None set yet.'}
+							\`📦\` Channel - ${channel || 'None set yet.'}
 
-					\`🎉\` Emoij - ${rawEMOJI}
-				`,
+							\`🎉\` Emoij - ${rawEMOJI}
+						`,
+					},
 				);
 			await m.edit({ embed });
 
@@ -502,32 +508,34 @@ export default class Giveaways extends Command {
 			const embed = this.client.util
 				.embed()
 				.setColor(msg.guild?.me?.displayColor || this.client.config.color)
-				.addField(
-					'Possible Methods',
-					stripIndents`
-					\`📋\` - Title
-					\`👥\` - Max Entries
-					\`💰\` - Winner Count
-					\`📦\` - Channel
-					\`⏰\` - Duration (if the max entries is not hit)
-					\`🎉\` - Emoji
-				`,
-				)
-				.addField(
-					'Current Settings',
-					stripIndents`
-					\`📋\` Title - ${title || 'None set yet.'}
+				.addFields(
+					{
+						name: 'Possible Methods',
+						value: stripIndents`
+							\`📋\` - Title
+							\`👥\` - Max Entries
+							\`💰\` - Winner Count
+							\`📦\` - Channel
+							\`⏰\` - Duration (if the max entries is not hit)
+							\`🎉\` - Emoji
+						`,
+					},
+					{
+						name: 'Current Settings',
+						value: stripIndents`
+							\`📋\` Title - ${title || 'None set yet.'}
 
-					\`👥\` Max Entries - ${maxEntries || 'None set yet.'}
+							\`👥\` Max Entries - ${maxEntries || 'None set yet.'}
 
-					\`💰\` Winner Count - ${winnerCount || 'None set yet.'}
+							\`💰\` Winner Count - ${winnerCount || 'None set yet.'}
 
-					\`📦\` Channel - ${channel || 'None set yet.'}
+							\`📦\` Channel - ${channel || 'None set yet.'}
 
-					\`⏰\` Duration -  ${duration ? ms(duration, { long: true }) : 'None set yet.'}
+							\`⏰\` Duration -  ${duration ? ms(duration, { long: true }) : 'None set yet.'}
 
-					\`🎉\` Emoji - ${rawEMOJI}
-				`,
+							\`🎉\` Emoji - ${rawEMOJI}
+						`,
+					},
 				);
 			await m.edit({ embed });
 

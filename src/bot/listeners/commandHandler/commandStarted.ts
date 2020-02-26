@@ -17,10 +17,15 @@ export default class CommandStartedListener extends Listener {
 		const embed = this.client.util
 			.embed()
 			.setColor(this.client.config.color)
-			.addField('Guild', msg.guild ? msg.guild.name : 'DMs')
-			.addField('Command', command.id)
-			.addField('Message Content', msg.content ? msg.content.substring(0, 200) : 'No message content')
-			.addField('User', `${msg.author.tag} \`[${msg.author.id}]\``)
+			.addFields(
+				{ name: 'Guild', value: msg.guild?.name || 'DMs' },
+				{ name: 'Command', value: command.id },
+				{ name: 'Message Content', value: msg.content ? msg.content.substring(0, 200) : 'No message content' },
+				{
+					name: 'User',
+					value: `${msg.author.tag} \`[${msg.author.id}]\``,
+				},
+			)
 			.setTimestamp();
 		try {
 			const client = new WebhookClient(process.env.CMDLOGID!, process.env.CMDLOGTOKEN!);

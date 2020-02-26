@@ -2,14 +2,14 @@
     "name": "giveaways",
     "version": "2.0.0",
     "description": "A feature dense Discord Giveaways bot 🎉",
-    "main": "build/giveaways.js",
+    "main": "dist/giveaways.js",
     "scripts": {
         "lint": "eslint src --ext .ts",
         "lint:fix": "eslint src --fix --ext .ts",
-        "cleardir": "rimraf build/*",
+        "cleardir": "rimraf dist/*",
         "compile": "tsc",
-        "build": "yarn run cleardir && yarn run compile",
-        "start": "yarn run build && node ."
+        "build": "pnpm run cleardir && pnpm run compile",
+        "start": "pnpm run build && node ."
     },
     "author": "Carter Himmel <fyko@sycer.dev>",
     "license": "GPL-3.0",
@@ -46,7 +46,7 @@
         "eslint-plugin-prettier": "^3.1.2",
         "prettier": "^1.19.1",
         "rimraf": "^3.0.2",
-        "ts-node": "^8.6.1",
+        "tslib": "^1.11.0",
         "typescript": "^3.8.2",
         "winston": "^3.2.1"
     },

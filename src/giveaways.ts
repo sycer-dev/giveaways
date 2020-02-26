@@ -2,7 +2,7 @@ import { config } from 'dotenv';
 import { resolve } from 'path';
 config({ path: resolve(__dirname, '..', '.env') });
 
-import GiveawayClient from './bot/classes/GiveawayClient';
+import GiveawayClient from './bot/client/GiveawayClient';
 
 (async () => {
 	const parent = new GiveawayClient({
