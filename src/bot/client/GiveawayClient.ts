@@ -144,14 +144,16 @@ export default class GiveawayClient extends AkairoClient {
 
 	public giveawayAPI: API = new API(this);
 
+	public readonly settings: SettingsProvider = new SettingsProvider(this);
+
+	public readonly voteHandler: VoteHandler = new VoteHandler(this);
+
 	private async load(): Promise<void> {
 		this.on(Constants.Events.MESSAGE_CREATE, () => this.prometheus.messageCounter.inc());
 		this.on(Constants.Events.DEBUG, () => this.prometheus.eventCounter.inc());
 		this.commandHandler.on(AkairoConstants.CommandHandlerEvents.COMMAND_FINISHED, () =>
 			this.prometheus.commandCounter.inc(),
 		);
-
-		this.settings = new SettingsProvider(this);
 
 		this.listenerHandler.setEmitters({
 			commandHandler: this.commandHandler,
