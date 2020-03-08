@@ -39,11 +39,11 @@ export default class DBL extends EventEmitter {
 
 	public async _handleVote(req: Request): Promise<boolean> {
 		const header = req.get('Authorization');
-		if (header !== this.secret) return this.emit('invalid');
+		if (header !== this.secret) return super.emit('invalid');
 
 		const { user, type, isWeekend, query } = req.body;
 		const fetchedUser = await this.client.users.fetch(user).catch(() => null);
-		return this.emit('vote', { bot: this.client.user, user: fetchedUser, type, isWeekend, query });
+		return super.emit('vote', { bot: this.client.user, user: fetchedUser, type, isWeekend, query });
 	}
 
 	public on(event: 'vote' | 'test', listener: (vote: Vote) => void): this;
