@@ -37,10 +37,9 @@ export default class DBL extends EventEmitter {
 
 	public async _handleVote(req: Request): Promise<boolean> {
 		const header = req.get('Authorization');
-		this.client.logger.debug(
-			`\nheader: ${header}\nour signature: ${this.signature}\n\nequal: ${header === this.signature}`,
-		);
-		if (header !== this.signature) return super.emit('invalid');
+		const signature = process.env.DBL_SIGNATURE!;
+		this.client.logger.debug(`\nheader: ${header}\nour signature: ${signature}\n\nequal: ${header === signature}`);
+		if (header !== signature) return super.emit('invalid');
 		this.client.logger.debug('[DBL]: Made it past header sig check.');
 
 		const { user, type, isWeekend, query } = req.body;

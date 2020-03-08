@@ -58,10 +58,11 @@ export default class HelpCommand extends Command {
 
 			for (const category of this.handler.categories.values()) {
 				if (category.id === 'owner' && !this.client.ownerID.includes(msg.author.id)) continue;
-				const value = category
-					.filter(c => c.aliases.length > 0)
-					.map(cmd => `\`${cmd.aliases[0]}\``)
-					.join(', ');
+				const value =
+					category
+						.filter(c => c.aliases.length > 0)
+						.map(cmd => `\`${cmd.aliases[0]}\``)
+						.join(', ') || '.';
 				embed.addFields({
 					name: `${EMOJIS[category.id.toUpperCase()]} ${category.id.replace(/(\b\w)/gi, lc => lc.toUpperCase())}`,
 					value,
