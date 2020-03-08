@@ -136,7 +136,7 @@ export default class VoteHandler {
 		this._check();
 		this.interval = this.client.setInterval(this._check.bind(this), this.rate);
 
-		this.client.giveawayAPI.dbl.on('vote', this._vote.bind(this));
+		this.client.giveawayAPI.dbl.on('vote', vote => this._vote(vote));
 		this.client.giveawayAPI.dbl.on('invalid', () => this.client.logger.debug(`[VOTE MANAGER]: Recieved invalid vote!`));
 	}
 
