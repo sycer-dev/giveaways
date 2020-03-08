@@ -104,14 +104,16 @@ export default class GiveawayHandler {
 		const field = embed.fields.find(f => f.name === 'Time Remaining');
 		if (field) {
 			const index = embed.fields.indexOf(field);
-			embed.spliceFields(index, 1, {
-				name: 'Time Remaining',
-				value: `\`${ms(g.endsAt.getTime() - Date.now(), true) || '.'}\``,
-				inline: false,
-			});
+			if (index > -1) {
+				embed.spliceFields(index, 1, {
+					name: 'Time Remaining',
+					value: `\`${ms(g.endsAt.getTime() - Date.now(), true) || '.'}\``,
+					inline: false,
+				});
+				if (message.editable) message.edit({ embed });
+			}
+			this.client.logger.verbose(`[GIVEAWAY HANDLER]: Skipped edit for ${g._id}, index is ${index}.`);
 		}
-		if (message.editable) message.edit({ embed });
-		this.client.logger.verbose(`[GIVEAWAY HANDLER]: Edited ${g._id}.`);
 	}
 
 	public queue(g: Giveaway): void {

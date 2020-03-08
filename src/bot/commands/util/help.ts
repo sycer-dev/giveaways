@@ -78,7 +78,8 @@ export default class HelpCommand extends Command {
 				.setTitle(`\`${arg.aliases[0]} ${arg.description.usage ? arg.description.usage : ''}\``)
 				.addFields({ name: 'Description', value: arg.description.content || 'No description.' });
 
-			if (arg.aliases.length > 1) embed.addFields({ name: 'Aliases', value: `\`${arg.aliases.join('`, `') || 'No aliases.'}\`` });
+			if (arg.aliases.length > 1)
+				embed.addFields({ name: 'Aliases', value: `\`${arg.aliases.join('`, `') || 'No aliases.'}\`` });
 			if (arg.description.examples && arg.description.examples.length)
 				embed.addFields({
 					name: 'Examples',
@@ -96,18 +97,19 @@ export default class HelpCommand extends Command {
 				This is a list of all commands within the \`${name}\` category.
 				For more info on a command, type \`${prefix}help <command>\`
 			`);
-		const value = arg
-			.array()
-			.filter(c => c.aliases.length > 0)
-			.map(
-				cmd =>
-					`\`${cmd.aliases[0]}\`${
-						cmd.description && cmd.description.content
-							? ` - ${cmd.description.content.split('\n')[0].substring(0, 120)}`
-							: ''
-					}`,
-			)
-			.join('\n') || 'No commands.';
+		const value =
+			arg
+				.array()
+				.filter(c => c.aliases.length > 0)
+				.map(
+					cmd =>
+						`\`${cmd.aliases[0]}\`${
+							cmd.description && cmd.description.content
+								? ` - ${cmd.description.content.split('\n')[0].substring(0, 120)}`
+								: ''
+						}`,
+				)
+				.join('\n') || 'No commands.';
 		embed.addFields({ name: 'Commands', value });
 		return msg.util?.send({ embed });
 	}
