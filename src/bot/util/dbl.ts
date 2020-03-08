@@ -13,21 +13,15 @@ export interface Vote {
 }
 
 export default class DBL extends EventEmitter {
-	protected readonly BASE_URL = 'https://top.gg/api';
-
 	protected readonly client: GiveawayClient;
-
+	protected readonly BASE_URL = 'https://top.gg/api';
 	protected interval!: NodeJS.Timeout;
+	protected readonly signature: string = process.env.DBL_SIGNATURE!;
+	protected readonly token: string = process.env.DBL_TOKEN!;
 
-	protected readonly signature: string;
-
-	protected readonly token: string;
-
-	public constructor(client: GiveawayClient, token: string, signature: string) {
+	public constructor(client: GiveawayClient) {
 		super();
 		this.client = client;
-		this.token = token;
-		this.signature = signature;
 	}
 
 	private async _postStats(): Promise<number> {
@@ -44,7 +38,7 @@ export default class DBL extends EventEmitter {
 	public async _handleVote(req: Request): Promise<boolean> {
 		const header = req.get('Authorization');
 		this.client.logger.debug(
-			`header: ${header}\nour signature: ${this.signature}\n\nequal: ${header === this.signature}`,
+			`\nheader: ${header}\nour signature: ${this.signature}\n\nequal: ${header === this.signature}`,
 		);
 		if (header !== this.signature) return super.emit('invalid');
 		this.client.logger.debug('[DBL]: Made it past header sig check.');
