@@ -3,7 +3,7 @@ FROM node:12-alpine
 LABEL name "Giveaway Bot"
 LABEL version "1.0.4"
 LABEL maintainer "Carter Himmel <fyko@sycer.dev>"
-EXPOSE 5505
+EXPOSE 5501
 
 WORKDIR /usr/giveaways
 
