@@ -1,8 +1,7 @@
 import { Command, PrefixSupplier } from 'discord-akairo';
 import { Message, MessageReaction, User, TextChannel, Permissions } from 'discord.js';
 import { stripIndents } from 'common-tags';
-import prettyMilliseconds from 'pretty-ms';
-import ms from 'ms';
+import ms from '@naval-base/ms';
 
 export interface Entries {
 	string: string;
@@ -141,7 +140,9 @@ export default class Giveaways extends Command {
 		const live = true;
 		let title;
 		let winnerCount;
-		let channel: TextChannel | null = null;
+		let channel: TextChannel | undefined = msg.guild?.channels.cache.find(c =>
+			c.name.includes('giveaway'),
+		) as TextChannel;
 		let emoji = '🎉';
 		let duration;
 		let rawEMOJI = emoji;
@@ -156,31 +157,33 @@ export default class Giveaways extends Command {
 					{
 						name: 'Possible Methods',
 						value: stripIndents`
-							\`📋\` - Title
-							\`💰\` - Winner Count
-							\`📦\` - Channel
-							\`🎉\` - Emoji
-							\`⏰\` - Duration
-							\`📊\` - Role-based Extra Entries
+							📋 - Title
+							💰 - Winner Count
+							📦 - Channel
+							🎉 - Emoji
+							⏰ - Duration
+							📊 - Role-based Extra Entries
 						`,
+						inline: true,
 					},
 					{
 						name: 'Current Settings',
 						value: stripIndents`
-							\`📋\` Title - ${title || 'None set yet.'}
+							📋 Title - ${title || 'None set yet.'}
 
-							\`💰\` Winner Count - ${winnerCount || 'None set yet.'}
+							💰 Winner Count - ${winnerCount || 'None set yet.'}
 
-							\`📦\` Channel - ${channel || 'None set yet.'}
+							📦 Channel - ${channel || 'None set yet.'}
 
-							\`🎉\` Emoij - ${rawEMOJI}
+							🎉 Emoij - ${rawEMOJI}
 
-							\`⏰\` Duration - ${duration ? ms(duration, { long: true }) : 'None set yet.'}
+							⏰ Duration - ${duration ? ms(duration, true) : 'None set yet.'}
 
 							__Role-based Extra Entries__
 							Default - \`1\` Entry
 							${entries.map(e => `<@&${e.string}> - \`${e.entries}\` entries`).join('\n')}
 						`,
+						inline: true,
 					},
 				);
 			await m.edit({ embed });
@@ -208,7 +211,7 @@ export default class Giveaways extends Command {
 			if (emote === '📋') {
 				const get = await this.getTitle(msg);
 				if (get && typeof get === 'string') title = get;
-			} else if (emoji === '🛑') {
+			} else if (emote === '🛑') {
 				await m.edit('Giveaway builder closed.', { embed: null });
 				await m.reactions.removeAll();
 				return m;
@@ -305,7 +308,7 @@ export default class Giveaways extends Command {
 							.setTimestamp(new Date(Date.now() + duration))
 							.setTitle(title)
 							.addFields(
-								{ name: 'Time Remaining', value: `\`${prettyMilliseconds(duration, { verbose: true })}\`` },
+								{ name: 'Time Remaining', value: `\`${ms(duration, true)}\`` },
 								{
 									name: 'Entries',
 									value: stripIndents`
@@ -316,12 +319,12 @@ export default class Giveaways extends Command {
 								{ name: 'Host', value: `${msg.author} [\`${msg.author.tag}\`]` },
 							)
 							.setDescription(`React with ${rawEMOJI} to enter!`);
-						const mss = await channel!.send('🎉 **GIVEAWAY** 🎉', { embed });
+						const mss = await channel.send('🎉 **GIVEAWAY** 🎉', { embed });
 						await this.client.settings.new('giveaway', {
 							title,
 							emoji,
 							guildID: msg.guild!.id,
-							channelID: channel!.id,
+							channelID: channel.id,
 							messageID: mss.id,
 							winnerCount,
 							endsAt: new Date(Date.now() + duration),
@@ -364,22 +367,22 @@ export default class Giveaways extends Command {
 					{
 						name: 'Possible Methods',
 						value: stripIndents`
-							\`📋\` - Title
-							\`💰\` - Winner Count
-							\`📦\` - Channel
-							\`🎉\` - Emoji
+							📋 - Title
+							💰 - Winner Count
+							📦 - Channel
+							🎉 - Emoji
 						`,
 					},
 					{
 						name: 'Current Settings',
 						value: stripIndents`
-							\`📋\` Title - ${title || 'None set yet.'}
+							📋 Title - ${title || 'None set yet.'}
 
-							\`💰\` Winner Count - ${winnerCount || 'None set yet.'}
+							💰 Winner Count - ${winnerCount || 'None set yet.'}
 
-							\`📦\` Channel - ${channel || 'None set yet.'}
+							📦 Channel - ${channel || 'None set yet.'}
 
-							\`🎉\` Emoij - ${rawEMOJI}
+							🎉 Emoij - ${rawEMOJI}
 						`,
 					},
 				);
@@ -512,28 +515,28 @@ export default class Giveaways extends Command {
 					{
 						name: 'Possible Methods',
 						value: stripIndents`
-							\`📋\` - Title
-							\`👥\` - Max Entries
-							\`💰\` - Winner Count
-							\`📦\` - Channel
-							\`⏰\` - Duration (if the max entries is not hit)
-							\`🎉\` - Emoji
+							📋 - Title
+							👥 - Max Entries
+							💰 - Winner Count
+							📦 - Channel
+							⏰ - Duration (if the max entries is not hit)
+							🎉 - Emoji
 						`,
 					},
 					{
 						name: 'Current Settings',
 						value: stripIndents`
-							\`📋\` Title - ${title || 'None set yet.'}
+							📋\` Title - ${title || 'None set yet.'}
 
-							\`👥\` Max Entries - ${maxEntries || 'None set yet.'}
+							👥 Max Entries - ${maxEntries || 'None set yet.'}
 
-							\`💰\` Winner Count - ${winnerCount || 'None set yet.'}
+							💰 Winner Count - ${winnerCount || 'None set yet.'}
 
-							\`📦\` Channel - ${channel || 'None set yet.'}
+							📦 Channel - ${channel || 'None set yet.'}
 
-							\`⏰\` Duration -  ${duration ? ms(duration, { long: true }) : 'None set yet.'}
+							⏰ Duration -  ${duration ? ms(duration, true) : 'None set yet.'}
 
-							\`🎉\` Emoji - ${rawEMOJI}
+							🎉 Emoji - ${rawEMOJI}
 						`,
 					},
 				);
@@ -562,7 +565,7 @@ export default class Giveaways extends Command {
 			if (emote === '📋') {
 				const get = await this.getTitle(msg);
 				if (get && typeof get === 'string') title = get;
-			} else if (emoji === '🛑') {
+			} else if (emote === '🛑') {
 				if (m.editable) await m.edit('Giveaway builder closed.', { embed: null });
 				await m.reactions.removeAll();
 				return m;
@@ -651,7 +654,9 @@ export default class Giveaways extends Command {
 							maxEntries === 1 ? 'person has' : 'people have'
 						} entered.
 
-								Once **${maxEntries}** entry is reached, the lucky winner${maxEntries === 1 ? '' : 's'} will be decided!
+								Once **${maxEntries}** entr${maxEntries === 1 ? 'entry' : 'entries'} is reached, the lucky winner${
+							maxEntries === 1 ? '' : 's'
+						} will be decided!
 							`);
 						const mss = await channel.send('🎉 **LIMITED ENTRIES** 🎉', { embed });
 						await this.client.settings.new('giveaway', {

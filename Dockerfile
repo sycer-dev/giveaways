@@ -31,8 +31,8 @@ ENV ID= \
 	VOTE_ID= \
 	VOTE_TOKEN= \
 	LOG_ID= \
-	LOG_TOKEN=
-
+	LOG_TOKEN= \
+	API_PORT=
 RUN pnpm run build
 CMD ["node", "."]
 

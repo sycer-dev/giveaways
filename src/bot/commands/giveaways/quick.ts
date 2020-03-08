@@ -1,8 +1,7 @@
 import { Command } from 'discord-akairo';
 import { Message, TextChannel, Permissions } from 'discord.js';
 import * as nodemoji from 'node-emoji';
-import prettyMilliseconds from 'pretty-ms';
-import ms from 'ms';
+import ms from '@naval-base/ms';
 
 export interface Entries {
 	string: string;
@@ -121,7 +120,7 @@ export default class Giveaways extends Command {
 			.setTimestamp(new Date(Date.now() + duration))
 			.setTitle(title)
 			.addFields(
-				{ name: 'Time Remaining', value: `\`${prettyMilliseconds(duration, { verbose: true })}\`` },
+				{ name: 'Time Remaining', value: `\`${ms(duration, true)}\`` },
 				{
 					name: 'Host',
 					value: `${msg.author} [\`${msg.author.tag}\`]`,

@@ -22,19 +22,20 @@ export default class GuildCreateListener extends Listener {
 		const createdAgo = moment
 			.duration(new Date().getTime() - guild.createdTimestamp)
 			.format('D [days and] H [hours ago]');
+
 		const embed = this.client.util
 			.embed()
-			.setColor('GREEN')
+			.setColor(Constants.Colors.GREEN)
 			.setTitle('Joined a Server')
 			.addFields({
 				name: 'Information',
 				value: stripIndents`
-		**Member Count**: \`${guild.memberCount}\`
-		**Created**: ${createdAgo}
-		**Owner**: ${owner} \`[${owner?.tag}]\`
+					**Member Count**: \`${guild.memberCount}\`
+					**Created**: ${createdAgo}
+					**Owner**: ${owner} \`[${owner?.tag}]\`
 
-		**Bot Count**: \`${guild.members.cache.filter(m => m.user.bot).size}\`
-	  `,
+					**Bot Count**: \`${guild.members.cache.filter(m => m.user.bot).size}\`
+				`,
 			})
 			.setDescription(`${guild.name} \`[${guild.id}]\``)
 			.setTimestamp();

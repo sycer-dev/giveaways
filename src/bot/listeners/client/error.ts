@@ -10,7 +10,7 @@ export default class ErrorListener extends Listener {
 		});
 	}
 
-	public exec(err: any): void {
+	public exec(err: Error): void {
 		this.client.logger.error(`[CLIENT ERROR]: ${err}`);
 	}
 }

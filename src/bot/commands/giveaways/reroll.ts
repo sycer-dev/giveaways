@@ -1,5 +1,6 @@
 import { Command } from 'discord-akairo';
-import { Message, TextChannel, User, Permissions } from 'discord.js';
+import { Message, TextChannel, Permissions } from 'discord.js';
+import { draw } from '../../util';
 
 export default class ManagerRole extends Command {
 	public constructor() {
@@ -61,16 +62,7 @@ export default class ManagerRole extends Command {
 
 		const users = await reaction.users.fetch();
 		const list = users.array().filter(u => u.id !== message.author.id);
-
-		let winners: User[] = [];
-		if (list.length <= count) {
-			winners = list;
-		} else {
-			while (winners.length < count) {
-				const w = this.client.giveawayHandler.draw(list);
-				if (!winners.includes(w)) winners.push(w);
-			}
-		}
+		const winners = draw(list, count);
 
 		return msg.channel.send(
 			`🎲 Congratulations ${winners

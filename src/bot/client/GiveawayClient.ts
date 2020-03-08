@@ -1,14 +1,19 @@
-import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler } from 'discord-akairo';
-import { ColorResolvable, Message, WebhookClient } from 'discord.js';
-import { createServer, Server } from 'http';
+import {
+	AkairoClient,
+	CommandHandler,
+	InhibitorHandler,
+	ListenerHandler,
+	Constants as AkairoConstants,
+} from 'discord-akairo';
+import { ColorResolvable, Message, WebhookClient, Constants } from 'discord.js';
 import { join } from 'path';
 import { Gauge, register, Registry } from 'prom-client';
-import { parse } from 'url';
-import { createLogger, format, Logger, transports } from 'winston';
+import { Logger } from 'winston';
+import { logger } from '../util/logger';
 import SettingsProvider from '../../database/structures/SettingsProvider';
 import GiveawayHandler from '../structures/GiveawayHandler';
-import { LoggerConfig } from '../structures/LoggerConfig';
 import VoteHandler from '../structures/VoteHandler';
+import API from '../structures/API';
 
 declare module 'discord-akairo' {
 	interface AkairoClient {
@@ -19,6 +24,7 @@ declare module 'discord-akairo' {
 		settings: SettingsProvider;
 		giveawayHandler: GiveawayHandler;
 		voteHandler: VoteHandler;
+		giveawayAPI: API;
 		prometheus: {
 			messageCounter: Gauge<string>;
 			userCounter: Gauge<string>;
@@ -31,8 +37,6 @@ declare module 'discord-akairo' {
 
 			register: Registry;
 		};
-
-		promServer: Server;
 	}
 }
 
@@ -45,40 +49,21 @@ interface GiveawayOpts {
 export default class GiveawayClient extends AkairoClient {
 	public constructor(config: GiveawayOpts) {
 		super({
-			messageCacheMaxSize: 10,
+			messageCacheMaxSize: 25,
+			messageCacheLifetime: 300,
+			messageSweepInterval: 900,
 			ownerID: config.owners,
-			disabledEvents: ['TYPING_START'],
-			partials: ['MESSAGE'],
+			partials: [Constants.PartialTypes.REACTION],
 		});
 
 		this.config = config;
-
-		this.listenerHandler.on('load', i =>
-			this.logger.debug(`[LISTENER HANDLER] [${i.category.id.toUpperCase()}] Loaded ${i.id} listener!`),
-		);
 	}
 
 	public readonly config: GiveawayOpts;
 
 	public readonly devlog: WebhookClient = new WebhookClient(process.env.LOG_ID!, process.env.LOG_TOKEN!);
 
-	public logger: Logger = createLogger({
-		levels: LoggerConfig.levels,
-		format: format.combine(
-			format.colorize({ level: true }),
-			format.errors({ stack: true }),
-			format.splat(),
-			format.timestamp({ format: 'MM/DD/YYYY HH:mm:ss' }),
-			format.printf((data: any) => {
-				const { timestamp, level, message, ...rest } = data;
-				return `[${timestamp}] ${level}: ${message}${
-					Object.keys(rest).length ? `\n${JSON.stringify(rest, null, 2)}` : ''
-				}`;
-			}),
-		),
-		transports: new transports.Console(),
-		level: 'custom',
-	});
+	public logger: Logger = logger;
 
 	public giveawayHandler: GiveawayHandler = new GiveawayHandler(this);
 
@@ -87,7 +72,7 @@ export default class GiveawayClient extends AkairoClient {
 		prefix: (msg: Message): string => {
 			if (msg.guild) {
 				const req = this.settings.cache.guilds.get(msg.guild.id);
-				return req?.prefix!;
+				if (req) return req.prefix;
 			}
 			return 'g';
 		},
@@ -157,20 +142,15 @@ export default class GiveawayClient extends AkairoClient {
 		register,
 	};
 
-	public promServer = createServer((req, res): void => {
-		if (parse(req.url!).pathname === '/metrics') {
-			res.writeHead(200, { 'Content-Type': this.prometheus.register.contentType });
-			res.write(this.prometheus.register.metrics());
-		}
-		res.end();
-	});
+	public giveawayAPI: API = new API(this);
 
 	private async load(): Promise<void> {
-		this.on('message', () => this.prometheus.messageCounter.inc());
-		this.on('raw', () => this.prometheus.eventCounter.inc());
-		this.commandHandler.on('commandFinished', () => this.prometheus.commandCounter.inc());
+		this.on(Constants.Events.MESSAGE_CREATE, () => this.prometheus.messageCounter.inc());
+		this.on(Constants.Events.DEBUG, () => this.prometheus.eventCounter.inc());
+		this.commandHandler.on(AkairoConstants.CommandHandlerEvents.COMMAND_FINISHED, () =>
+			this.prometheus.commandCounter.inc(),
+		);
 
-		this.voteHandler = new VoteHandler(this);
 		this.settings = new SettingsProvider(this);
 
 		this.listenerHandler.setEmitters({

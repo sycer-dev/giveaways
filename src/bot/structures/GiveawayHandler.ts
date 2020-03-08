@@ -1,7 +1,9 @@
 import GiveawayClient from '../client/GiveawayClient';
 import { Giveaway } from '../../database/models/Giveaway';
-import { TextChannel, User, Message } from 'discord.js';
-import prettyMS from 'pretty-ms';
+import { TextChannel, Message } from 'discord.js';
+import ms from '@naval-base/ms';
+import { draw } from '../util';
+import { EMOJIS } from '../util/emojis';
 
 export default class GiveawayHandler {
 	protected client: GiveawayClient;
@@ -20,26 +22,26 @@ export default class GiveawayHandler {
 	public async end(g: Giveaway): Promise<Message | Message[] | void> {
 		await this.client.settings.set('giveaway', { messageID: g.messageID }, { complete: true });
 
-		let message: Message | undefined;
-		try {
-			message = await (this.client.channels.cache.get(g.channelID) as TextChannel).messages.fetch(g.messageID);
-		} catch {}
-		if (!message) return;
+		const channel = this.client.channels.cache.get(g.channelID);
+		const message = await (channel as TextChannel)?.messages.fetch(g.messageID).catch(() => undefined);
+		if (!message || !message.embeds.length) return;
 
 		const reaction = message.reactions.cache.get(g.emoji);
 		if (!reaction) return;
 
-		const users = await reaction.users.fetch();
-		const members = await message.guild!.members.fetch();
-		const list = users.array().filter(u => u.id !== message!.author.id);
+		const _users = await reaction.users.fetch();
+		const _members = await message.guild!.members.fetch();
+		const list = _users.array().filter(u => u.id !== message.author.id);
+
 		const used: string[] = [];
-		if (g.boosted!.length) {
-			const boosts = g.boosted!.sort((a, b) => b.entries - a.entries);
+		if (g.boosted?.length) {
+			const boosts = g.boosted.sort((a, b) => b.entries - a.entries);
 			for (const b of boosts) {
-				for (const [id, m] of members) {
+				for (const [id, m] of _members) {
 					if (!m.roles.cache.has(b.string)) continue;
 					if (!used.includes(id)) {
-						for (let i = 0; i < b.entries; i++) list.push(m.user);
+						// start i as 1 to account for the initial entry from L32
+						for (let i = 1; i < b.entries; i++) list.push(m.user);
 						used.push(id);
 					}
 				}
@@ -49,23 +51,16 @@ export default class GiveawayHandler {
 		const embed = this.client.util
 			.embed()
 			.setColor(3553599)
-			.setTimestamp();
-		if (message?.embeds?.length) embed.setTitle(message.embeds[0].title);
+			.setTimestamp()
+			.setTitle(message.embeds[0].title);
+
 		if (!list.length) {
 			embed.setFooter('Ended at').setDescription('No winners! 😒');
 			if (message.editable) return message.edit({ content: '🎉 **GIVEAWAY ENDED** 🎉', embed });
 			return message;
 		}
 
-		let winners: User[] = [];
-		if (list.length >= g.winnerCount) {
-			while (winners.length < g.winnerCount) {
-				const w = this.draw(list);
-				if (!winners.includes(w)) winners.push(w);
-			}
-		} else {
-			winners = list;
-		}
+		const winners = draw(list, g.winnerCount);
 
 		embed
 			.setDescription(`**Winner${winners.length === 1 ? '' : 's'}**:\n ${winners.map(r => r.toString()).join('\n')}`)
@@ -82,36 +77,39 @@ export default class GiveawayHandler {
 			);
 	}
 
+	public makeEmojiString(dur: number): string {
+		const str = ms(dur, true);
+		let buffer = '';
+		for (const char of str) {
+			if (isNaN(parseInt(char, 10))) buffer += char;
+			buffer += this.client.emojis.cache.get(EMOJIS[char]);
+		}
+		const anotherBuffer: string[] = [];
+		for (const word of buffer.split(' ')) {
+			if (['second', 'seconds', 'sec', 's'].includes(word)) {
+				anotherBuffer[anotherBuffer.length - 1] = this.client.emojis.cache.get(EMOJIS.countdown)!.toString();
+			}
+			anotherBuffer.push(word);
+		}
+		return anotherBuffer.join(' ');
+	}
+
 	public async edit(g: Giveaway): Promise<void> {
-		let message;
-		try {
-			message = await (this.client.channels.cache.get(g.channelID) as TextChannel).messages.fetch(g.messageID);
-		} catch {}
+		const channel = this.client.channels.cache.get(g.channelID);
+		const message = await (channel as TextChannel)?.messages.fetch(g.messageID).catch(() => undefined);
 		if (!message || !message.embeds.length) return;
+
 		const embed = this.client.util.embed(message.embeds[0]);
 		const field = embed.fields.find(f => f.name === 'Time Remaining');
 		if (field) {
 			const index = embed.fields.indexOf(field);
 			embed.fields[index] = {
 				name: 'Time Remaining',
-				value: `\`${prettyMS(g.endsAt.getTime() - Date.now(), { verbose: true })}\``,
+				value: `\`${ms(g.endsAt.getTime() - Date.now(), true)}\``,
 				inline: false,
 			};
 		}
 		if (message.editable) message.edit({ embed });
-	}
-
-	public shuffle(arr: User[]): User[] {
-		for (let i = arr.length; i; i--) {
-			const j = Math.floor(Math.random() * i);
-			[arr[i - 1], arr[j]] = [arr[j], arr[i - 1]];
-		}
-		return arr;
-	}
-
-	public draw(list: User[]): User {
-		const shuffled = this.shuffle(list);
-		return shuffled[Math.floor(Math.random() * shuffled.length)];
 	}
 
 	public queue(g: Giveaway): void {
@@ -125,7 +123,7 @@ export default class GiveawayHandler {
 	private _check(): void {
 		const giveaways = this.client.settings.cache.giveaways.filter(g => !g.fcfs && !g.complete && !g.maxEntries);
 		const now = Date.now();
-		if (giveaways.size === 0) return;
+		if (!giveaways.size) return;
 		for (const g of giveaways.values()) {
 			if (g.endsAt.getTime() - now <= this.rate) this.queue(g);
 			if (g.endsAt.getTime() - now >= 5000) this.edit(g);

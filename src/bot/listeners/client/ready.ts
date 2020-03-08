@@ -1,5 +1,5 @@
 import { Listener } from 'discord-akairo';
-import { ActivityType, Constants } from 'discord.js';
+import { ActivityType, Constants, Guild } from 'discord.js';
 
 export interface ReactionStatus {
 	text: string;
@@ -20,7 +20,7 @@ export default class ReadyListener extends Listener {
 		this.client.giveawayHandler.init();
 		this.client.voteHandler.init();
 
-		this.client.promServer.listen(5501);
+		this.client.giveawayAPI.init();
 
 		for (const id of this.client.guilds.cache.keys()) {
 			const existing = this.client.settings.cache.guilds.get(id);
@@ -29,13 +29,18 @@ export default class ReadyListener extends Listener {
 
 		await this.client.user?.setActivity(`giveawaybot.fun | gguide 🎉`, { type: 'WATCHING' });
 
-		setInterval(async () => {
-			for (const g2 of this.client.guilds.cache.values()) {
-				g2.presences.cache.clear();
-			}
-		}, 1000 * 60 * 10);
+		setInterval(() => this._clearPresences(), 9e5);
 
 		setInterval(() => this._prometheus(), 1000 * 10);
+	}
+
+	private _clearPresences(): void {
+		const i = this.client.guilds.cache.reduce((acc: number, g: Guild): number => {
+			acc += g.presences.cache.size;
+			g.presences.cache.clear();
+			return acc;
+		}, 0);
+		this.client.emit('debug', `[PRESNCES]: Cleared ${i} presneces in ${this.client.guilds.cache.size} guilds.`);
 	}
 
 	private _prometheus(): void {

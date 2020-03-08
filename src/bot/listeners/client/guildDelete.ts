@@ -1,7 +1,7 @@
 import { Listener } from 'discord-akairo';
 import { Guild, Constants } from 'discord.js';
 import { stripIndents } from 'common-tags';
-import prettyMilliseconds from 'pretty-ms';
+import ms from '@naval-base/ms';
 
 export default class GuildDeleteListener extends Listener {
 	public constructor() {
@@ -18,18 +18,18 @@ export default class GuildDeleteListener extends Listener {
 		if (!existing) this.client.settings.new('guild', { id: guild.id });
 
 		const owner = await this.client.users.fetch(guild.ownerID).catch(() => null);
-		const durationJoined = guild?.me?.joinedAt?.getTime()! - Date.now();
+		const durationJoined = Date.now() - guild?.me?.joinedAt?.getTime()!;
 		const embed = this.client.util
 			.embed()
-			.setColor('RED')
+			.setColor(Constants.Colors.RED)
 			.setTitle('Left a Server')
 			.addFields({
 				name: 'Information',
 				value: stripIndents`
-			**Member Count**: \`${guild.memberCount}\`
-			**Duration Joined**: ${prettyMilliseconds(durationJoined, { verbose: true })}
-			**Owner**: ${owner} \`[${owner?.tag}]\`
-		  `,
+					**Member Count**: \`${guild.memberCount.toLocaleString('en-US')}\`
+					**Duration Joined**: ${ms(durationJoined, true)}
+					**Owner**: ${owner} \`[${owner?.tag}]\`
+				`,
 			})
 			.setDescription(`${guild.name} \`[${guild.id}]\``)
 			.setTimestamp();

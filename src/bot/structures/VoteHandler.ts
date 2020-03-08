@@ -1,33 +1,25 @@
-const DBL = require('new-dblapi'); // eslint-disable-line
 import { stripIndents } from 'common-tags';
-import { Guild as DiscordGuild, Message, Snowflake, WebhookClient } from 'discord.js';
+import { Guild as DiscordGuild, Message, WebhookClient } from 'discord.js';
 import { Guild } from '../../database/models/Guild';
 import GiveawayClient from '../client/GiveawayClient';
-
-export interface DBLVote {
-	bot: Snowflake;
-	user: Snowflake;
-	type: 'upvote' | 'test';
-	isWeekend: boolean;
-	query?: string;
-}
+import { Vote } from '../util/dbl';
 
 export default class VoteHandler {
 	protected readonly client: GiveawayClient;
 
 	protected readonly rate: number;
 
-	protected interval!: NodeJS.Timeout;
+	protected readonly log: WebhookClient = new WebhookClient(process.env.VOTE_ID!, process.env.VOTE_TOKEN!);
 
-	private dbl: any;
+	protected interval!: NodeJS.Timeout;
 
 	public constructor(client: GiveawayClient, { rate = 1000 * 60 } = {}) {
 		this.client = client;
 		this.rate = rate;
 	}
 
-	private async _vote(vote: DBLVote): Promise<Message | Message[] | void> {
-		const user = await this.client.users.fetch(vote.user).catch(() => null);
+	private async _vote(vote: Vote): Promise<Message | Message[] | void> {
+		const { user } = vote;
 		this.client.logger.info(`[VOTE MANAGER] [NEW VOTE]: New vote from ${user ? user.tag : 'Unknown#0000'}!`);
 		let theGuild: DiscordGuild;
 		if (!user) return;
@@ -105,26 +97,23 @@ export default class VoteHandler {
 				);
 			await user.send({ embed });
 		}
-		const log = new WebhookClient(process.env.VOTE_ID as string, process.env.VOTE_TOKEN as string);
-		if (log) {
-			const embed = this.client.util
-				.embed()
-				.setAuthor(`${this.client.user!.username} Vote Logs`, this.client.user!.displayAvatarURL())
-				.setColor(this.client.config.color)
-				.setDescription(
-					`📥 New vote: **@${user.tag}** \`[${user.id}]\`${
-						guilds.length >= 1 ? `\n\nActivated premium in ${theGuild!.name}` : ''
-					}`,
-				)
-				.setTimestamp();
-			return log
-				.send({
-					embeds: [embed],
-					avatarURL: this.client.user!.displayAvatarURL(),
-					username: `${this.client.user!.username}'s Vote Logs`,
-				})
-				.catch(() => undefined);
-		}
+		const embed = this.client.util
+			.embed()
+			.setAuthor(`${this.client.user!.username} Vote Logs`, this.client.user!.displayAvatarURL())
+			.setColor(this.client.config.color)
+			.setDescription(
+				`📥 New vote: **@${user.tag}** \`[${user.id}]\`${
+					guilds.length >= 1 ? `\n\nActivated premium in ${theGuild!.name}` : ''
+				}`,
+			)
+			.setTimestamp();
+		return this.log
+			.send({
+				embeds: [embed],
+				avatarURL: this.client.user!.displayAvatarURL(),
+				username: `${this.client.user!.username}'s Vote Logs`,
+			})
+			.catch(() => undefined);
 	}
 
 	public async expire(guild: Guild): Promise<void> {
@@ -147,16 +136,7 @@ export default class VoteHandler {
 		this._check();
 		this.interval = this.client.setInterval(this._check.bind(this), this.rate);
 
-		this.dbl = new DBL(
-			process.env.DBL_TOKEN,
-			{
-				port: 5329,
-				auth: process.env.DBL_SIGNATURE,
-			},
-			this.client,
-		);
-
-		this.dbl.on('vote', (vote: DBLVote) => this._vote(vote));
+		this.client.giveawayAPI.dbl.on('vote', this._vote.bind(this));
 	}
 
 	private _check(): void {
