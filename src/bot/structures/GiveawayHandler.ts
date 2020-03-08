@@ -1,9 +1,10 @@
 import GiveawayClient from '../client/GiveawayClient';
 import { Giveaway } from '../../database/models/Giveaway';
-import { TextChannel, Message } from 'discord.js';
+import { TextChannel, Message, ColorResolvable } from 'discord.js';
 import ms from '@naval-base/ms';
+import prettyms from 'pretty-ms';
 import { draw } from '../util';
-import { EMOJIS } from '../util/emojis';
+import { EMOJIS, PRETTY_MS_SETTINGS } from '../util/constants';
 
 export default class GiveawayHandler {
 	protected client: GiveawayClient;
@@ -14,7 +15,7 @@ export default class GiveawayHandler {
 
 	public waiting: Set<string> = new Set();
 
-	public constructor(client: GiveawayClient, { rate = 1000 * 15 } = {}) {
+	public constructor(client: GiveawayClient, { rate = 1000 * 30 } = {}) {
 		this.client = client;
 		this.rate = rate;
 	}
@@ -95,19 +96,23 @@ export default class GiveawayHandler {
 		return anotherBuffer.join(' ');
 	}
 
-	public async edit(g: Giveaway): Promise<void> {
+	public async edit(g: Giveaway, color?: ColorResolvable): Promise<void> {
 		const channel = this.client.channels.cache.get(g.channelID);
 		const message = await (channel as TextChannel)?.messages.fetch(g.messageID).catch(() => undefined);
 		if (!message || !message.embeds.length) return;
 
 		const embed = this.client.util.embed(message.embeds[0]);
 		const field = embed.fields.find(f => f.name === 'Time Remaining');
-		if (field) {
+
+		if (color) {
+			embed.setColor(color);
+			message.edit({ embed }).catch(() => undefined);
+		} else if (field) {
 			const index = embed.fields.indexOf(field);
 			if (index > -1) {
 				embed.spliceFields(index, 1, {
 					name: 'Time Remaining',
-					value: `\`${ms(g.endsAt.getTime() - Date.now(), true) || '.'}\``,
+					value: `\`${prettyms(g.endsAt.getTime() - Date.now(), PRETTY_MS_SETTINGS)}\``,
 					inline: false,
 				});
 				if (message.editable) message.edit({ embed }).catch(() => undefined);
@@ -129,7 +134,6 @@ export default class GiveawayHandler {
 		const giveaways = this.client.settings.cache.giveaways.filter(g => !g.fcfs && !g.complete && !g.maxEntries);
 		const now = Date.now();
 		if (!giveaways.size) return;
-		this.client.logger.verbose(`[GIVEAWAY HANDLER]: Checking ${giveaways.size} giveaway documents.`);
 		for (const g of giveaways.values()) {
 			if (g.endsAt.getTime() - now <= this.rate) this.queue(g);
 			if (g.endsAt.getTime() - now >= 5000) this.edit(g);

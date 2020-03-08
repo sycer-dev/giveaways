@@ -1,3 +1,5 @@
+import { Options } from 'pretty-ms';
+
 export const EMOJIS = {
 	'0': '686090767571222643',
 	'1': '686090767860891687',
@@ -11,3 +13,10 @@ export const EMOJIS = {
 	'9': '686090767617359890',
 	countdown: '686090767881470006',
 } as { [key: string]: string };
+
+export const PRETTY_MS_SETTINGS: Options = {
+	millisecondsDecimalDigits: 0,
+	secondsDecimalDigits: 0,
+	separateMilliseconds: true,
+	verbose: true,
+};

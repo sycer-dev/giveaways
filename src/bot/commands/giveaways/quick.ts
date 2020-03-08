@@ -1,7 +1,9 @@
-import { Command } from 'discord-akairo';
-import { Message, TextChannel, Permissions } from 'discord.js';
-import * as nodemoji from 'node-emoji';
 import ms from '@naval-base/ms';
+import { Command } from 'discord-akairo';
+import { Message, Permissions, TextChannel } from 'discord.js';
+import * as nodemoji from 'node-emoji';
+import prettyms from 'pretty-ms';
+import { PRETTY_MS_SETTINGS } from '../../util/constants';
 
 export interface Entries {
 	string: string;
@@ -120,7 +122,7 @@ export default class Giveaways extends Command {
 			.setTimestamp(new Date(Date.now() + duration))
 			.setTitle(title)
 			.addFields(
-				{ name: 'Time Remaining', value: `\`${ms(duration, true) || '.'}\`` },
+				{ name: 'Time Remaining', value: `\`${prettyms(duration, PRETTY_MS_SETTINGS) || '.'}\`` },
 				{
 					name: 'Host',
 					value: `${msg.author} [\`${msg.author.tag}\`]`,

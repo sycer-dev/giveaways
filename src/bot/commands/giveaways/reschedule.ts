@@ -1,7 +1,9 @@
+import ms from '@naval-base/ms';
 import { Command } from 'discord-akairo';
 import { Message, Permissions } from 'discord.js';
-import ms from '@naval-base/ms';
+import prettyms from 'pretty-ms';
 import { Giveaway } from '../../../database/models/Giveaway';
+import { PRETTY_MS_SETTINGS } from '../../util/constants';
 
 export default class RescheduleCommand extends Command {
 	public constructor() {
@@ -69,7 +71,7 @@ export default class RescheduleCommand extends Command {
 		return msg.util?.reply(
 			`successfully rescheduled the giveaway in ${this.client.channels.cache.get(
 				giveaway.channelID,
-			)}. It will end in \`${ms(duration, true)}\`.`,
+			)}. It will end in \`${prettyms(duration, PRETTY_MS_SETTINGS)}\`.`,
 		);
 	}
 }

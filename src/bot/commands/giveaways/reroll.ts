@@ -1,5 +1,5 @@
 import { Command } from 'discord-akairo';
-import { Message, TextChannel, Permissions } from 'discord.js';
+import { Message, Permissions, TextChannel } from 'discord.js';
 import { draw } from '../../util';
 
 export default class ManagerRole extends Command {

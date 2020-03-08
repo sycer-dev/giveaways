@@ -1,7 +1,9 @@
-import { Command, PrefixSupplier } from 'discord-akairo';
-import { Message, MessageReaction, User, TextChannel, Permissions } from 'discord.js';
-import { stripIndents } from 'common-tags';
 import ms from '@naval-base/ms';
+import { stripIndents } from 'common-tags';
+import { Command, PrefixSupplier } from 'discord-akairo';
+import { Message, MessageReaction, Permissions, TextChannel, User } from 'discord.js';
+import prettyms from 'pretty-ms';
+import { PRETTY_MS_SETTINGS } from '../../util/constants';
 
 export interface Entries {
 	string: string;
@@ -177,7 +179,7 @@ export default class Giveaways extends Command {
 
 							🎉 Emoij - ${rawEMOJI}
 
-							⏰ Duration - ${duration ? ms(duration, true) : 'None set yet.'}
+							⏰ Duration - ${duration ? prettyms(duration, PRETTY_MS_SETTINGS) : 'None set yet.'}
 
 							__Role-based Extra Entries__
 							Default - \`1\` Entry
@@ -534,7 +536,7 @@ export default class Giveaways extends Command {
 
 							📦 Channel - ${channel || 'None set yet.'}
 
-							⏰ Duration -  ${duration ? ms(duration, true) : 'None set yet.'}
+							⏰ Duration -  ${duration ? prettyms(duration, PRETTY_MS_SETTINGS) : 'None set yet.'}
 
 							🎉 Emoji - ${rawEMOJI}
 						`,
