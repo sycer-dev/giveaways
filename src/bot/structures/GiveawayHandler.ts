@@ -104,7 +104,7 @@ export default class GiveawayHandler {
 		const field = embed.fields.find(f => f.name === 'Time Remaining');
 		if (field) {
 			const index = embed.fields.indexOf(field);
-			if (index < -1) {
+			if (index > -1) {
 				embed.spliceFields(index, 1, {
 					name: 'Time Remaining',
 					value: `\`${ms(g.endsAt.getTime() - Date.now(), true) || '.'}\``,
