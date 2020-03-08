@@ -82,7 +82,7 @@ export default class GiveawayHandler {
 		let buffer = '';
 		for (const char of str) {
 			if (isNaN(parseInt(char, 10))) buffer += char;
-			buffer += this.client.emojis.cache.get(EMOJIS[char]);
+			buffer += this.client.emojis.cache.get(EMOJIS[char])?.toString();
 		}
 		const anotherBuffer: string[] = [];
 		for (const word of buffer.split(' ')) {
