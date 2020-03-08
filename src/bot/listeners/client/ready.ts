@@ -17,7 +17,6 @@ export default class ReadyListener extends Listener {
 
 	public async exec(): Promise<void> {
 		this.client.logger.info(`[READY] ${this.client.user!.tag} is ready to host some giveaways.`);
-		await this.client.giveawayAPI.init();
 		this.client.giveawayHandler.init();
 		this.client.voteHandler.init();
 
