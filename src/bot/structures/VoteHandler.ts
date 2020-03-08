@@ -119,7 +119,7 @@ export default class VoteHandler {
 	public async expire(guild: Guild): Promise<void> {
 		const g = this.client.guilds.cache.get(guild.id);
 		if (g) {
-			this.client.logger.info(`[MUTE MANAGER] [EXPIRY]: ${g.name} just expired!`);
+			this.client.logger.info(`[VOTE MANAGER] [EXPIRY]: ${g.name} just expired!`);
 			this.client.settings.set('guild', { id: guild.id }, { premium: false });
 			try {
 				const owner = await this.client.users.fetch(g.ownerID);
@@ -127,7 +127,7 @@ export default class VoteHandler {
 					`Oh no! Your premium benifits in **${g?.name}** has expired! You can vote again by running \`gvote\`!`,
 				);
 			} catch (err) {
-				this.client.logger.info(`[MUTE MANAGER] [EXPIRY DM]: ${err}`);
+				this.client.logger.info(`[VOTE MANAGER] [EXPIRY DM]: ${err}`);
 			}
 		}
 	}
@@ -137,6 +137,7 @@ export default class VoteHandler {
 		this.interval = this.client.setInterval(this._check.bind(this), this.rate);
 
 		this.client.giveawayAPI.dbl.on('vote', this._vote.bind(this));
+		this.client.giveawayAPI.dbl.on('invalid', () => this.client.logger.debug(`[VOTE MANAGER]: Recieved invalid vote!`));
 	}
 
 	private _check(): void {
