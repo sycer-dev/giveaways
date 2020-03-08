@@ -40,7 +40,6 @@ export default class DBL extends EventEmitter {
 		const signature = process.env.DBL_SIGNATURE!;
 		this.client.logger.debug(`\nheader: ${header}\nour signature: ${signature}\n\nequal: ${header === signature}`);
 		if (header !== signature) return super.emit('invalid');
-		this.client.logger.debug('[DBL]: Made it past header sig check.');
 
 		const { user, type, isWeekend, query } = req.body;
 		const fetchedUser = await this.client.users.fetch(user).catch(() => null);

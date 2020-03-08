@@ -2,15 +2,13 @@ import express, { Application, Request, Response } from 'express';
 import GiveawayClient from '../client/GiveawayClient';
 import helmet from 'helmet';
 import parser from 'body-parser';
-
 import DBL from '../util/dbl';
 
 export default class API {
 	public app: Application = express();
-
-	public readonly dbl: DBL;
-
 	protected readonly client: GiveawayClient;
+	public readonly dbl: DBL;
+	protected readonly port: number = Number(process.env.API_PORT!);
 
 	public constructor(client: GiveawayClient) {
 		this.client = client;
@@ -30,12 +28,29 @@ export default class API {
 		return this;
 	}
 
-	public init() {
-		this._initMiddleware();
+	private _initRoutes(): this {
 		this.app.post('/vote', this.dbl._handleVote.bind(this));
 		this.app.get('/metrics', this._sendMetrics.bind(this));
-		this.app.listen(process.env.API_PORT, () =>
-			this.client.logger.info(`[API]: API is live on port ${process.env.API_PORT}`),
-		);
+		return this;
+	}
+
+	private async _listen(): Promise<number> {
+		await new Promise((resolve: () => void) => {
+			this.app.listen(this.port, resolve);
+		});
+		this.client.logger.info(`[API]: API is live on port ${this.port}.`);
+		return this.port;
+	}
+
+	private _setup(): this {
+		this._initMiddleware();
+		this._initRoutes();
+		return this;
+	}
+
+	public async init(): Promise<this> {
+		this._setup();
+		await this._listen();
+		return this;
 	}
 }

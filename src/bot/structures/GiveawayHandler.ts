@@ -103,11 +103,11 @@ export default class GiveawayHandler {
 		const field = embed.fields.find(f => f.name === 'Time Remaining');
 		if (field) {
 			const index = embed.fields.indexOf(field);
-			embed.fields[index] = {
+			embed.spliceFields(index, 1, {
 				name: 'Time Remaining',
-				value: `\`${ms(g.endsAt.getTime() - Date.now(), true)}\``,
+				value: `\`${ms(g.endsAt.getTime() - Date.now(), true) || '.'}\``,
 				inline: false,
-			};
+			});
 		}
 		if (message.editable) message.edit({ embed });
 	}
