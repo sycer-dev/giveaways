@@ -14,7 +14,7 @@ export default class API {
 
 	public constructor(client: GiveawayClient) {
 		this.client = client;
-		this.dbl = new DBL(client, process.env.DBL_SECRET!);
+		this.dbl = new DBL(client, process.env.DBL_TOKEN!, process.env.DBL_SIGNATURE!);
 	}
 
 	private _sendMetrics(_: Request, res: Response): Response {

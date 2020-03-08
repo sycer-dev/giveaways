@@ -19,12 +19,15 @@ export default class DBL extends EventEmitter {
 
 	protected interval!: NodeJS.Timeout;
 
-	protected readonly secret: string;
+	protected readonly signature: string;
 
-	public constructor(client: GiveawayClient, secret: string) {
+	protected readonly token: string;
+
+	public constructor(client: GiveawayClient, token: string, signature: string) {
 		super();
 		this.client = client;
-		this.secret = secret;
+		this.token = token;
+		this.signature = signature;
 	}
 
 	private async _postStats(): Promise<number> {
@@ -33,13 +36,14 @@ export default class DBL extends EventEmitter {
 			body: JSON.stringify({
 				server_count: this.client.guilds.cache.size,
 			}),
+			headers: { Authorization: this.token },
 		});
 		return request.status;
 	}
 
 	public async _handleVote(req: Request): Promise<boolean> {
 		const header = req.get('Authorization');
-		if (header !== this.secret) return super.emit('invalid');
+		if (header !== this.signature) return super.emit('invalid');
 
 		const { user, type, isWeekend, query } = req.body;
 		const fetchedUser = await this.client.users.fetch(user).catch(() => null);
