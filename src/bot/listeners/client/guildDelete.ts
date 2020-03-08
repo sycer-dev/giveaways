@@ -14,8 +14,7 @@ export default class GuildDeleteListener extends Listener {
 
 	public async exec(guild: Guild): Promise<void> {
 		this.client.logger.info(`[LEFT GUILD] Left ${guild.name} with ${guild.memberCount} members.`);
-		const existing = this.client.settings.cache.guilds.get(guild.id);
-		if (!existing) this.client.settings.new('guild', { id: guild.id });
+		if (!guild.available) return;
 
 		const owner = await this.client.users.fetch(guild.ownerID).catch(() => null);
 		const durationJoined = Date.now() - guild?.me?.joinedAt?.getTime()!;
