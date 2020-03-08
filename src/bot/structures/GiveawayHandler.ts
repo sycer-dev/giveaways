@@ -110,9 +110,8 @@ export default class GiveawayHandler {
 					value: `\`${ms(g.endsAt.getTime() - Date.now(), true) || '.'}\``,
 					inline: false,
 				});
-				if (message.editable) message.edit({ embed });
-			}
-			this.client.logger.verbose(`[GIVEAWAY HANDLER]: Skipped edit for ${g._id}, index is ${index}.`);
+				if (message.editable) message.edit({ embed }).catch(() => undefined);
+			} else this.client.logger.verbose(`[GIVEAWAY HANDLER]: Skipped edit for ${g._id}, index is ${index}.`);
 		}
 	}
 
