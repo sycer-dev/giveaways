@@ -14,7 +14,7 @@ export default class GuildCreateListener extends Listener {
 	}
 
 	public async exec(guild: Guild): Promise<void> {
-		this.client.logger.info(`[NEW GUILD] Joined ${guild.name} with ${guild.memberCount} members.`);
+		this.client.logger.verbose(`[NEW GUILD] Joined ${guild.name} with ${guild.memberCount} members.`);
 		const existing = this.client.settings.cache.guilds.get(guild.id);
 		if (!existing) this.client.settings.new('guild', { id: guild.id });
 

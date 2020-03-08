@@ -13,7 +13,7 @@ export default class GuildDeleteListener extends Listener {
 	}
 
 	public async exec(guild: Guild): Promise<void> {
-		this.client.logger.info(`[LEFT GUILD] Left ${guild.name} with ${guild.memberCount} members.`);
+		this.client.logger.verbose(`[LEFT GUILD] Left ${guild.name} with ${guild.memberCount} members.`);
 		if (!guild.available) return;
 
 		const owner = await this.client.users.fetch(guild.ownerID).catch(() => null);

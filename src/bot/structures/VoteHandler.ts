@@ -143,7 +143,7 @@ export default class VoteHandler {
 	private _check(): void {
 		const guilds = this.client.settings.cache.guilds;
 		const now = Date.now();
-		this.client.logger.info(`[VOTE MANAGER] Checking ${guilds.size} guilds for votes.`);
+		this.client.logger.verbose(`[VOTE MANAGER] Checking ${guilds.size} guilds for votes.`);
 		for (const g of guilds.values()) {
 			if (!g.premium || !g.expiresAt) continue;
 			if (now > g.expiresAt.getTime()) this.expire(g);

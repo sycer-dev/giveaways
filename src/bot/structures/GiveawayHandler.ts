@@ -61,6 +61,7 @@ export default class GiveawayHandler {
 		}
 
 		const winners = draw(list, g.winnerCount);
+		this.client.logger.verbose(`[GIVEAWAY HANDLER]: Drew giveaway ${g._id}.`);
 
 		embed
 			.setDescription(`**Winner${winners.length === 1 ? '' : 's'}**:\n ${winners.map(r => r.toString()).join('\n')}`)
@@ -110,20 +111,24 @@ export default class GiveawayHandler {
 			});
 		}
 		if (message.editable) message.edit({ embed });
+		this.client.logger.verbose(`[GIVEAWAY HANDLER]: Edited ${g._id}.`);
 	}
 
 	public queue(g: Giveaway): void {
+		const untilFire = g.endsAt.getTime() - Date.now();
+		this.client.logger.verbose(`[GIVEAWAY HANDLER]: Queued ${g._id}, ${ms(untilFire)} until draw.`);
 		this.waiting.add(g.messageID);
 		this.client.setTimeout(() => {
 			this.end(g);
 			this.waiting.delete(g.messageID);
-		}, g.endsAt.getTime() - Date.now());
+		}, untilFire);
 	}
 
 	private _check(): void {
 		const giveaways = this.client.settings.cache.giveaways.filter(g => !g.fcfs && !g.complete && !g.maxEntries);
 		const now = Date.now();
 		if (!giveaways.size) return;
+		this.client.logger.verbose(`[GIVEAWAY HANDLER]: Checking ${giveaways.size} giveaway documents.`);
 		for (const g of giveaways.values()) {
 			if (g.endsAt.getTime() - now <= this.rate) this.queue(g);
 			if (g.endsAt.getTime() - now >= 5000) this.edit(g);

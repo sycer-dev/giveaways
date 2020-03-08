@@ -120,7 +120,7 @@ export default class Giveaways extends Command {
 			.setTimestamp(new Date(Date.now() + duration))
 			.setTitle(title)
 			.addFields(
-				{ name: 'Time Remaining', value: `\`${ms(duration, true)}\`` },
+				{ name: 'Time Remaining', value: `\`${ms(duration, true) || '.'}\`` },
 				{
 					name: 'Host',
 					value: `${msg.author} [\`${msg.author.tag}\`]`,

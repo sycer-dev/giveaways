@@ -62,7 +62,7 @@ export default class HelpCommand extends Command {
 					category
 						.filter(c => c.aliases.length > 0)
 						.map(cmd => `\`${cmd.aliases[0]}\``)
-						.join(', ') || '.';
+						.join(', ') || 'No commands.';
 				embed.addFields({
 					name: `${EMOJIS[category.id.toUpperCase()]} ${category.id.replace(/(\b\w)/gi, lc => lc.toUpperCase())}`,
 					value,
@@ -76,9 +76,9 @@ export default class HelpCommand extends Command {
 				.embed()
 				.setColor(msg.guild?.me?.displayColor || this.client.config.color)
 				.setTitle(`\`${arg.aliases[0]} ${arg.description.usage ? arg.description.usage : ''}\``)
-				.addFields({ name: 'Description', value: arg.description.content || '\u200b' });
+				.addFields({ name: 'Description', value: arg.description.content || 'No description.' });
 
-			if (arg.aliases.length > 1) embed.addFields({ name: 'Aliases', value: `\`${arg.aliases.join('`, `')}\`` });
+			if (arg.aliases.length > 1) embed.addFields({ name: 'Aliases', value: `\`${arg.aliases.join('`, `') || 'No aliases.'}\`` });
 			if (arg.description.examples && arg.description.examples.length)
 				embed.addFields({
 					name: 'Examples',
@@ -107,7 +107,7 @@ export default class HelpCommand extends Command {
 							: ''
 					}`,
 			)
-			.join('\n');
+			.join('\n') || 'No commands.';
 		embed.addFields({ name: 'Commands', value });
 		return msg.util?.send({ embed });
 	}
