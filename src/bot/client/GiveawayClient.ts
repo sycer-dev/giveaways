@@ -149,8 +149,8 @@ export default class GiveawayClient extends AkairoClient {
 	public readonly voteHandler: VoteHandler = new VoteHandler(this);
 
 	private async load(): Promise<void> {
+		this.on(Constants.Events.RAW, () => this.prometheus.eventCounter.inc());
 		this.on(Constants.Events.MESSAGE_CREATE, () => this.prometheus.messageCounter.inc());
-		this.on(Constants.Events.DEBUG, () => this.prometheus.eventCounter.inc());
 		this.commandHandler.on(AkairoConstants.CommandHandlerEvents.COMMAND_FINISHED, () =>
 			this.prometheus.commandCounter.inc(),
 		);
