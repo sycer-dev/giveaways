@@ -1,10 +1,16 @@
 import GiveawayClient from '../client/GiveawayClient';
 import { Giveaway } from '../../database/models/Giveaway';
-import { TextChannel, Message, ColorResolvable } from 'discord.js';
+import { TextChannel, Message, ColorResolvable, User, Snowflake } from 'discord.js';
 import ms from '@naval-base/ms';
 import prettyms from 'pretty-ms';
 import { draw } from '../util';
 import { EMOJIS, PRETTY_MS_SETTINGS } from '../util/constants';
+
+interface FetchReactionUsersOptions {
+	limit: number;
+	after?: Snowflake;
+	before?: Snowflake;
+}
 
 export default class GiveawayHandler {
 	protected client: GiveawayClient;
@@ -30,9 +36,19 @@ export default class GiveawayHandler {
 		const reaction = message.reactions.cache.get(g.emoji);
 		if (!reaction) return;
 
-		const _users = await reaction.users.fetch();
+		const _users: User[] = [];
+		let after = undefined;
+		while (true) {
+			const opts: FetchReactionUsersOptions = { limit: 100, after };
+			const _u = await reaction.users.fetch(opts);
+			if (_u.size) {
+				console.log(`recieved ${_u.size}`);
+				after = _u.first()!.id;
+				for (const user of _u.values()) _users.push(user);
+			} else break;
+		}
 		const _members = await message.guild!.members.fetch();
-		const list = _users.array().filter(u => u.id !== message.author.id);
+		const list = _users.filter(u => u.id !== message.author.id);
 
 		const used: string[] = [];
 		if (g.boosted?.length) {
@@ -96,7 +112,7 @@ export default class GiveawayHandler {
 		return anotherBuffer.join(' ');
 	}
 
-	public async edit(g: Giveaway, color?: ColorResolvable): Promise<void> {
+	private async edit(g: Giveaway, color?: ColorResolvable): Promise<void> {
 		const channel = this.client.channels.cache.get(g.channelID);
 		const message = await (channel as TextChannel)?.messages.fetch(g.messageID).catch(() => undefined);
 		if (!message || !message.embeds.length) return;
@@ -120,7 +136,7 @@ export default class GiveawayHandler {
 		}
 	}
 
-	public queue(g: Giveaway): void {
+	private queue(g: Giveaway): void {
 		const untilFire = g.endsAt.getTime() - Date.now();
 		this.client.logger.verbose(`[GIVEAWAY HANDLER]: Queued ${g._id}, ${ms(untilFire)} until draw.`);
 		this.waiting.add(g.messageID);
