@@ -42,7 +42,6 @@ export default class GiveawayHandler {
 			const opts: FetchReactionUsersOptions = { limit: 100, after };
 			const _u = await reaction.users.fetch(opts);
 			if (_u.size) {
-				console.log(`recieved ${_u.size}`);
 				after = _u.first()!.id;
 				for (const user of _u.values()) _users.push(user);
 			} else break;
