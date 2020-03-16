@@ -1,21 +1,19 @@
 import { Collection } from 'discord.js';
-import { connect, Model, connection, Connection, Document } from 'mongoose';
+import { connect, connection, Connection, Document, Model } from 'mongoose';
 import GiveawayModel, { Giveaway } from '../models/Giveaway';
 import GuildModel, { Guild } from '../models/Guild';
 import { Logger } from 'winston';
 import { MONGO_EVENTS } from '../util/constants';
 import GiveawayClient from '../../bot/client/GiveawayClient';
 
-let i = 0;
-
 /**
  * The key, model and cached collection of a database model.
  * @interface
  */
 interface Combo {
+	cache: Collection<string, any>;
 	key: string;
 	model: Model<any>;
-	cache: Collection<string, any>;
 }
 
 /**
@@ -31,6 +29,8 @@ export default class SettingsProvider {
 	protected readonly GiveawayModel = GiveawayModel;
 	protected readonly GuildModel = GuildModel;
 
+	public cachedOnStartup = 0;
+
 	/**
 	 *
 	 * @param {GiveawayClient} client - The extended Akairo Client
@@ -41,7 +41,6 @@ export default class SettingsProvider {
 
 	/**
 	 * Retuns all the collection caches.
-	 * @returns {Object}
 	 */
 	public get cache() {
 		return {
@@ -52,19 +51,18 @@ export default class SettingsProvider {
 
 	/**
 	 * Returns the database combos
-	 * @returns {Combo[]}
 	 */
 	public get combos(): Combo[] {
 		return [
 			{
+				cache: this.giveaways,
 				key: 'giveaway',
 				model: this.GiveawayModel,
-				cache: this.giveaways,
 			},
 			{
+				cache: this.guilds,
 				key: 'guild',
 				model: this.GuildModel,
-				cache: this.guilds,
 			},
 		];
 	}
@@ -74,8 +72,8 @@ export default class SettingsProvider {
 	 * @param {Types} type - The collection name
 	 * @param {object} data - The data for the new document
 	 */
-	public async new(type: 'giveaway', data: object): Promise<Giveaway>;
-	public async new(type: 'guild', data: object): Promise<Guild>;
+	public async new(type: 'giveaway', data: Partial<Giveaway>): Promise<Giveaway>;
+	public async new(type: 'guild', data: Partial<Guild>): Promise<Guild>;
 	public async new(type: string, data: object): Promise<Document> {
 		const combo = this.combos.find(c => c.key === type);
 		if (combo) {
@@ -91,16 +89,22 @@ export default class SettingsProvider {
 	/**
 	 * Updates the a database document's data.
 	 * @param {Types} type - The collection name
-	 * @param {object} key - The search paramaters for the document
+	 * @param {object | string} key - The search paramaters for the document. Accepts find params or ID
 	 * @param {object} data - The data you wish to overwrite in the update
 	 * @returns {Promise<Faction | Guild | null>}
 	 */
-	public async set(type: 'giveaway', key: object, data: object): Promise<Giveaway | null>;
-	public async set(type: 'guild', key: object, data: object): Promise<Guild | null>;
-	public async set(type: string, key: object, data: object): Promise<Document | null> {
+	public async set(
+		type: 'giveaway',
+		key: Partial<Giveaway> | string,
+		data: Partial<Giveaway>,
+	): Promise<Giveaway | null>;
+
+	public async set(type: 'guild', key: Partial<Guild> | string, data: Partial<Guild>): Promise<Guild | null>;
+	public async set(type: string, key: object | string, data: object): Promise<Document | null> {
 		const combo = this.combos.find(c => c.key === type);
 		if (combo) {
-			const document = await combo.model.findOneAndUpdate(key, { $set: data }, { new: true });
+			const opts = typeof key === 'string' ? { _id: key } : key;
+			const document = await combo.model.findOneAndUpdate(opts, { $set: data }, { new: true });
 			if (document) {
 				this.client.logger.verbose(`[DATABASE] Edited ${combo.model.modelName} document with ID of ${document._id}.`);
 				combo.cache.set(document.id, document);
@@ -117,8 +121,8 @@ export default class SettingsProvider {
 	 * @param {object} data - The search paramaters for the document
 	 * @returns {Promise<Faction | Guild | null>>} The document that was removed, if any.
 	 */
-	public async remove(type: 'giveaway', data: object): Promise<Giveaway | null>;
-	public async remove(type: 'guild', data: object): Promise<Guild | null>;
+	public async remove(type: 'giveaway', data: Partial<Giveaway>): Promise<Giveaway | null>;
+	public async remove(type: 'guild', data: Partial<Guild>): Promise<Guild | null>;
 	public async remove(type: string, data: object): Promise<Document | null> {
 		const combo = this.combos.find(c => c.key === type);
 		if (combo) {
@@ -140,7 +144,7 @@ export default class SettingsProvider {
 	 */
 	private async _cacheAll(): Promise<number> {
 		for (const combo of this.combos) await this._cache(combo);
-		return i;
+		return this.cachedOnStartup;
 	}
 
 	/**
@@ -149,13 +153,13 @@ export default class SettingsProvider {
 	 * @returns {number} The amount of documents cached from that collection.
 	 * @private
 	 */
-	private async _cache(combo: Combo): Promise<any> {
+	private async _cache(combo: Combo): Promise<number> {
 		const items = await combo.model.find();
 		for (const i of items) combo.cache.set(i.id, i);
 		this.client.logger.verbose(
 			`[DATABASE]: Cached ${items.length.toLocaleString('en-US')} items from ${combo.model.modelName}.`,
 		);
-		return (i += items.length);
+		return (this.cachedOnStartup += items.length);
 	}
 
 	/**
@@ -204,7 +208,9 @@ export default class SettingsProvider {
 		await this._connect(process.env.MONGO);
 		this.client.logger.verbose(`[DATABASE]: Now caching ${this.combos.length} schema documents.`);
 		await this._cacheAll();
-		this.client.logger.info(`[DATABASE] [LAUNCHED] Successfully connected and cached ${i} documents.`);
+		this.client.logger.info(
+			`[DATABASE] [LAUNCHED] Successfully connected and cached ${this.cachedOnStartup} documents.`,
+		);
 		return this;
 	}
 }
