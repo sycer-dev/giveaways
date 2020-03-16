@@ -41,7 +41,7 @@ export default class ManagerRole extends Command {
 		}
 
 		if (off) {
-			await this.client.settings.set('guild', { id: msg.guild!.id }, { manager: null });
+			await this.client.settings.set('guild', { id: msg.guild!.id }, { manager: undefined });
 			return msg.util?.reply('successfully **removed** the Giveaway Manager role.');
 		}
 
