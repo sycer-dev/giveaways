@@ -1,13 +1,13 @@
 import GiveawayClient from '../client/GiveawayClient';
 import { Giveaway } from '../../database/models/Giveaway';
-import { TextChannel, Message, ColorResolvable, User, Snowflake } from 'discord.js';
+import { TextChannel, Message, ColorResolvable, User, Snowflake, MessageReaction } from 'discord.js';
 import ms from '@naval-base/ms';
 import prettyms from 'pretty-ms';
 import { draw } from '../util';
 import { EMOJIS, PRETTY_MS_SETTINGS } from '../util/constants';
 
 interface FetchReactionUsersOptions {
-	limit: number;
+	limit?: number;
 	after?: Snowflake;
 	before?: Snowflake;
 }
@@ -26,9 +26,18 @@ export default class GiveawayHandler {
 		this.rate = rate;
 	}
 
+	private async fetchUsers(reaction: MessageReaction, after?: string): Promise<User[]> {
+		const opts: FetchReactionUsersOptions = { limit: 100, after };
+		const reactions = await reaction.users.fetch(opts);
+		if (!reactions.size) return [];
+
+		const last = reactions.first()?.id;
+		const next = await this.fetchUsers(reaction, last);
+		return reactions.array().concat(next);
+	}
+
 	public async end(g: Giveaway): Promise<Message | Message[] | void> {
 		await this.client.settings.set('giveaway', { messageID: g.messageID }, { complete: true });
-
 		const channel = this.client.channels.cache.get(g.channelID);
 		const message = await (channel as TextChannel)?.messages.fetch(g.messageID).catch(() => undefined);
 		if (!message || !message.embeds.length) return;
@@ -36,16 +45,7 @@ export default class GiveawayHandler {
 		const reaction = message.reactions.cache.get(g.emoji);
 		if (!reaction) return;
 
-		const _users: User[] = [];
-		let after = undefined;
-		while (true) {
-			const opts: FetchReactionUsersOptions = { limit: 100, after };
-			const _u = await reaction.users.fetch(opts);
-			if (_u.size) {
-				after = _u.first()!.id;
-				for (const user of _u.values()) _users.push(user);
-			} else break;
-		}
+		const _users = await this.fetchUsers(reaction);
 		const _members = await message.guild!.members.fetch();
 		const list = _users.filter(u => u.id !== message.author.id);
 
