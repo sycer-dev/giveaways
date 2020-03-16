@@ -11,13 +11,13 @@ export function drawOne<T>(shuffled: T[]): T {
 	return shuffled[Math.floor(Math.random() * shuffled.length)];
 }
 
-export function draw<T>(array: T[], winners: number): T[] {
+export function draw<T>(array: T[], winners: number, filterDuplicates = true): T[] {
 	if (array.length <= winners) return array;
 	const shuffled = shuffle(array);
 	const draw: T[] = [];
 	while (draw.length < winners) {
 		const w = drawOne(shuffled);
-		if (!draw.includes(w)) draw.push(w);
+		if (filterDuplicates && !draw.includes(w)) draw.push(w);
 	}
 	return draw;
 }
