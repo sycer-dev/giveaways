@@ -17,14 +17,12 @@ import API from '../structures/API';
 
 declare module 'discord-akairo' {
 	interface AkairoClient {
-		logger: Logger;
 		commandHandler: CommandHandler;
 		config: GiveawayOpts;
 		devlog: WebhookClient;
-		settings: SettingsProvider;
-		giveawayHandler: GiveawayHandler;
-		voteHandler: VoteHandler;
 		giveawayAPI: API;
+		giveawayHandler: GiveawayHandler;
+		logger: Logger;
 		prometheus: {
 			messageCounter: Gauge<string>;
 			userCounter: Gauge<string>;
@@ -37,13 +35,16 @@ declare module 'discord-akairo' {
 
 			register: Registry;
 		};
+
+		settings: SettingsProvider;
+		voteHandler: VoteHandler;
 	}
 }
 
 interface GiveawayOpts {
-	token: string;
-	owners: string | string[];
 	color: ColorResolvable;
+	owners: string | string[];
+	token: string;
 }
 
 export default class GiveawayClient extends AkairoClient {

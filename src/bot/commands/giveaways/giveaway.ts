@@ -1,9 +1,9 @@
 import ms from '@naval-base/ms';
 import { stripIndents } from 'common-tags';
 import { Command, PrefixSupplier } from 'discord-akairo';
-import { Message, MessageReaction, Permissions, TextChannel, User } from 'discord.js';
+import { Message, MessageReaction, Permissions, TextChannel, User, Util } from 'discord.js';
 import prettyms from 'pretty-ms';
-import { PRETTY_MS_SETTINGS } from '../../util/constants';
+import { PRETTY_MS_SETTINGS, TIER_ONE_DATA, TierOptions, SEND_DATA } from '../../util/constants';
 
 export interface Entries {
 	string: string;
@@ -65,6 +65,7 @@ export default class Giveaways extends Command {
 
 	public async exec(msg: Message, { type }: { type: string }): Promise<Message | Message[] | void> {
 		const guild = this.client.settings.cache.guilds.get(msg.guild!.id);
+
 		const preifx = (this.handler.prefix as PrefixSupplier)(msg);
 		if (type === '1') {
 			return this.tierOne(msg);
@@ -137,7 +138,33 @@ export default class Giveaways extends Command {
 		return collect.content;
 	}
 
+	private _makeCurrentSettings(data: TierOptions[]): string {
+		const template = (emoji: string, title: string, value: any) => `${emoji} ${title} - ${value || 'None set.'}`;
+		const mapped = data
+			.map(d => {
+				if (d.normal) return template(d.emoji, d.title, d.value);
+				if (d.title === 'Channel') return template(d.emoji, d.title, this.client.channels.cache.get(d.value as string));
+				if (d.title === 'Emoji')
+					return template(
+						d.emoji,
+						d.title,
+						(d.value as string).length >= 3 ? this.client.emojis.cache.get(d.value as string) : d.value,
+					);
+				if (d.emoji === '⏰')
+					return template(
+						d.emoji,
+						d.title,
+						isNaN(d.value as number) ? '' : prettyms(d.value as number, PRETTY_MS_SETTINGS),
+					);
+				if (d.title === 'Role-based Extra Entries') return false;
+				return template(d.emoji, d.title, d.value);
+			})
+			.filter(d => d !== false);
+		return mapped.join('\n');
+	}
+
 	public async tierOne(msg: Message): Promise<Message | Message[] | void> {
+		const data = TIER_ONE_DATA.slice();
 		const EMOJIS = ['📋', '💰', '📦', '🎉', '⏰', '📊', '🛑'];
 		const live = true;
 		let title;
@@ -150,50 +177,35 @@ export default class Giveaways extends Command {
 		let rawEMOJI = emoji;
 		const entries: Entries[] = [];
 		const m = await msg.channel.send('Traditional Giveaway Builder');
-		for (const e of EMOJIS) await m.react(e);
+		for (const e of data.map(d => d.emoji)) await m.react(e);
 		while (live) {
+			const isDone = data.every(d => (d.required ? Boolean(d.value) : true));
+
+			if (isDone) {
+				await m.react('✅');
+				data.push(SEND_DATA);
+			}
+
 			const embed = this.client.util
 				.embed()
 				.setColor(msg.guild?.me?.displayColor || this.client.config.color)
-				.addFields(
-					{
-						name: 'Possible Methods',
-						value: stripIndents`
-							📋 - Title
-							💰 - Winner Count
-							📦 - Channel
-							🎉 - Emoji
-							⏰ - Duration
-							📊 - Role-based Extra Entries
-						`,
-						inline: true,
-					},
-					{
-						name: 'Current Settings',
-						value: stripIndents`
-							📋 Title - ${title || 'None set yet.'}
+				.addField(
+					'Possible Methods',
+					data.map(d => `${d.emoji} - ${d.title}`),
+					true,
+				)
+				.addField(
+					'Current Settings',
+					stripIndents`
+					${this._makeCurrentSettings(data)}
 
-							💰 Winner Count - ${winnerCount || 'None set yet.'}
-
-							📦 Channel - ${channel || 'None set yet.'}
-
-							🎉 Emoij - ${rawEMOJI}
-
-							⏰ Duration - ${duration ? prettyms(duration, PRETTY_MS_SETTINGS) : 'None set yet.'}
-
-							__Role-based Extra Entries__
-							Default - \`1\` Entry
-							${entries.map(e => `<@&${e.string}> - \`${e.entries}\` entries`).join('\n')}
-						`,
-						inline: true,
-					},
+					__Role-based Extra Entries__
+					Default - \`1\` Entry
+					${entries.map(e => `<@&${e.string}> - \`${e.entries}\` entries`).join('\n')}
+				`,
+					true,
 				);
 			await m.edit({ embed });
-
-			if (title && winnerCount && channel && rawEMOJI && duration) {
-				await m.react('✅');
-				EMOJIS.push('✅');
-			}
 
 			const collector = await m.awaitReactions(
 				(r: MessageReaction, u: User): boolean => msg.author.id === u.id && EMOJIS.includes(r.emoji.name),
@@ -202,7 +214,7 @@ export default class Giveaways extends Command {
 					time: 60000,
 				},
 			);
-			if (!collector || collector.size !== 1) {
+			if (collector.size !== 1) {
 				if (m.editable) await m.edit('You took too long! Giveaway builder closed.', { embed: null });
 				m.reactions.removeAll();
 				return m;
@@ -528,7 +540,7 @@ export default class Giveaways extends Command {
 					{
 						name: 'Current Settings',
 						value: stripIndents`
-							📋\` Title - ${title || 'None set yet.'}
+							📋 Title - ${title || 'None set yet.'}
 
 							👥 Max Entries - ${maxEntries || 'None set yet.'}
 
