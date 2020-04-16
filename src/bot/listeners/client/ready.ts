@@ -18,8 +18,12 @@ export default class ReadyListener extends Listener {
 
 	public async exec(): Promise<void> {
 		this.client.logger.info(`[READY] ${this.client.user!.tag} is ready to host some giveaways.`);
+
+		if (isMaster) {
+			this.client.voteHandler.init();
+			setInterval(() => this._prometheus(), 1000 * 45);
+		}
 		this.client.giveawayHandler.init();
-		this.client.voteHandler.init();
 
 		this.client.settings.cache.guilds.sweep(({ id }) => !this.client.guilds.cache.has(id));
 
@@ -31,10 +35,6 @@ export default class ReadyListener extends Listener {
 		await this.client.user?.setActivity(`giveawaybot.fun | gguide 🎉`, { type: 'WATCHING' });
 
 		setInterval(() => this._clearPresences(), 9e5);
-
-		if (isMaster) {
-			setInterval(() => this._prometheus(), 1000 * 45);
-		}
 	}
 
 	private _clearPresences(): void {
