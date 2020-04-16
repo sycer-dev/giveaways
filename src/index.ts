@@ -17,7 +17,6 @@ const manager = new ShardingManager(join(__dirname, 'bot', 'structures', 'Giveaw
 	development: DEV,
 	respawn: !DEV,
 	token: process.env.DISCORD_TOKEN,
-	guildsPerShard: 800,
 });
 
 manager.on(SharderEvents.DEBUG, (info: string) => logger.debug(`[SHARDING MANAGER] [DEBUG]: ${info}`));

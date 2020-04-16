@@ -39,13 +39,12 @@ export default class StatsCommand extends Command {
 			.setFooter(`On Shard #${this.client.shard?.id || 0}`)
 			.addField(
 				'Discord Data',
-				stripIndents`
-				• Guilds: ${codeb(localize(guilds))}
-					• This Shard: ${codeb(localize(this.client.guilds.cache.size))}
-				• Channels: ${codeb(localize(channels))}
-					• This Shard: ${codeb(localize(this.client.channels.cache.size))}
-				• Users: ${codeb(localize(users))}
-					• This Shard: ${codeb(localize(this.client.guilds.cache.reduce((x, { memberCount }) => (x += memberCount), 0)))}
+				`
+				• Guilds: ${codeb(localize(guilds))} (this shard: ${codeb(localize(this.client.guilds.cache.size))})
+				• Channels: ${codeb(localize(channels))} (this shard: ${codeb(localize(this.client.channels.cache.size))})
+				• Users: ${codeb(localize(users))} (this shard: ${codeb(
+					localize(this.client.guilds.cache.reduce((x, { memberCount }) => (x += memberCount), 0)),
+				)})
 			`,
 			)
 			.addField(
