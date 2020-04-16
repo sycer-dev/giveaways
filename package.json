@@ -2,7 +2,7 @@
     "name": "giveaways",
     "version": "2.0.0",
     "description": "A feature dense Discord Giveaways bot 🎉",
-    "main": "dist/giveaways.js",
+    "main": "dist/index.js",
     "scripts": {
         "build": "pnpm run cleardir && pnpm run compile",
         "cleardir": "rimraf dist/*",
