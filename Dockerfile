@@ -1,7 +1,7 @@
 FROM node:12-alpine
 
 LABEL name "Giveaway Bot"
-LABEL version "1.0.4"
+LABEL version "1.1.0"
 LABEL maintainer "Carter Himmel <fyko@sycer.dev>"
 EXPOSE 5501
 
@@ -18,7 +18,8 @@ RUN apk add --update \
 
 COPY . .
 
-ENV ID= \
+ENV NODE_ENV= \
+	ID= \
 	DISCORD_TOKEN= \
 	OWNERS= \
 	COLOR= \
@@ -33,6 +34,7 @@ ENV ID= \
 	LOG_ID= \
 	LOG_TOKEN= \
 	API_PORT=
+
 RUN pnpm run build
 CMD ["node", "."]
 

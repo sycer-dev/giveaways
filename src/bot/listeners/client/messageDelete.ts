@@ -11,7 +11,6 @@ export default class MessageDeleteListener extends Listener {
 	}
 
 	public exec(msg: Message): void {
-		const doc = this.client.settings.cache.giveaways.find(g => g.messageID === msg.id && !g.complete);
-		if (doc) this.client.settings.set('giveaway', { _id: doc._id }, { complete: true });
+		this.client.settings.set('giveaway', { messageID: msg.id }, { complete: true });
 	}
 }

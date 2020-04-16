@@ -1,5 +1,5 @@
 import { Collection } from 'discord.js';
-import { connect, connection, Connection, Document, Model } from 'mongoose';
+import { connect, connection, Connection, Document, Model, Schema } from 'mongoose';
 import GiveawayModel, { Giveaway } from '../models/Giveaway';
 import GuildModel, { Guild } from '../models/Guild';
 import { Logger } from 'winston';
@@ -11,7 +11,7 @@ import GiveawayClient from '../../bot/client/GiveawayClient';
  * @interface
  */
 interface Combo {
-	cache: Collection<string, any>;
+	cache?: Collection<string, any>;
 	key: string;
 	model: Model<any>;
 }
@@ -23,7 +23,6 @@ interface Combo {
 export default class SettingsProvider {
 	protected readonly client: GiveawayClient;
 
-	protected readonly giveaways: Collection<string, Giveaway> = new Collection();
 	protected readonly guilds: Collection<string, Guild> = new Collection();
 
 	protected readonly GiveawayModel = GiveawayModel;
@@ -44,7 +43,6 @@ export default class SettingsProvider {
 	 */
 	public get cache() {
 		return {
-			giveaways: this.giveaways,
 			guilds: this.guilds,
 		};
 	}
@@ -55,7 +53,6 @@ export default class SettingsProvider {
 	public get combos(): Combo[] {
 		return [
 			{
-				cache: this.giveaways,
 				key: 'giveaway',
 				model: this.GiveawayModel,
 			},
@@ -65,6 +62,42 @@ export default class SettingsProvider {
 				model: this.GuildModel,
 			},
 		];
+	}
+
+	/**
+	 * Counts how many documents there are in a collection
+	 * @param type {string} The collection name
+	 * @param key {object} The data to search for
+	 */
+	public async count(type: 'giveaway', key?: Partial<Giveaway>): Promise<number>;
+	public async count(type: 'guild', key?: Partial<Guild>): Promise<number>;
+	public async count(type: string, key?: object): Promise<number> {
+		const combo = this.combos.find(c => c.key === type);
+		if (combo) {
+			const count = key ? await combo.model.countDocuments(key) : await combo.model.countDocuments();
+			return count;
+		}
+		throw Error(`"${type}" is not a valid model key.`);
+	}
+
+	/**
+	 * Fetches documents from the database.
+	 * @param type {string} The collection name
+	 * @param key {object} The data to search for
+	 * @param returnOne {boolean} Wether to return one document or the whole search query
+	 */
+	public async get(type: 'giveaway', key: Partial<Giveaway>): Promise<Giveaway | null>;
+	public async get(type: 'giveaway', key: Partial<Giveaway>, returnOne: false): Promise<Giveaway[]>;
+	public async get(type: 'guild', key: Partial<Guild>): Promise<Guild | null>;
+	public async get(type: 'guild', key: Partial<Guild>, returnOne: false): Promise<Guild[]>;
+	public async get(type: string, key: object, returnOne = true): Promise<object[] | object | null> {
+		const combo = this.combos.find(c => c.key === type);
+		if (combo) {
+			const documents = await combo.model.find(key);
+			if (returnOne) return documents[0] || null;
+			return documents;
+		}
+		throw Error(`"${type}" is not a valid model key.`);
 	}
 
 	/**
@@ -80,7 +113,7 @@ export default class SettingsProvider {
 			const document = new combo.model(data);
 			await document.save();
 			this.client.logger.data(`[DATABASE] Made new ${combo.model.modelName} document with ID of ${document._id}.`);
-			combo.cache.set(document.id, document);
+			if (combo.cache) combo.cache.set(document.id, document);
 			return document;
 		}
 		throw Error(`"${type}" is not a valid model key.`);
@@ -101,13 +134,40 @@ export default class SettingsProvider {
 
 	public async set(type: 'guild', key: Partial<Guild> | string, data: Partial<Guild>): Promise<Guild | null>;
 	public async set(type: string, key: object | string, data: object): Promise<Document | null> {
+		// @ts-ignore
+		if (key._id) return this.setById(type, key._id, data);
+
 		const combo = this.combos.find(c => c.key === type);
 		if (combo) {
 			const opts = typeof key === 'string' ? { _id: key } : key;
 			const document = await combo.model.findOneAndUpdate(opts, { $set: data }, { new: true });
 			if (document) {
 				this.client.logger.verbose(`[DATABASE] Edited ${combo.model.modelName} document with ID of ${document._id}.`);
-				combo.cache.set(document.id, document);
+				if (combo.cache) combo.cache.set(document.id, document);
+				return document;
+			}
+			return null;
+		}
+		throw Error(`"${type}" is not a valid model key.`);
+	}
+
+	/**
+	 * Updates the a database document's data searching by it's ID.
+	 * @param {Types} type - The collection name
+	 * @param {object | string} key - The search paramaters for the document. Accepts find params or ID
+	 * @param {object} data - The data you wish to overwrite in the update
+	 * @returns {Promise<object>}
+	 */
+	public async setById(type: 'giveaway', id: Schema.Types.ObjectId, data: Partial<Giveaway>): Promise<Giveaway | null>;
+
+	public async setById(type: 'guild', id: Schema.Types.ObjectId | string, data: Partial<Guild>): Promise<Guild | null>;
+	public async setById(type: string, id: Schema.Types.ObjectId, data: object): Promise<object | null> {
+		const combo = this.combos.find(c => c.key === type);
+		if (combo) {
+			const document = await combo.model.findByIdAndUpdate(id, { $set: data }, { new: true });
+			if (document) {
+				this.client.logger.verbose(`[DATABASE] Edited ${combo.model.modelName} document with ID of ${document._id}.`);
+				if (combo.cache) combo.cache.set(document.id, document);
 				return document;
 			}
 			return null;
@@ -129,7 +189,7 @@ export default class SettingsProvider {
 			const document = await combo.model.findOneAndRemove(data);
 			if (document) {
 				this.client.logger.verbose(`[DATABASE] Edited ${combo.model.modelName} document with ID of ${document._id}.`);
-				combo.cache.delete(document.id);
+				if (combo.cache) combo.cache.delete(document.id);
 				return document;
 			}
 			return null;
@@ -143,7 +203,7 @@ export default class SettingsProvider {
 	 * @private
 	 */
 	private async _cacheAll(): Promise<number> {
-		for (const combo of this.combos) await this._cache(combo);
+		for (const combo of this.combos.filter(c => typeof c.cache !== 'undefined')) await this._cache(combo);
 		return this.cachedOnStartup;
 	}
 
@@ -155,7 +215,7 @@ export default class SettingsProvider {
 	 */
 	private async _cache(combo: Combo): Promise<number> {
 		const items = await combo.model.find();
-		for (const i of items) combo.cache.set(i.id, i);
+		for (const i of items) combo.cache!.set(i.id, i);
 		this.client.logger.verbose(
 			`[DATABASE]: Cached ${items.length.toLocaleString('en-US')} items from ${combo.model.modelName}.`,
 		);

@@ -19,11 +19,9 @@ export default class RescheduleCommand extends Command {
 			args: [
 				{
 					id: 'giveaway',
-					type: (msg: Message, str: string): Giveaway | null => {
+					type: async (msg: Message, str: string): Promise<Giveaway | null> => {
 						if (str) {
-							const doc = this.client.settings.cache.giveaways.find(
-								g => g.messageID === str && g.guildID === msg.guild?.id,
-							);
+							const doc = await this.client.settings.get('giveaway', { messageID: str, guildID: msg.guild!.id });
 							if (doc) return doc;
 						}
 						return null;

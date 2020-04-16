@@ -13,12 +13,11 @@ export default class VoteCommand extends Command {
 	}
 
 	public async exec(msg: Message): Promise<Message | Message[] | void> {
+		const { username, id } = this.client.user!;
 		const embed = this.client.util
 			.embed()
 			.setColor(this.client.config.color)
-			.setDescription(
-				`To recieve premium benifits please vote for ${this.client.user?.username} at [Top.gg](https://top.gg/bot/${this.client.user?.id})`,
-			);
+			.setDescription(`To recieve premium benifits please vote for ${username} at [Top.gg](https://top.gg/bot/${id}).`);
 		return msg.util?.send({ embed });
 	}
 }

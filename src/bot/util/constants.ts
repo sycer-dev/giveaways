@@ -1,5 +1,10 @@
 import { Options } from 'pretty-ms';
 
+export interface Flag {
+	flags: string[];
+	description: string;
+}
+
 export const EMOJIS = {
 	'0': '686090767571222643',
 	'1': '686090767860891687',

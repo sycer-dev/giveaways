@@ -44,14 +44,15 @@ export default class ManagerRole extends Command {
 	}
 
 	public async exec(msg: Message, { count }: { count: number }): Promise<Message | Message[] | void> {
-		const giveaways = this.client.settings.cache.giveaways.filter(
-			g => g.complete && g.channelID === msg.channel.id && !g.fcfs && !g.maxEntries,
+		const giveaways = await this.client.settings.get(
+			'giveaway',
+			{ complete: true, channelID: msg.channel.id, guildID: msg.guild!.id, fcfs: false, maxEntries: undefined },
+			false,
 		);
-		if (!giveaways.size) return msg.util?.reply("sorry! I couldn't find any ended giveaways in this channel");
+
+		if (!giveaways.length) return msg.util?.reply("sorry! I couldn't find any ended giveaways in this channel");
 		const g =
-			giveaways.size === 1
-				? giveaways.first()!
-				: giveaways.sort((a, b) => b.endsAt.getTime() - a.endsAt.getTime()).first()!;
+			giveaways.length === 1 ? giveaways[0]! : giveaways.sort((a, b) => b.endsAt.getTime() - a.endsAt.getTime())[0]!;
 
 		const message = await (this.client.channels.cache.get(g.channelID) as TextChannel).messages
 			.fetch(g.messageID)

@@ -1,19 +1,20 @@
+import { isMaster } from 'cluster';
 import {
 	AkairoClient,
 	CommandHandler,
+	Constants as AkairoConstants,
 	InhibitorHandler,
 	ListenerHandler,
-	Constants as AkairoConstants,
 } from 'discord-akairo';
-import { ColorResolvable, Message, WebhookClient, Constants } from 'discord.js';
+import { ColorResolvable, Constants, Message, WebhookClient } from 'discord.js';
 import { join } from 'path';
-import { Gauge, register, Registry } from 'prom-client';
 import { Logger } from 'winston';
-import { logger } from '../util/logger';
 import SettingsProvider from '../../database/structures/SettingsProvider';
-import GiveawayHandler from '../structures/GiveawayHandler';
-import VoteHandler from '../structures/VoteHandler';
 import API from '../structures/API';
+import GiveawayHandler from '../structures/GiveawayHandler';
+import { Prometheus, prometheus } from '../structures/Prometheus';
+import VoteHandler from '../structures/VoteHandler';
+import { logger } from '../util/logger';
 
 declare module 'discord-akairo' {
 	interface AkairoClient {
@@ -24,19 +25,8 @@ declare module 'discord-akairo' {
 		settings: SettingsProvider;
 		giveawayHandler: GiveawayHandler;
 		voteHandler: VoteHandler;
-		giveawayAPI: API;
-		prometheus: {
-			messageCounter: Gauge<string>;
-			userCounter: Gauge<string>;
-			guildCounter: Gauge<string>;
-			giveawayCounter: Gauge<string>;
-			activeGiveawaysCounter: Gauge<string>;
-			completedGiveawaysCounter: Gauge<string>;
-			commandCounter: Gauge<string>;
-			eventCounter: Gauge<string>;
-
-			register: Registry;
-		};
+		giveawayAPI?: API;
+		prometheus: Prometheus;
 	}
 }
 
@@ -44,22 +34,22 @@ interface GiveawayOpts {
 	token: string;
 	owners: string | string[];
 	color: ColorResolvable;
+	prefix: string;
 }
 
 export default class GiveawayClient extends AkairoClient {
-	public constructor(config: GiveawayOpts) {
+	public constructor() {
 		super({
-			messageCacheMaxSize: 25,
-			messageCacheLifetime: 300,
-			messageSweepInterval: 900,
-			ownerID: config.owners,
-			partials: [Constants.PartialTypes.REACTION],
+			ownerID: process.env.OWNERS!.split(','),
 		});
-
-		this.config = config;
 	}
 
-	public readonly config: GiveawayOpts;
+	public readonly config: GiveawayOpts = {
+		token: process.env.DISCORD_TOKEN!,
+		owners: process.env.OWNERS!.split(','),
+		color: process.env.COLOR!,
+		prefix: process.env.PREFIX!,
+	};
 
 	public readonly devlog: WebhookClient = new WebhookClient(process.env.LOG_ID!, process.env.LOG_TOKEN!);
 
@@ -74,14 +64,14 @@ export default class GiveawayClient extends AkairoClient {
 				const req = this.settings.cache.guilds.get(msg.guild.id);
 				if (req) return req.prefix;
 			}
-			return 'g';
+			return this.config.prefix;
 		},
 		aliasReplacement: /-/g,
 		allowMention: true,
 		handleEdits: true,
 		commandUtil: true,
 		commandUtilLifetime: 3e5,
-		defaultCooldown: 3000,
+		defaultCooldown: 3500,
 		argumentDefaults: {
 			prompt: {
 				modifyStart: (msg: Message, str: string) =>
@@ -106,53 +96,21 @@ export default class GiveawayClient extends AkairoClient {
 		directory: join(__dirname, '..', 'listeners'),
 	});
 
-	public prometheus = {
-		messageCounter: new Gauge({
-			name: 'giveaway_bot_messages',
-			help: 'Total number of messages Giveaway Bot has seen.',
-		}),
-		userCounter: new Gauge({
-			name: 'giveaway_bot_users',
-			help: 'Histogram of all users Giveaway Bot has seen.',
-		}),
-		guildCounter: new Gauge({
-			name: 'giveaway_bot_guilds',
-			help: 'Histogram of all users Giveaway Bot has seen.',
-		}),
-		giveawayCounter: new Gauge({
-			name: 'giveaway_bot_giveaways',
-			help: 'Total number of giveaways Giveaway Bot has hosted.',
-		}),
-		activeGiveawaysCounter: new Gauge({
-			name: 'giveaway_bot_active_giveaways',
-			help: 'The total number of active giveaways.',
-		}),
-		completedGiveawaysCounter: new Gauge({
-			name: 'giveaway_bot_completed_giveaways',
-			help: 'The total number of completed giveaways.',
-		}),
-		commandCounter: new Gauge({
-			name: 'giveaway_bot_commands',
-			help: 'Total number of commands Giveaway Bot has ran.',
-		}),
-		eventCounter: new Gauge({
-			name: 'giveaway_bot_gateway_events',
-			help: 'Total number of events Giveawat Bot has recieved through the gateway.',
-		}),
-		register,
-	};
-
-	public giveawayAPI: API = new API(this);
+	public prometheus = prometheus;
 
 	public readonly settings: SettingsProvider = new SettingsProvider(this);
 
-	public readonly voteHandler: VoteHandler = new VoteHandler(this);
-
 	private async load(): Promise<void> {
-		this.on(Constants.Events.RAW, () => this.prometheus.eventCounter.inc());
-		this.on(Constants.Events.MESSAGE_CREATE, () => this.prometheus.messageCounter.inc());
+		if (isMaster) {
+			this.voteHandler = new VoteHandler(this);
+			this.giveawayAPI = new API(this);
+		}
+
+		// @ts-ignore
+		this.on('raw', () => this.prometheus.metrics.eventCounter.inc());
+		this.on(Constants.Events.MESSAGE_CREATE, () => this.prometheus.metrics.messageCounter.inc());
 		this.commandHandler.on(AkairoConstants.CommandHandlerEvents.COMMAND_FINISHED, () =>
-			this.prometheus.commandCounter.inc(),
+			this.prometheus.metrics.commandCounter.inc(),
 		);
 
 		this.listenerHandler.setEmitters({
@@ -171,7 +129,7 @@ export default class GiveawayClient extends AkairoClient {
 	}
 
 	public async launch(): Promise<string> {
-		this.giveawayAPI.init();
+		if (isMaster) this.giveawayAPI!.init();
 		await this.load();
 		await this.settings.init();
 		return this.login(this.config.token);

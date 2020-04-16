@@ -1,10 +1,10 @@
-import GiveawayClient from '../client/GiveawayClient';
-import { Giveaway } from '../../database/models/Giveaway';
-import { TextChannel, Message, ColorResolvable, User, Snowflake, MessageReaction } from 'discord.js';
 import ms from '@naval-base/ms';
+import { ColorResolvable, Message, MessageReaction, Snowflake, TextChannel, User } from 'discord.js';
 import prettyms from 'pretty-ms';
+import GiveawayModel, { Giveaway } from '../../database/models/Giveaway';
+import GiveawayClient from '../client/GiveawayClient';
 import { draw } from '../util';
-import { EMOJIS, PRETTY_MS_SETTINGS } from '../util/constants';
+import { PRETTY_MS_SETTINGS } from '../util/constants';
 
 interface FetchReactionUsersOptions {
 	limit?: number;
@@ -37,7 +37,7 @@ export default class GiveawayHandler {
 	}
 
 	public async end(g: Giveaway): Promise<Message | Message[] | void> {
-		await this.client.settings.set('giveaway', { messageID: g.messageID }, { complete: true });
+		await this.client.settings.setById('giveaway', g._id, { complete: true });
 		const channel = this.client.channels.cache.get(g.channelID);
 		const message = await (channel as TextChannel)?.messages.fetch(g.messageID).catch(() => undefined);
 		if (!message || !message.embeds.length) return;
@@ -94,23 +94,6 @@ export default class GiveawayHandler {
 			);
 	}
 
-	public makeEmojiString(dur: number): string {
-		const str = ms(dur, true);
-		let buffer = '';
-		for (const char of str) {
-			if (isNaN(parseInt(char, 10))) buffer += char;
-			buffer += this.client.emojis.cache.get(EMOJIS[char])?.toString();
-		}
-		const anotherBuffer: string[] = [];
-		for (const word of buffer.split(' ')) {
-			if (['second', 'seconds', 'sec', 's'].includes(word)) {
-				anotherBuffer[anotherBuffer.length - 1] = this.client.emojis.cache.get(EMOJIS.countdown)!.toString();
-			}
-			anotherBuffer.push(word);
-		}
-		return anotherBuffer.join(' ');
-	}
-
 	private async edit(g: Giveaway, color?: ColorResolvable): Promise<void> {
 		const channel = this.client.channels.cache.get(g.channelID);
 		const message = await (channel as TextChannel)?.messages.fetch(g.messageID).catch(() => undefined);
@@ -145,10 +128,17 @@ export default class GiveawayHandler {
 		}, untilFire);
 	}
 
-	private _check(): void {
-		const giveaways = this.client.settings.cache.giveaways.filter(g => !g.fcfs && !g.complete && !g.maxEntries);
+	private async _check(): Promise<void> {
+		const $in = this.client.guilds.cache.keyArray();
+		const giveaways = await GiveawayModel.find({
+			fcfs: false,
+			complete: false,
+			maxEntries: undefined,
+			guildID: { $in },
+		});
+
 		const now = Date.now();
-		if (!giveaways.size) return;
+		if (!giveaways.length) return;
 		for (const g of giveaways.values()) {
 			if (g.endsAt.getTime() - now <= this.rate) this.queue(g);
 			if (g.endsAt.getTime() - now >= 5000) this.edit(g);

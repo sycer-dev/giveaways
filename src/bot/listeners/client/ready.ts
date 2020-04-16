@@ -1,5 +1,6 @@
 import { Listener } from 'discord-akairo';
 import { ActivityType, Constants, Guild } from 'discord.js';
+import { isMaster } from 'cluster';
 
 export interface ReactionStatus {
 	text: string;
@@ -20,6 +21,8 @@ export default class ReadyListener extends Listener {
 		this.client.giveawayHandler.init();
 		this.client.voteHandler.init();
 
+		this.client.settings.cache.guilds.sweep(({ id }) => !this.client.guilds.cache.has(id));
+
 		for (const id of this.client.guilds.cache.keys()) {
 			const existing = this.client.settings.cache.guilds.get(id);
 			if (!existing) await this.client.settings.new('guild', { id });
@@ -29,30 +32,35 @@ export default class ReadyListener extends Listener {
 
 		setInterval(() => this._clearPresences(), 9e5);
 
-		setInterval(() => this._prometheus(), 1000 * 10);
+		if (isMaster) {
+			setInterval(() => this._prometheus(), 1000 * 45);
+		}
 	}
 
 	private _clearPresences(): void {
-		const i = this.client.guilds.cache.reduce((acc: number, g: Guild): number => {
-			acc += g.presences.cache.size;
-			g.presences.cache.clear();
+		const i = this.client.guilds.cache.reduce((acc: number, { presences: { cache } }: Guild): number => {
+			acc += cache.size;
+			cache.clear();
 			return acc;
 		}, 0);
-		this.client.emit('debug', `[PRESNCES]: Cleared ${i} presneces in ${this.client.guilds.cache.size} guilds.`);
+		this.client.emit('debug', `[PRESENCES]: Cleared ${i} presences in ${this.client.guilds.cache.size} guilds.`);
 	}
 
-	private _prometheus(): void {
-		const userCount = this.client.guilds.cache.reduce((acc, g): number => (acc += g.memberCount), 0);
-		this.client.prometheus.userCounter.set(userCount);
-		this.client.prometheus.guildCounter.set(this.client.guilds.cache.size);
-		this.client.prometheus.giveawayCounter.set(this.client.settings.cache.giveaways.size);
-		this.client.prometheus.activeGiveawaysCounter.set(
-			this.client.settings.cache.giveaways.filter(g => !g.complete).size,
-		);
-		this.client.prometheus.completedGiveawaysCounter.set(
-			this.client.settings.cache.giveaways.filter(
-				g => g.complete && g.endsAt >= new Date(Date.now() + 1000 * 60 * 60 * 24),
-			).size,
-		);
+	private async _prometheus(): Promise<void> {
+		const guildCount = (await this.client.shard?.fetchClientValues('guilds.cache.size')) as number[];
+		const guilds = guildCount.reduce((acc, val) => (acc += val), 0);
+		this.client.prometheus.metrics.guildCounter.set(guilds);
+
+		const userCount = (await this.client.shard?.broadcastEval(
+			'this.guilds.cache.reduce((prev, { memberCount }) => (prev + memberCount), 0)',
+		)) as number[];
+		const users = userCount.reduce((acc, val) => (acc += val), 0);
+		this.client.prometheus.metrics.userCounter.set(users);
+
+		const giveaways = await this.client.settings.count('giveaway');
+		this.client.prometheus.metrics.giveawayCounter.set(giveaways);
+
+		const active = await this.client.settings.count('giveaway', { complete: true });
+		this.client.prometheus.metrics.activeGiveawaysCounter.set(active);
 	}
 }

@@ -1,5 +1,6 @@
-import { Argument, Command } from 'discord-akairo';
+import { Argument, Command, PrefixSupplier } from 'discord-akairo';
 import { Message, Permissions } from 'discord.js';
+import { codeb } from '../../util';
 
 export default class PrefixCommand extends Command {
 	public constructor() {
@@ -11,29 +12,52 @@ export default class PrefixCommand extends Command {
 					id: 'prefix',
 					type: Argument.validate('string', (_, p) => !/\s/.test(p) && p.length <= 10),
 					prompt: {
-						start: 'What do you want to set the prefix to?',
-						retry: 'Pleae provide a new prefix without spaces and less than 10 characters',
+						start: "what would you like to update this server's prefix to?",
+						retry: 'please provide a new prefix without spaces and less than 10 characters.',
 						optional: true,
 					},
 				},
+				{
+					id: 'reset',
+					type: 'flag',
+					flag: ['--reset', '-r'],
+				},
 			],
-			userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
 			description: {
-				content: "Changes this server's prefix.",
+				content: 'Displays or changes the configured command prefix for this server.',
 				usage: '[prefix]',
 				examples: ['', '?', '>'],
+				flags: [
+					{
+						description: 'sets the prefix to back to the default',
+						flags: ['--reset', '-r'],
+					},
+				],
 			},
 		});
 	}
 
-	public async exec(msg: Message, { prefix }: { prefix: string | null }): Promise<Message | Message[] | void> {
-		if (prefix && !msg.guild) prefix = null;
+	public async exec(
+		msg: Message,
+		{ prefix, reset }: { prefix: string | null; reset: boolean },
+	): Promise<Message | Message[] | void> {
+		const canEdit =
+			!msg.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES) ||
+			!(this.handler.ignorePermissions as string | string[]).includes(msg.author.id);
+
+		if (prefix && (!canEdit || !msg.guild)) prefix = null;
+		if (!prefix && reset && canEdit && msg.guild) prefix = this.client.config.prefix;
+
 		if (!prefix) {
-			const prefix = msg.guild ? this.client.settings.cache.guilds.get(msg.guild.id)!.prefix : process.env.PREFIX;
-			return msg.util?.reply(`the current prefix is \`${prefix}\`.`);
+			const prefix = (this.handler.prefix as PrefixSupplier)(msg);
+			return msg.util?.reply(
+				`the current command prefix is ${codeb(prefix)}. If you'd like to change it, please run ${codeb(
+					`${prefix}prefix NewPrefixHere`,
+				)}`,
+			);
 		}
 
 		await this.client.settings.set('guild', { id: msg.guild!.id }, { prefix });
-		return msg.util?.reply(`successfully set the prefix to \`${prefix}\`.`);
+		return msg.util?.reply(`successfully set the prefix to ${codeb(prefix)}.`);
 	}
 }

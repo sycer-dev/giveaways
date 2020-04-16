@@ -1,8 +1,13 @@
 import { stripIndents } from 'common-tags';
-import { Guild as DiscordGuild, Message, WebhookClient } from 'discord.js';
+import { Message, WebhookClient } from 'discord.js';
 import { Guild } from '../../database/models/Guild';
 import GiveawayClient from '../client/GiveawayClient';
 import { Vote } from '../util/dbl';
+
+interface GuildOverShard {
+	id: string;
+	name: string;
+}
 
 export default class VoteHandler {
 	protected readonly client: GiveawayClient;
@@ -21,15 +26,12 @@ export default class VoteHandler {
 	private async _vote(vote: Vote): Promise<Message | Message[] | void> {
 		const { user } = vote;
 		this.client.logger.info(`[VOTE MANAGER] [NEW VOTE]: New vote from ${user ? user.tag : 'Unknown#0000'}!`);
-		let theGuild: DiscordGuild;
+		let theGuild: GuildOverShard;
 		if (!user) return;
-		const guilds = this.client.guilds.cache
-			.filter((g): boolean => {
-				const m = g.members.cache.get(user.id);
-				if (m && m.permissions.has('MANAGE_GUILD')) return true;
-				return false;
-			})
-			.array();
+		const broadcasted = (await this.client.shard?.broadcastEval(
+			`this.guilds.cache.filter(g => g.members.cache.has('${user.id}')).map(({ id, name }) => ({ id, name }))`,
+		)) as GuildOverShard[][];
+		const guilds = broadcasted.flat();
 
 		if (guilds.length > 1) {
 			try {
@@ -136,8 +138,10 @@ export default class VoteHandler {
 		this._check();
 		this.interval = this.client.setInterval(this._check.bind(this), this.rate);
 
-		this.client.giveawayAPI.dbl.on('vote', vote => this._vote(vote));
-		this.client.giveawayAPI.dbl.on('invalid', () => this.client.logger.debug(`[VOTE MANAGER]: Recieved invalid vote!`));
+		this.client.giveawayAPI!.dbl.on('vote', vote => this._vote(vote));
+		this.client.giveawayAPI!.dbl.on('invalid', () =>
+			this.client.logger.debug(`[VOTE MANAGER]: Recieved invalid vote!`),
+		);
 	}
 
 	private _check(): void {

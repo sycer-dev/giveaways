@@ -13,11 +13,11 @@ export default class MessageReactionAddListener extends Listener {
 	}
 
 	public async exec(reaction: MessageReaction, user: User): Promise<void> {
-		const msg = reaction.message;
-		if (msg.partial) await msg.fetch();
+		let msg = reaction.message;
+		if (msg.partial) msg = await msg.fetch();
 		if (!msg.guild || user.bot) return;
 
-		const doc = this.client.settings.cache.giveaways.find(g => g.messageID === msg.id);
+		const doc = await this.client.settings.get('giveaway', { messageID: msg.id });
 		if (doc && !doc.complete && doc.maxEntries && [reaction.emoji.id, reaction.emoji.name].includes(doc.emoji))
 			return this.handleMax(reaction, user, doc);
 		if (!doc || doc.complete || !doc.fcfs || ![reaction.emoji.id, reaction.emoji.name].includes(doc.emoji)) return;

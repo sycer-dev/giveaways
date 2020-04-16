@@ -3,6 +3,7 @@ import { createLogger, transports, format, addColors } from 'winston';
 declare module 'winston' {
 	interface Logger {
 		mongo: LeveledLogMethod;
+		shard: LeveledLogMethod;
 	}
 }
 
@@ -17,6 +18,7 @@ const loggerLevels = {
 		silly: 6,
 		custom: 7,
 		mongo: 8,
+		shard: 9,
 	},
 	colors: {
 		error: 'red',
@@ -28,6 +30,7 @@ const loggerLevels = {
 		silly: 'magenta',
 		custom: 'yellow',
 		mongo: 'green whiteBG italic',
+		shard: 'blue whiteBG',
 	},
 };
 
@@ -48,5 +51,5 @@ export const logger = createLogger({
 		}),
 	),
 	transports: new transports.Console(),
-	level: 'mongo',
+	level: 'shard',
 });

@@ -22,20 +22,24 @@ export default class ListCommand extends Command {
 	}
 
 	public async exec(msg: Message): Promise<Message | Message[] | void> {
-		const giveaways = this.client.settings.cache.giveaways.filter(g => !g.complete && g.guildID === msg.guild!.id);
-		if (!giveaways.size) return msg.util?.reply("sorry! I couldn't find any ongoing giveaways.");
+		const giveaways = await this.client.settings.get('giveaway', { complete: false, guildID: msg.guild!.id }, false);
+		if (!giveaways.length) return msg.util?.reply("sorry! I couldn't find any ongoing giveaways.");
 
-		const gs = giveaways.array().map((g, i) => {
+		const gs = giveaways.map((g, i) => {
 			const type = g.fcfs ? 'FCFS' : g.maxEntries ? 'Limited Entries' : 'Traditional';
 			return `\`[${i + 1}]\` - ${type} Giveaway in ${this.client.channels.cache.get(g.channelID) ||
-				'#deleted-channel'}. [Jump](https://discordapp.com/channels/${g.guildID}/${g.channelID}/${g.messageID}/)`;
+				'#deleted-channel'}. [Jump!](https://discordapp.com/channels/${g.guildID}/${g.channelID}/${g.messageID}/)`;
 		});
 
 		const embed = this.client.util
 			.embed()
 			.setColor(msg.guild?.me?.displayColor || this.client.config.color)
-			.setAuthor('Live Giveaways', msg.guild!.iconURL() || this.client.user!.displayAvatarURL())
-			.setDescription(gs.join('\n').substring(0, 1800));
+			.setAuthor(
+				'Live Giveaways',
+				msg.guild!.iconURL({ dynamic: true, size: 2048 }) ||
+					this.client.user!.displayAvatarURL({ dynamic: true, size: 2048 }),
+			)
+			.setDescription(gs.join('\n').substring(0, 2048));
 
 		return msg.util?.send({ embed });
 	}

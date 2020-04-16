@@ -16,8 +16,8 @@ export default class API {
 	}
 
 	private _sendMetrics(_: Request, res: Response): Response {
-		res.setHeader('Content-Type', this.client.prometheus.register.contentType);
-		return res.status(200).send(this.client.prometheus.register.metrics());
+		res.setHeader('Content-Type', this.client.prometheus.metrics.register.contentType);
+		return res.status(200).send(this.client.prometheus.metrics.register.metrics());
 	}
 
 	private _initMiddleware(): this {
