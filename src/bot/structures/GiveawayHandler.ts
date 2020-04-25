@@ -97,23 +97,33 @@ export default class GiveawayHandler {
 	private async edit(g: Giveaway, color?: ColorResolvable): Promise<void> {
 		const channel = this.client.channels.cache.get(g.channelID);
 		const message = await (channel as TextChannel)?.messages.fetch(g.messageID).catch(() => undefined);
+		this.client.logger.debug(
+			`[GIVEAWAY HANDLER]: Fetched ${g._id} - ${message?.id} - Has ${message?.embeds.length} embeds.`,
+		);
 		if (!message || !message.embeds.length) return;
 
 		const embed = this.client.util.embed(message.embeds[0]);
 		const field = embed.fields.find(f => f.name === 'Time Remaining');
 
 		if (color) {
+			this.client.logger.debug(`[GIVEAWAY HANDLER]: Editing ${g._id}'s color.`);
 			embed.setColor(color);
 			message.edit({ embed }).catch(() => undefined);
 		} else if (field) {
 			const index = embed.fields.indexOf(field);
+			this.client.logger.debug(`[GIVEAWAY HANDLER]: Field index of ${g._id} - ${index}.`);
 			if (index > -1) {
 				embed.spliceFields(index, 1, {
 					name: 'Time Remaining',
 					value: `\`${prettyms(g.endsAt.getTime() - Date.now(), PRETTY_MS_SETTINGS)}\``,
 					inline: false,
 				});
-				if (message.editable) message.edit({ embed }).catch(() => undefined);
+				if (message.editable) {
+					const msg = await message
+						.edit({ embed })
+						.catch(err => void this.client.logger.debug(`[GIVEAWAY HANDLER]: Edit of ${g._id} failed - ${err}.`));
+					this.client.logger.debug(`[GIVEAWAY HANDLER]: Edited ${g._id} - ID: ${msg?.id}.`);
+				}
 			} else this.client.logger.verbose(`[GIVEAWAY HANDLER]: Skipped edit for ${g._id}, index is ${index}.`);
 		}
 	}
