@@ -95,29 +95,40 @@ export default class GiveawayHandler {
 	}
 
 	private async edit(g: Giveaway, color?: ColorResolvable): Promise<void> {
-		if (g.messageID === '700666183401078894') this.client.logger.data(`700666183401078894 is within edit function.`);
+		const shouldDebug = g.messageID === '700666183401078894';
+		if (shouldDebug) this.client.logger.data(`700666183401078894 is within edit function.`);
 		const channel = await this.client.channels.fetch(g.channelID).catch(() => undefined);
+		if (shouldDebug) this.client.logger.data(`channel returned: ${channel}.`);
 		const message = await (channel as TextChannel)?.messages.fetch(g.messageID).catch(() => undefined);
+		if (shouldDebug) this.client.logger.data(`message returned: ${message} - ${message?.embeds?.length}.`);
 		if (!message || !message.embeds.length) return;
 
 		const embed = this.client.util.embed(message.embeds[0]);
 		const field = embed.fields.find(f => f.name === 'Time Remaining');
+		if (shouldDebug) this.client.logger.data(`field found: ${Boolean(field)}.`);
 
 		if (color) {
+			if (shouldDebug) this.client.logger.data(`changing color.`);
 			embed.setColor(color);
 			message.edit({ embed }).catch(() => undefined);
 		} else if (field) {
 			const index = embed.fields.indexOf(field);
+			if (shouldDebug) this.client.logger.data(`field index: ${index}.`);
 			if (index > -1) {
+				if (shouldDebug) this.client.logger.data(`splicing.`);
 				embed.spliceFields(index, 1, {
 					name: 'Time Remaining',
 					value: `\`${prettyms(g.endsAt.getTime() - Date.now(), PRETTY_MS_SETTINGS)}\``,
 					inline: false,
 				});
+				if (shouldDebug)
+					this.client.logger.data(`permissions: ${(message.channel as TextChannel).permissionsFor(this.client.user!)?.toArray()}`);
 				if (message.editable) {
+					if (shouldDebug) this.client.logger.data(`message is editable, editing.`);
 					await message
 						.edit({ embed })
 						.catch(err => void this.client.logger.debug(`[GIVEAWAY HANDLER]: Edit of ${message.id} failed - ${err}.`));
+					if (shouldDebug) this.client.logger.data(`edited message.`);
 					this.client.logger.debug(`[GIVEAWAY HANDLER]: Edited ${message?.id}.`);
 				}
 			} else this.client.logger.verbose(`[GIVEAWAY HANDLER]: Skipped edit for ${g.messageID}, index is ${index}.`);
@@ -145,7 +156,6 @@ export default class GiveawayHandler {
 
 		const now = Date.now();
 		if (!giveaways.length) return;
-		this.client.logger.debug(`${giveaways.some(g => g.messageID === '700666183401078894')}`);
 		this.client.logger.debug(`[GIVEAWAY HANDLER]: Checking ${giveaways.length} giveaways`);
 		for (const g of giveaways.values()) {
 			if (g.endsAt.getTime() - now <= this.rate) this.queue(g);
