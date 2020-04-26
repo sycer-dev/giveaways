@@ -95,7 +95,8 @@ export default class GiveawayHandler {
 	}
 
 	private async edit(g: Giveaway, color?: ColorResolvable): Promise<void> {
-		const channel = this.client.channels.cache.get(g.channelID);
+		if (g.messageID === '700666183401078894') this.client.logger.data(`700666183401078894 is within edit function.`);
+		const channel = await this.client.channels.fetch(g.channelID).catch(() => undefined);
 		const message = await (channel as TextChannel)?.messages.fetch(g.messageID).catch(() => undefined);
 		if (!message || !message.embeds.length) return;
 
@@ -144,6 +145,7 @@ export default class GiveawayHandler {
 
 		const now = Date.now();
 		if (!giveaways.length) return;
+		this.client.logger.debug(`${giveaways.some(g => g.messageID === '700666183401078894')}`);
 		this.client.logger.debug(`[GIVEAWAY HANDLER]: Checking ${giveaways.length} giveaways`);
 		for (const g of giveaways.values()) {
 			if (g.endsAt.getTime() - now <= this.rate) this.queue(g);
