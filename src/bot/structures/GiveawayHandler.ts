@@ -97,21 +97,16 @@ export default class GiveawayHandler {
 	private async edit(g: Giveaway, color?: ColorResolvable): Promise<void> {
 		const channel = this.client.channels.cache.get(g.channelID);
 		const message = await (channel as TextChannel)?.messages.fetch(g.messageID).catch(() => undefined);
-		this.client.logger.debug(
-			`[GIVEAWAY HANDLER]: Fetched ${g._id} - ${message?.id} - Has ${message?.embeds.length} embeds.`,
-		);
 		if (!message || !message.embeds.length) return;
 
 		const embed = this.client.util.embed(message.embeds[0]);
 		const field = embed.fields.find(f => f.name === 'Time Remaining');
 
 		if (color) {
-			this.client.logger.debug(`[GIVEAWAY HANDLER]: Editing ${g._id}'s color.`);
 			embed.setColor(color);
 			message.edit({ embed }).catch(() => undefined);
 		} else if (field) {
 			const index = embed.fields.indexOf(field);
-			this.client.logger.debug(`[GIVEAWAY HANDLER]: Field index of ${g._id} - ${index}.`);
 			if (index > -1) {
 				embed.spliceFields(index, 1, {
 					name: 'Time Remaining',
@@ -119,12 +114,12 @@ export default class GiveawayHandler {
 					inline: false,
 				});
 				if (message.editable) {
-					const msg = await message
+					await message
 						.edit({ embed })
-						.catch(err => void this.client.logger.debug(`[GIVEAWAY HANDLER]: Edit of ${g._id} failed - ${err}.`));
-					this.client.logger.debug(`[GIVEAWAY HANDLER]: Edited ${g._id} - ID: ${msg?.id}.`);
+						.catch(err => void this.client.logger.debug(`[GIVEAWAY HANDLER]: Edit of ${message.id} failed - ${err}.`));
+					this.client.logger.debug(`[GIVEAWAY HANDLER]: Edited ${message?.id}.`);
 				}
-			} else this.client.logger.verbose(`[GIVEAWAY HANDLER]: Skipped edit for ${g._id}, index is ${index}.`);
+			} else this.client.logger.verbose(`[GIVEAWAY HANDLER]: Skipped edit for ${g.messageID}, index is ${index}.`);
 		}
 	}
 
@@ -149,10 +144,11 @@ export default class GiveawayHandler {
 
 		const now = Date.now();
 		if (!giveaways.length) return;
+		this.client.logger.debug(`[GIVEAWAY HANDLER]: Checking ${giveaways.length} giveaways`);
 		for (const g of giveaways.values()) {
 			if (g.endsAt.getTime() - now <= this.rate) this.queue(g);
-			if (g.endsAt.getTime() - now >= 5000) this.edit(g);
-			if (!this.waiting.has(g.messageID) && now > g.endsAt.getTime()) this.end(g);
+			else if (g.endsAt.getTime() - now >= 5000) this.edit(g);
+			else if (!this.waiting.has(g.messageID) && now > g.endsAt.getTime()) this.end(g);
 		}
 	}
 
