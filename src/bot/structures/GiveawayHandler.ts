@@ -100,6 +100,7 @@ export default class GiveawayHandler {
 		const channel = await this.client.channels.fetch(g.channelID).catch(() => undefined);
 		if (shouldDebug) this.client.logger.data(`channel returned: ${channel}.`);
 		const message = await (channel as TextChannel)?.messages.fetch(g.messageID).catch(() => undefined);
+		if (shouldDebug) console.dir(`message: ${message}`);
 		if (shouldDebug) this.client.logger.data(`message returned: ${message} - ${message?.embeds?.length}.`);
 		if (!message || !message.embeds.length) return;
 

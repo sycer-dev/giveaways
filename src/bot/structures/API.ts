@@ -49,6 +49,7 @@ export default class API {
 	}
 
 	public async init(): Promise<this> {
+		this.client.logger.debug(`[API]: Starting Giveaway API...`);
 		this._setup();
 		await this._listen();
 		return this;
