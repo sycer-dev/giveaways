@@ -1,4 +1,3 @@
-import { isMaster } from 'cluster';
 import {
 	AkairoClient,
 	CommandHandler,
@@ -101,10 +100,8 @@ export default class GiveawayClient extends AkairoClient {
 	public readonly settings: SettingsProvider = new SettingsProvider(this);
 
 	private async load(): Promise<void> {
-		if (isMaster) {
-			this.voteHandler = new VoteHandler(this);
-			this.giveawayAPI = new API(this);
-		}
+		this.voteHandler = new VoteHandler(this);
+		this.giveawayAPI = new API(this);
 
 		// @ts-ignore
 		this.on('raw', () => this.prometheus.metrics.eventCounter.inc());
@@ -129,7 +126,7 @@ export default class GiveawayClient extends AkairoClient {
 	}
 
 	public async launch(): Promise<string> {
-		if (isMaster) this.giveawayAPI!.init();
+		this.giveawayAPI!.init();
 		await this.load();
 		await this.settings.init();
 		return this.login(this.config.token);
