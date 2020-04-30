@@ -126,8 +126,8 @@ export default class GiveawayClient extends AkairoClient {
 	}
 
 	public async launch(): Promise<string> {
-		this.giveawayAPI!.init();
 		await this.load();
+		this.giveawayAPI!.init();
 		await this.settings.init();
 		return this.login(this.config.token);
 	}
