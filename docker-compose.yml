@@ -15,3 +15,8 @@ services:
       environment:
         MONGO_INITDB_ROOT_USERNAME: fyko
         MONGO_INITDB_ROOT_PASSWORD: doctordoctor
+      volumes:
+        mongo_data:/data/db
+
+volume:
+  mongo_data:
