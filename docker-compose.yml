@@ -8,3 +8,10 @@ services:
     env_file:
       - ./.env
     network_mode: 'host'
+  
+  mongo:
+      image: mongo
+      restart: unless-stopped
+      environment:
+        MONGO_INITDB_ROOT_USERNAME: fyko
+        MONGO_INITDB_ROOT_PASSWORD: doctordoctor
