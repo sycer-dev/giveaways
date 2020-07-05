@@ -19,6 +19,7 @@ export default class ReadyListener extends Listener {
 		this.client.logger.info(`[READY] ${this.client.user!.tag} is ready to host some giveaways.`);
 
 		this.client.voteHandler.init();
+		this._prometheus();
 		setInterval(() => this._prometheus(), 1000 * 45);
 
 		this.client.giveawayHandler.init();
@@ -32,6 +33,7 @@ export default class ReadyListener extends Listener {
 
 		await this.client.user?.setActivity(`giveawaybot.fun | gguide 🎉`, { type: 'WATCHING' });
 
+		this._clearPresences();
 		setInterval(() => this._clearPresences(), 9e5);
 	}
 
