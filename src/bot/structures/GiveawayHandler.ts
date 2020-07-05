@@ -21,7 +21,7 @@ export default class GiveawayHandler {
 
 	public waiting: Set<string> = new Set();
 
-	public constructor(client: GiveawayClient, { rate = 1000 * 30 } = {}) {
+	public constructor(client: GiveawayClient, { rate = 1000 * 60 } = {}) {
 		this.client = client;
 		this.rate = rate;
 	}
