@@ -1,6 +1,6 @@
 {
     "name": "giveaways",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "description": "A feature dense Discord Giveaways bot 🎉",
     "main": "dist/index.js",
     "scripts": {
@@ -85,8 +85,7 @@
         "rules": {
             "type-enum": [
                 2,
-                "always",
-                [
+                "always", [
                     "chore",
                     "build",
                     "ci",
