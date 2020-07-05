@@ -1,6 +1,5 @@
 import { Listener } from 'discord-akairo';
 import { ActivityType, Constants, Guild } from 'discord.js';
-import { isMaster } from 'cluster';
 
 export interface ReactionStatus {
 	text: string;
@@ -19,10 +18,9 @@ export default class ReadyListener extends Listener {
 	public async exec(): Promise<void> {
 		this.client.logger.info(`[READY] ${this.client.user!.tag} is ready to host some giveaways.`);
 
-		if (isMaster) {
-			this.client.voteHandler.init();
-			setInterval(() => this._prometheus(), 1000 * 45);
-		}
+		this.client.voteHandler.init();
+		setInterval(() => this._prometheus(), 1000 * 45);
+
 		this.client.giveawayHandler.init();
 
 		this.client.settings.cache.guilds.sweep(({ id }) => !this.client.guilds.cache.has(id));
