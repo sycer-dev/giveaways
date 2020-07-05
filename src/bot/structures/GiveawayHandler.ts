@@ -117,7 +117,6 @@ export default class GiveawayHandler {
 					await message
 						.edit({ embed })
 						.catch(err => void this.client.logger.debug(`[GIVEAWAY HANDLER]: Edit of ${message.id} failed - ${err}.`));
-					this.client.logger.debug(`[GIVEAWAY HANDLER]: Edited ${message?.id}.`);
 				}
 			} else this.client.logger.verbose(`[GIVEAWAY HANDLER]: Skipped edit for ${g.messageID}, index is ${index}.`);
 		}
@@ -144,7 +143,6 @@ export default class GiveawayHandler {
 
 		const now = Date.now();
 		if (!giveaways.length) return;
-		this.client.logger.debug(`[GIVEAWAY HANDLER]: Checking ${giveaways.length} giveaways`);
 		for (const g of giveaways.values()) {
 			if (g.endsAt.getTime() - now <= this.rate) this.queue(g);
 			else if (g.endsAt.getTime() - now >= 5000) this.edit(g);

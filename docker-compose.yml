@@ -8,13 +8,16 @@ services:
     env_file:
       - ./.env
     network_mode: 'host'
+    ports: 
+      - '5501:5501'
+    expose: '5501'
   
   mongo:
       image: mongo
       hostname: mongo
       restart: unless-stopped
       ports:
-        -  '27017:27017'
+        - '27017:27017'
       environment:
         MONGO_INITDB_ROOT_USERNAME: fyko
         MONGO_INITDB_ROOT_PASSWORD: doctordoctor
