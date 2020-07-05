@@ -56,11 +56,5 @@ export default class ReadyListener extends Listener {
 		)) as number[];
 		const users = userCount.reduce((acc, val) => (acc += val), 0);
 		this.client.prometheus.metrics.userCounter.set(users);
-
-		const giveaways = await this.client.settings.count('giveaway');
-		this.client.prometheus.metrics.giveawayCounter.set(giveaways);
-
-		const active = await this.client.settings.count('giveaway', { complete: true });
-		this.client.prometheus.metrics.activeGiveawaysCounter.set(active);
 	}
 }
