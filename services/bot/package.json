@@ -16,7 +16,6 @@
         "@discordjs/collection": "^0.1.5",
         "@klasa/bitfield": "^0.0.4",
         "@klasa/dapi-types": "^0.2.1",
-        "@klasa/event-iterator": "^0.0.10",
         "@klasa/rest": "^0.5.3",
         "@klasa/utils": "^0.0.8",
         "@spectacles/brokers": "^0.8.0",
@@ -29,7 +28,7 @@
     },
     "devDependencies": {
         "@types/common-tags": "^1.8.0",
-        "@types/ioredis": "^4.16.7",
+        "@types/ioredis": "^4.17.0",
         "@types/node": "^13.13.12",
         "@typescript-eslint/eslint-plugin": "^2.34.0",
         "@typescript-eslint/parser": "^2.34.0",
@@ -39,9 +38,6 @@
         "eslint-plugin-prettier": "^3.1.4",
         "prettier": "^1.19.1",
         "rimraf": "^3.0.2",
-        "typescript": "^3.9.5"
-    },
-    "optionalDependencies": {
-        "erlpack": "github:discord/erlpack"
+        "typescript": "^3.9.6"
     }
 }

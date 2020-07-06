@@ -1,6 +1,6 @@
 FROM node:12-alpine
 
-WORKDIR /usr/src/reactionroles-next/bot
+WORKDIR /usr/src/giveaways/bot
 
 COPY services/bot/. .
 

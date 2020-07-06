@@ -2,10 +2,9 @@ dependencies:
   '@discordjs/collection': 0.1.5
   '@klasa/bitfield': 0.0.4
   '@klasa/dapi-types': 0.2.1
-  '@klasa/event-iterator': 0.0.10
   '@klasa/rest': 0.5.3
   '@klasa/utils': 0.0.8
-  '@spectacles/brokers': 0.8.0_erlpack@0.1.3
+  '@spectacles/brokers': 0.8.0
   common-tags: 1.8.0
   fs-nextra: 0.5.1
   ioredis: 4.17.3
@@ -14,20 +13,18 @@ dependencies:
   winston: 3.3.3
 devDependencies:
   '@types/common-tags': 1.8.0
-  '@types/ioredis': 4.16.7
+  '@types/ioredis': 4.17.0
   '@types/node': 13.13.12
-  '@typescript-eslint/eslint-plugin': 2.34.0_2ce5ff4d4c428c35a55f8b98c167bebb
-  '@typescript-eslint/parser': 2.34.0_eslint@6.8.0+typescript@3.9.5
+  '@typescript-eslint/eslint-plugin': 2.34.0_3787943315ebc5ea524d5c102dc9e452
+  '@typescript-eslint/parser': 2.34.0_eslint@6.8.0+typescript@3.9.6
   eslint: 6.8.0
   eslint-config-marine: 6.0.0
   eslint-config-prettier: 6.11.0_eslint@6.8.0
   eslint-plugin-prettier: 3.1.4_eslint@6.8.0+prettier@1.19.1
   prettier: 1.19.1
   rimraf: 3.0.2
-  typescript: 3.9.5
+  typescript: 3.9.6
 lockfileVersion: 5.1
-optionalDependencies:
-  erlpack: github.com/discord/erlpack/ff0139045ca4cc457462e5a1a88f6a0bc5c27c4b
 packages:
   /@babel/code-frame/7.10.4:
     dependencies:
@@ -83,14 +80,6 @@ packages:
       node: '>=10.1.0'
     resolution:
       integrity: sha512-DDGD2MEbKHxO2lZmTgSQbyvtFo59dQLP19kmq7rp6ofj+o71qjz7qpRfx7QqPhQkbeM6/AzPFmb/BvMTzmxcVg==
-  /@klasa/event-iterator/0.0.10:
-    dev: false
-    engines:
-      node: '>=10.1.0'
-    peerDependencies:
-      '@klasa/timer-manager': ^0.0.1
-    resolution:
-      integrity: sha512-AUr8d9+4YeHN2/b1C8EVSZTfLut/+j2u8zcrKRt3BFP5kxdHSg+RSOJ7wP+gQ0dvrVZMQNwbIg/xFVr9G1EsLA==
   /@klasa/rest/0.5.3:
     dependencies:
       '@klasa/async-queue': 0.0.1
@@ -124,21 +113,17 @@ packages:
       node: '>=10.1.0'
     resolution:
       integrity: sha512-6G/P9/HM8fTanKUFPrODFmmD3ff8Jwr7gG//2BsTeWfGBBulDn/H8ObWRJjIu81nLKX1I4iQ1jNcK5uOfso6ug==
-  /@spectacles/brokers/0.8.0_erlpack@0.1.3:
+  /@spectacles/brokers/0.8.0:
     dependencies:
-      '@spectacles/util': 0.3.2_erlpack@0.1.3
+      '@spectacles/util': 0.3.2
       amqplib: 0.5.6
       ioredis: 4.17.3
       lodash: 4.17.15
       ulid: 2.3.0
     dev: false
-    peerDependencies:
-      erlpack: '*'
     resolution:
       integrity: sha512-UGZWdNRcvsp7SqZtZPf15sXJxm0WZIChh0bzll9Wt+S93QFJClnNl6L1iH1M/fAfW7ynJ51uWHvVMcGrlACrDQ==
-  /@spectacles/util/0.3.2_erlpack@0.1.3:
-    dependencies:
-      erlpack: github.com/discord/erlpack/ff0139045ca4cc457462e5a1a88f6a0bc5c27c4b
+  /@spectacles/util/0.3.2:
     dev: false
     peerDependencies:
       erlpack: 'github:discordapp/erlpack'
@@ -156,12 +141,12 @@ packages:
     dev: true
     resolution:
       integrity: sha512-OCutwjDZ4aFS6PB1UZ988C4YgwlBHJd6wCeQqaLdmadZ/7e+w79+hbMUFC1QXDNCmdyoRfAFdm0RypzwR+Qpag==
-  /@types/ioredis/4.16.7:
+  /@types/ioredis/4.17.0:
     dependencies:
       '@types/node': 13.13.12
     dev: true
     resolution:
-      integrity: sha512-gc0g0OlBxc/Mlhutv5Njkm3A4m5oZXq8gCeEGOt2c4p4ZIYw9dotYjg6z8nSsxOH9KnKkjWUzg0oGCAqtnGFIg==
+      integrity: sha512-2wmT+lB9JAHSYlBrmJGeYDQ4cGlIgxmaC3Bv85LJws/G/OkoFoxPezhMqtTp0JMCgsMadIoI9c43QvRz8WKLSw==
   /@types/json-schema/7.0.5:
     dev: true
     resolution:
@@ -170,15 +155,15 @@ packages:
     dev: true
     resolution:
       integrity: sha512-zWz/8NEPxoXNT9YyF2osqyA9WjssZukYpgI4UYZpOjcyqwIUqWGkcCionaEb9Ki+FULyPyvNFpg/329Kd2/pbw==
-  /@typescript-eslint/eslint-plugin/2.34.0_2ce5ff4d4c428c35a55f8b98c167bebb:
+  /@typescript-eslint/eslint-plugin/2.34.0_3787943315ebc5ea524d5c102dc9e452:
     dependencies:
-      '@typescript-eslint/experimental-utils': 2.34.0_eslint@6.8.0+typescript@3.9.5
-      '@typescript-eslint/parser': 2.34.0_eslint@6.8.0+typescript@3.9.5
+      '@typescript-eslint/experimental-utils': 2.34.0_eslint@6.8.0+typescript@3.9.6
+      '@typescript-eslint/parser': 2.34.0_eslint@6.8.0+typescript@3.9.6
       eslint: 6.8.0
       functional-red-black-tree: 1.0.1
       regexpp: 3.1.0
-      tsutils: 3.17.1_typescript@3.9.5
-      typescript: 3.9.5
+      tsutils: 3.17.1_typescript@3.9.6
+      typescript: 3.9.6
     dev: true
     engines:
       node: ^8.10.0 || ^10.13.0 || >=11.10.1
@@ -191,10 +176,10 @@ packages:
         optional: true
     resolution:
       integrity: sha512-4zY3Z88rEE99+CNvTbXSyovv2z9PNOVffTWD2W8QF5s2prBQtwN2zadqERcrHpcR7O/+KMI3fcTAmUUhK/iQcQ==
-  /@typescript-eslint/experimental-utils/2.34.0_eslint@6.8.0+typescript@3.9.5:
+  /@typescript-eslint/experimental-utils/2.34.0_eslint@6.8.0+typescript@3.9.6:
     dependencies:
       '@types/json-schema': 7.0.5
-      '@typescript-eslint/typescript-estree': 2.34.0_typescript@3.9.5
+      '@typescript-eslint/typescript-estree': 2.34.0_typescript@3.9.6
       eslint: 6.8.0
       eslint-scope: 5.1.0
       eslint-utils: 2.1.0
@@ -206,14 +191,14 @@ packages:
       typescript: '*'
     resolution:
       integrity: sha512-eS6FTkq+wuMJ+sgtuNTtcqavWXqsflWcfBnlYhg/nS4aZ1leewkXGbvBhaapn1q6qf4M71bsR1tez5JTRMuqwA==
-  /@typescript-eslint/parser/2.34.0_eslint@6.8.0+typescript@3.9.5:
+  /@typescript-eslint/parser/2.34.0_eslint@6.8.0+typescript@3.9.6:
     dependencies:
       '@types/eslint-visitor-keys': 1.0.0
-      '@typescript-eslint/experimental-utils': 2.34.0_eslint@6.8.0+typescript@3.9.5
-      '@typescript-eslint/typescript-estree': 2.34.0_typescript@3.9.5
+      '@typescript-eslint/experimental-utils': 2.34.0_eslint@6.8.0+typescript@3.9.6
+      '@typescript-eslint/typescript-estree': 2.34.0_typescript@3.9.6
       eslint: 6.8.0
       eslint-visitor-keys: 1.3.0
-      typescript: 3.9.5
+      typescript: 3.9.6
     dev: true
     engines:
       node: ^8.10.0 || ^10.13.0 || >=11.10.1
@@ -225,7 +210,7 @@ packages:
         optional: true
     resolution:
       integrity: sha512-03ilO0ucSD0EPTw2X4PntSIRFtDPWjrVq7C3/Z3VQHRC7+13YB55rcJI3Jt+YgeHbjUdJPcPa7b23rXCBokuyA==
-  /@typescript-eslint/typescript-estree/2.34.0_typescript@3.9.5:
+  /@typescript-eslint/typescript-estree/2.34.0_typescript@3.9.6:
     dependencies:
       debug: 4.1.1
       eslint-visitor-keys: 1.3.0
@@ -233,8 +218,8 @@ packages:
       is-glob: 4.0.1
       lodash: 4.17.15
       semver: 7.3.2
-      tsutils: 3.17.1_typescript@3.9.5
-      typescript: 3.9.5
+      tsutils: 3.17.1_typescript@3.9.6
+      typescript: 3.9.6
     dev: true
     engines:
       node: ^8.10.0 || ^10.13.0 || >=11.10.1
@@ -268,7 +253,7 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-tLc0wSnatxAQHVHUapaHdz72pi9KUyHjq5KyHjGg9Y8Ifdc79pTh2XvI6I1/chZbnM7QtNKzh66ooDogPZSleA==
-  /ajv/6.12.2:
+  /ajv/6.12.3:
     dependencies:
       fast-deep-equal: 3.1.3
       fast-json-stable-stringify: 2.1.0
@@ -276,7 +261,7 @@ packages:
       uri-js: 4.2.2
     dev: true
     resolution:
-      integrity: sha512-k+V+hzjm5q/Mr8ef/1Y9goCmlsK4I6Sm74teeyGvFk1XrOsbsKLjEdrvny42CZ+a8sXbk8KWpY/bDwS+FLL2UQ==
+      integrity: sha512-4K0cK3L1hsqk9xIb2z9vs/XU+PGJZ9PNpJRDS9YLzmNdX6jmVPfamLvTJr0aDAusnHyCHO6MjzlkAsgtqp9teA==
   /amqplib/0.5.6:
     dependencies:
       bitsyntax: 0.1.0
@@ -351,12 +336,6 @@ packages:
     dev: true
     resolution:
       integrity: sha1-ibTRmasr7kneFk6gK4nORi1xt2c=
-  /bindings/1.5.0:
-    dependencies:
-      file-uri-to-path: 1.0.0
-    dev: false
-    resolution:
-      integrity: sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==
   /bitsyntax/0.1.0:
     dependencies:
       buffer-more-ints: 1.0.0
@@ -633,7 +612,7 @@ packages:
   /eslint/6.8.0:
     dependencies:
       '@babel/code-frame': 7.10.4
-      ajv: 6.12.2
+      ajv: 6.12.3
       chalk: 2.4.2
       cross-spawn: 6.0.5
       debug: 4.1.1
@@ -782,10 +761,6 @@ packages:
       node: '>=4'
     resolution:
       integrity: sha512-bCg29ictuBaKUwwArK4ouCaqDgLZcysCFLmM/Yn/FDoqndh/9vNuQfXRDvTuXKLxfD/JtZQGKFT8MGcJBK644g==
-  /file-uri-to-path/1.0.0:
-    dev: false
-    resolution:
-      integrity: sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==
   /flat-cache/2.0.1:
     dependencies:
       flatted: 2.0.2
@@ -1104,10 +1079,6 @@ packages:
     dev: true
     resolution:
       integrity: sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==
-  /nan/2.14.1:
-    dev: false
-    resolution:
-      integrity: sha512-isWHgVjnFjh2x2yuJ/tj3JbwoHu3UC2dX5G/88Cm24yB6YopVgxvBObDY7n5xW6ExmFhJpSEQqFPvq9zaXc8Jw==
   /natural-compare/1.4.0:
     dev: true
     resolution:
@@ -1481,7 +1452,7 @@ packages:
       integrity: sha512-oRSIpR8pxT1Wr2FquTNnGet79b3BWljqOuoW/h4oBhxJ/HUbX5nX6JSruTkvXDCFMwDPvsaTTbvMLKZWSy0R5g==
   /table/5.4.6:
     dependencies:
-      ajv: 6.12.2
+      ajv: 6.12.3
       lodash: 4.17.15
       slice-ansi: 2.1.0
       string-width: 3.1.0
@@ -1522,10 +1493,10 @@ packages:
     dev: false
     resolution:
       integrity: sha512-lTqkx847PI7xEDYJntxZH89L2/aXInsyF2luSafe/+0fHOMjlBNXdH6th7f70qxLDhul7KZK0zC8V5ZIyHl0/g==
-  /tsutils/3.17.1_typescript@3.9.5:
+  /tsutils/3.17.1_typescript@3.9.6:
     dependencies:
       tslib: 1.13.0
-      typescript: 3.9.5
+      typescript: 3.9.6
     dev: true
     engines:
       node: '>= 6'
@@ -1553,13 +1524,13 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA==
-  /typescript/3.9.5:
+  /typescript/3.9.6:
     dev: true
     engines:
       node: '>=4.2.0'
     hasBin: true
     resolution:
-      integrity: sha512-hSAifV3k+i6lEoCJ2k6R2Z/rp/H3+8sdmcn5NrS3/3kE7+RyZXm9aqvxWqjEXHAd8b0pShatpcdMTvEdvAJltQ==
+      integrity: sha512-Pspx3oKAPJtjNwE92YS05HQoY7z2SFyOpHo9MqJor3BXAGNaPUs83CuVp9VISFkSjyRfiTpmKuAYGJB7S7hOxw==
   /ulid/2.3.0:
     dev: false
     hasBin: true
@@ -1636,32 +1607,19 @@ packages:
       node: '>=4'
     resolution:
       integrity: sha512-/lg70HAjtkUgWPVZhZcm+T4hkL8Zbtp1nFNOn3lRrxnlv50SRBv7cR7RqR+GMsd3hUXy9hWBo4CHTbFTcOYwig==
-  github.com/discord/erlpack/ff0139045ca4cc457462e5a1a88f6a0bc5c27c4b:
-    dependencies:
-      bindings: 1.5.0
-      nan: 2.14.1
-    dev: false
-    name: erlpack
-    requiresBuild: true
-    resolution:
-      registry: 'https://registry.npmjs.org/'
-      tarball: 'https://codeload.github.com/discord/erlpack/tar.gz/ff0139045ca4cc457462e5a1a88f6a0bc5c27c4b'
-    version: 0.1.3
 specifiers:
   '@discordjs/collection': ^0.1.5
   '@klasa/bitfield': ^0.0.4
   '@klasa/dapi-types': ^0.2.1
-  '@klasa/event-iterator': ^0.0.10
   '@klasa/rest': ^0.5.3
   '@klasa/utils': ^0.0.8
   '@spectacles/brokers': ^0.8.0
   '@types/common-tags': ^1.8.0
-  '@types/ioredis': ^4.16.7
+  '@types/ioredis': ^4.17.0
   '@types/node': ^13.13.12
   '@typescript-eslint/eslint-plugin': ^2.34.0
   '@typescript-eslint/parser': ^2.34.0
   common-tags: ^1.8.0
-  erlpack: 'github:discord/erlpack'
   eslint: ^6.8.0
   eslint-config-marine: ^6.0.0
   eslint-config-prettier: ^6.11.0
@@ -1672,5 +1630,5 @@ specifiers:
   prettier: ^1.19.1
   rimraf: ^3.0.2
   tslib: ^2.0.0
-  typescript: ^3.9.5
+  typescript: ^3.9.6
   winston: ^3.3.3
