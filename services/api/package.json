@@ -1,0 +1,53 @@
+{
+    "name": "api",
+    "version": "0.1.0",
+    "description": "",
+    "main": "dist/index.js",
+    "scripts": {
+        "lint": "eslint . --ext .ts",
+        "lint:fix": "eslint . --ext .ts --fix",
+        "cleardir": "rm -rf dist/*",
+        "compile": "tsc -b --verbose",
+        "build": "pnpm run cleardir && pnpm run compile",
+        "prestart": "pnpm run build",
+        "start": "node ."
+    },
+    "dependencies": {
+        "apollo-server-express": "^2.15.1",
+        "class-validator": "^0.12.2",
+        "compression": "^1.7.4",
+        "express": "^4.17.1",
+        "graphql": "^15.3.0",
+        "helmet": "^3.23.3",
+        "pg": "^8.2.1",
+        "reflect-metadata": "^0.1.13",
+        "tslib": "^2.0.0",
+        "type-graphql": "^1.0.0-rc.3",
+        "typeorm": "^0.2.25",
+        "winston": "^3.3.3"
+    },
+    "devDependencies": {
+        "@types/compression": "^1.7.0",
+        "@types/express": "^4.17.6",
+        "@types/helmet": "^0.0.47",
+        "@types/node": "^13.13.12",
+        "@typescript-eslint/eslint-plugin": "^2.34.0",
+        "@typescript-eslint/parser": "^2.34.0",
+        "eslint": "^6.8.0",
+        "eslint-config-marine": "^6.0.0",
+        "eslint-config-prettier": "^6.11.0",
+        "eslint-plugin-prettier": "^3.1.4",
+        "prettier": "^1.19.1",
+        "rimraf": "^3.0.2",
+        "typescript": "^3.9.6"
+    },
+    "eslintConfig": {
+        "extends": "marine/prettier/node",
+        "rules": {
+            "comma-dangle": [
+                "error",
+                "always-multiline"
+            ]
+        }
+    }
+}

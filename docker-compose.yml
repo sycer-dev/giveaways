@@ -2,17 +2,19 @@ version: "2.1"
 
 
 services:
+  # discord gateway
   gateway:
     build: docker/gateway
     restart: unless-stopped
     ports: 
-      - 4500:4500
+      - '4500:4500'
     expose: 
-      - "4500" # metrics port
+      - '4500' # metrics port
     depends_on: 
       rabbit:
         condition: service_healthy
 
+  # message queue for the gateway
   rabbit:
     image: rabbitmq:management
     restart: unless-stopped
@@ -20,28 +22,41 @@ services:
       - RABBITMQ_DEFAULT_USER=fyko
       - RABBITMQ_DEFAULT_PASS=doctordoctor
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
       interval: 10s
       timeout: 5s
     ports: 
-      - 15672:15672
+      - '15672:15672'
     expose: 
-      - "15672" # management panel
+      - '15672' # management panel
 
+  # redis instance for caching shit
   redis:
     image: redis:5-alpine
     restart: unless-stopped
     volumes:
-      - "redis_data:/data"
+      - redis_data:/data
     expose: 
-      - "6379"
+      - '6379'
     ports: 
-      - 6379:6379
+      - '6379:6379'
     healthcheck:
       test: ["CMD-SHELL", "redis-cli ping"]
       interval: 10s
       timeout: 5s
 
+  # the database
+  postgres:
+    image: postgres:13-alpine
+    restart: unless-stopped
+    volumes:
+    - pg_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: fyko 
+      POSTGRES_PASSWORD: doctordoctor
+      POSTGRES_DB: giveaways
+
+  # the "bot", basically command handler
   bot:
     build:
       context: .
@@ -55,5 +70,19 @@ services:
       redis:
         condition: service_healthy
 
+  # the graphql api
+  api:
+    build:
+      context: .
+      dockerfile: docker/services/api/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - docker/services/api/.env
+    ports: 
+      - 4000:4000
+    expose:
+      - 4000
+
 volumes:
   redis_data:
+  pg_data:
