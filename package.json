@@ -54,7 +54,7 @@
         "husky": "^4.2.5",
         "prettier": "^1.19.1",
         "rimraf": "^3.0.2",
-        "tslib": "^1.11.1",
+        "tslib": "^2.0.0",
         "typescript": "^3.8.3",
         "winston": "^3.2.1"
     },
