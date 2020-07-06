@@ -1,0 +1,23 @@
+# git things
+.git
+
+# visual studio code
+.vs
+.vscode
+
+node_modules
+**/node_modules
+
+test
+
+coverage
+
+.editorconfig
+
+.dockerignore
+
+.gitignore
+
+.travis.yml
+
+Dockerfile

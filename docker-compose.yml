@@ -1,0 +1,59 @@
+version: "2.1"
+
+
+services:
+  gateway:
+    build: docker/gateway
+    restart: unless-stopped
+    ports: 
+      - 4500:4500
+    expose: 
+      - "4500" # metrics port
+    depends_on: 
+      rabbit:
+        condition: service_healthy
+
+  rabbit:
+    image: rabbitmq:management
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_DEFAULT_USER=fyko
+      - RABBITMQ_DEFAULT_PASS=doctordoctor
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+    ports: 
+      - 15672:15672
+    expose: 
+      - "15672" # management panel
+
+  redis:
+    image: redis:5-alpine
+    restart: unless-stopped
+    volumes:
+      - "redis_data:/data"
+    expose: 
+      - "6379"
+    ports: 
+      - 6379:6379
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping"]
+      interval: 10s
+      timeout: 5s
+
+  bot:
+    build:
+      context: .
+      dockerfile: docker/services/bot/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - docker/services/bot/.env 
+    depends_on: 
+      rabbit:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  redis_data:

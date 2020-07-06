@@ -1,0 +1,9 @@
+{
+	"extends": "marine/prettier/node",
+	"rules": {
+		"comma-dangle": [
+			"error",
+			"always-multiline"
+		]
+	}
+}
