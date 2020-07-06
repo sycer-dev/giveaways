@@ -12,7 +12,7 @@ dependencies:
   mongoose: 5.9.9_mongoose@5.9.9
   node-emoji: 1.10.0
   node-fetch: 2.6.0
-  pretty-ms: 6.0.1
+  pretty-ms: 7.0.0
   prom-client: 12.0.0
 devDependencies:
   '@commitlint/cli': 9.0.1
@@ -2429,14 +2429,14 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-s7PoyDv/II1ObgQunCbB9PdLmUcBZcnWOcxDh7O0N/UwDEsHyqkW+Qh28jW+mVuCdx7gLB0BotYI1Y6uI9iyew==
-  /pretty-ms/6.0.1:
+  /pretty-ms/7.0.0:
     dependencies:
       parse-ms: 2.1.0
     dev: false
     engines:
       node: '>=10'
     resolution:
-      integrity: sha512-ke4njoVmlotekHlHyCZ3wI/c5AMT8peuHs8rKJqekj/oR5G8lND2dVpicFlUz5cbZgE290vvkMuDwfj/OcW1kw==
+      integrity: sha512-J3aPWiC5e9ZeZFuSeBraGxSkGMOvulSWsxDByOcbD1Pr75YL3LSNIKIb52WXbCLE1sS5s4inBBbryjF4Y05Ceg==
   /prism-media/1.2.1:
     dev: false
     peerDependencies:
@@ -3273,7 +3273,7 @@ specifiers:
   node-emoji: ^1.10.0
   node-fetch: ^2.6.0
   prettier: ^1.19.1
-  pretty-ms: ^6.0.1
+  pretty-ms: ^7.0.0
   prom-client: ^12.0.0
   rimraf: ^3.0.2
   tslib: ^1.11.1
