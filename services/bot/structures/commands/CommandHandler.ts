@@ -11,7 +11,7 @@ export enum CommandHandlerEvents {
 	RATELIMIT = 'ratelimit',
 }
 
-export type PrefixSupplier = (msg: APIMessageData) => string | string[];
+export type PrefixSupplier = (msg: APIMessageData) => string | string[] | Promise<string | string[]>;
 
 export type Prefix = string | string[] | PrefixSupplier;
 
@@ -62,7 +62,10 @@ export default class CommandHandler extends Handler<Command> {
 
 	public async prefix(msg?: APIMessageData): Promise<string | string[]> {
 		if (typeof this._prefix === 'function') {
-			return this._prefix(msg!);
+			let res = this._prefix(msg!);
+			// @ts-ignore
+			if (typeof res.then !== 'function') return await res;
+			return res;
 		}
 		return this._prefix;
 	}

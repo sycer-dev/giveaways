@@ -8,6 +8,10 @@ import { redis } from '../../util/redis';
 import CommandHandler from '../commands/CommandHandler';
 import ListenerHandler from '../listeners/ListenerHandler';
 import ClientUtil from './ClientUtil';
+import { apolloClient, QUERIES, Guild, GuildInput } from '../../util/gql';
+import ApolloClient from 'apollo-client';
+import { NormalizedCacheObject } from 'apollo-cache-inmemory';
+import { GraphQLError } from 'graphql';
 
 const { AMQP_URL, AMQP_GROUP, DISCORD_TOKEN, COLOR, PREFIX } = process.env;
 
@@ -27,9 +31,27 @@ export default class Client {
 	 */
 	public readonly commandHandler: CommandHandler = new CommandHandler(this, {
 		dir: join(__dirname, '..', '..', 'commands'),
-		prefix: PREFIX!,
+		prefix: async (msg) => {
+			if (msg.guild_id) {
+				const { data }: { data: { getGuild: Guild }, errors?: Readonly<GraphQLError[]> } = await this.apolloClient.query<any, GuildInput>({
+					query: QUERIES.GUILD,
+					variables: {
+						id: msg.guild_id,
+					},
+				});
+
+				if (data?.getGuild?.prefix) return data.getGuild?.prefix;
+			}
+			
+			return PREFIX!;
+		},
 		cooldown: 3500,
 	});
+
+	/**
+	 * the graphql client
+	 */
+	public readonly apolloClient: ApolloClient<NormalizedCacheObject> = apolloClient;
 
 	/**
 	 * the listener handler
