@@ -1,0 +1,79 @@
+# Exposes a URL that specifies the behaviour of this scalar.
+directive @specifiedBy(
+  # The URL that specifies the behaviour of this scalar.
+  url: String!
+) on SCALAR
+input CreateEntryInput {
+  user_id: String!
+  message_id: String!
+}
+
+input CreateGiveawayInput {
+  title: String!
+  emoji: String!
+  guild_id: String!
+  channel_id: String!
+  message_id: String!
+  created_by: String!
+  winners: Float!
+  draw_at: DateTime!
+}
+
+input CreateGuildInput {
+  id: String!
+  prefix: String = "gc"
+}
+
+# The javascript `Date` as string. Type represents date and time as the ISO Date string.
+scalar DateTime
+
+type Entry {
+  id: ID!
+  user_id: String!
+  giveaway: Giveaway!
+  created_at: DateTime!
+}
+
+type Giveaway {
+  id: ID!
+  title: String!
+  emoji: String!
+  guild_id: String!
+  channel_id: String!
+  message_id: String!
+  created_by: String!
+  winners: Float!
+  entries: [Entry!]!
+  draw_at: DateTime!
+  created_at: DateTime!
+}
+
+type Guild {
+  id: ID!
+  prefix: String!
+  created_at: DateTime!
+}
+
+type Mutation {
+  createGuild(data: CreateGuildInput!): Guild!
+  createGiveaway(data: CreateGiveawayInput!): Giveaway!
+  createEntry(data: CreateEntryInput!): Entry!
+}
+
+type Query {
+  getGuild(id: String!): Guild!
+  deleteGuild(id: String!): Boolean!
+  getGiveaway(message_id: String!): Giveaway!
+  findGiveaway(
+    guild_id: String
+    channel_id: String
+    message_id: String
+    created_by: String
+    emoji: String
+  ): [Giveaway!]!
+  deleteGiveaway(message_id: String!): Boolean!
+  getEntry(user_id: String!, message_id: String!): Entry!
+  findEntry(message_id: String!): [Entry!]!
+  deleteEntry(user_id: String!, message_id: String!): Entry!
+}
+
