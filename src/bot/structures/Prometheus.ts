@@ -1,11 +1,24 @@
 import { Gauge, register, Registry, collectDefaultMetrics } from 'prom-client';
 
+type AGauge = Gauge<string>;
+
+interface Metrics {
+	messageCounter: AGauge;
+	commandCounter: AGauge;
+	eventCounter: AGauge;
+
+	guildCounter: AGauge;
+	userCounter: AGauge;
+
+	register: Registry;
+}
+
 export class Prometheus {
 	public constructor() {
 		collectDefaultMetrics({ prefix: 'giveaway_bot2_' });
 	}
 
-	public readonly metrics: Record<string, Gauge<string> | Registry> = {
+	public readonly metrics: Partial<Metrics> = {
 		messageCounter: new Gauge({
 			name: 'giveaway_bot2_messages',
 			help: 'Total number of messages Giveaway Bot has seen.',
