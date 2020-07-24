@@ -1,7 +1,8 @@
 import { stripIndents } from 'common-tags';
 import { Message, WebhookClient } from 'discord.js';
-import { Guild } from '../../database/models/Guild';
+import { Guild } from '../../database';
 import GiveawayClient from '../client/GiveawayClient';
+import { LessThanOrEqual } from 'typeorm';
 import { Vote } from '../util/dbl';
 
 interface GuildOverShard {
@@ -35,10 +36,8 @@ export default class VoteHandler {
 
 		if (guilds.length > 1) {
 			try {
-				const embed = this.client.util
-					.embed()
-					.setColor(this.client.config.color)
-					.setTitle('Thank for your vote!').setDescription(stripIndents`
+				const embed = this.client.util.embed().setColor(this.client.config.color).setTitle('Thank for your vote!')
+					.setDescription(stripIndents`
 						Looks like I'm in more than one server with you of which you have the \`Manage Guild\` permission.
 						
 						Which server would you like premium in?
@@ -60,20 +59,18 @@ export default class VoteHandler {
 				const index = parseInt(collected, 10) - 1;
 				theGuild = guilds[index];
 
-				await this.client.settings.set(
-					'guild',
-					{ id: theGuild.id },
-					{ premium: true, expiresAt: new Date(Date.now() + 8.64e7) },
-				);
+				const guild = await this.client.settings.guild(theGuild.id);
+				guild!.premium = true;
+				guild!.expiresAt = new Date(Date.now() + 8.64e7);
+				guild?.save();
 
 				await message.channel.send(`Successfully granted premium in **${theGuild.name}** for 24 hours.`);
 			} catch {
 				theGuild = guilds[Math.floor(Math.random() * guilds.length)];
-				await this.client.settings.set(
-					'guild',
-					{ id: theGuild.id },
-					{ premium: true, expiresAt: new Date(Date.now() + 8.64e7) },
-				);
+				const guild = await this.client.settings.guild(theGuild.id);
+				guild!.premium = true;
+				guild!.expiresAt = new Date(Date.now() + 8.64e7);
+				guild?.save();
 				await user.send(`Successfully granted premium in **${theGuild.name}** for 24 hours.`).catch(() => undefined);
 			}
 		} else if (guilds.length === 1) {
@@ -83,11 +80,10 @@ export default class VoteHandler {
 				.setColor(this.client.config.color)
 				.setTitle('Thank for your vote!')
 				.setDescription(`You've been given premium in **${theGuild.name}** for 24 hours.`);
-			await this.client.settings.set(
-				'guild',
-				{ id: theGuild.id },
-				{ premium: true, expiresAt: new Date(Date.now() + 8.64e7) },
-			);
+			const guild = await this.client.settings.guild(theGuild.id);
+			guild!.premium = true;
+			guild!.expiresAt = new Date(Date.now() + 8.64e7);
+			guild?.save();
 			await user.send({ embed });
 		} else {
 			const embed = this.client.util
@@ -122,11 +118,12 @@ export default class VoteHandler {
 		const g = this.client.guilds.cache.get(guild.id);
 		if (g) {
 			this.client.logger.info(`[VOTE MANAGER] [EXPIRY]: ${g.name} just expired!`);
-			this.client.settings.set('guild', { id: guild.id }, { premium: false });
+			guild.premium = false;
+			void guild.save();
 			try {
 				const owner = await this.client.users.fetch(g.ownerID);
 				await owner.send(
-					`Oh no! Your premium benifits in **${g?.name}** has expired! You can vote again by running \`gvote\`!`,
+					`Oh no! Your premium benifits in **${g.name}** has expired! You can vote again by running \`gvote\`!`,
 				);
 			} catch (err) {
 				this.client.logger.info(`[VOTE MANAGER] [EXPIRY DM]: ${err}`);
@@ -134,22 +131,23 @@ export default class VoteHandler {
 		}
 	}
 
-	public async init() {
+	public init() {
 		this._check();
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises
 		this.interval = this.client.setInterval(this._check.bind(this), this.rate);
 
-		this.client.giveawayAPI!.dbl.on('vote', vote => this._vote(vote));
+		this.client.giveawayAPI!.dbl.on('vote', (vote) => void this._vote(vote));
 		this.client.giveawayAPI!.dbl.on('invalid', () =>
 			this.client.logger.debug(`[VOTE MANAGER]: Recieved invalid vote!`),
 		);
 	}
 
-	private _check(): void {
-		const guilds = this.client.settings.cache.guilds;
+	private async _check(): Promise<void> {
 		const now = Date.now();
-		this.client.logger.verbose(`[VOTE MANAGER] Checking ${guilds.size} guilds for votes.`);
+		const guilds = await Guild.find({ premium: true, expiresAt: LessThanOrEqual(now) });
+
+		this.client.logger.verbose(`[VOTE MANAGER] Checking ${guilds.length} guilds for votes.`);
 		for (const g of guilds.values()) {
-			if (!g.premium || !g.expiresAt) continue;
 			if (now > g.expiresAt.getTime()) this.expire(g);
 		}
 	}

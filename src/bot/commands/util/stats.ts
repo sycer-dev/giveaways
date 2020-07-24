@@ -36,7 +36,7 @@ export default class StatsCommand extends Command {
 			.setColor(msg.guild?.me?.displayColor ?? this.client.config.color)
 			.setThumbnail(this.client.user!.displayAvatarURL({ size: 2048, dynamic: true }))
 			.setTitle(`${this.client.user?.username}'s Statistics`)
-			.setFooter(`On Shard #${this.client.shard?.id || 0}`)
+			.setFooter(`On Shard #${this.client.shard?.id ?? 0}`)
 			.addField(
 				'Discord Data',
 				`

@@ -61,7 +61,7 @@ export function localize(number: number, locale = 'en-US'): string {
 export function resolveWebhookURL(data: string): [string, string] | null {
 	const webhookRegex = /discordapp\.com\/api\/webhooks\/([0-9]+)\/([a-zA-Z0-9_-]+)/i;
 	const match = webhookRegex.exec(data);
-	if (match && match[1] && match[2]) return [match[1], match[2]];
+	if (match?.[1] && match[2]) return [match[1], match[2]];
 	return null;
 }
 

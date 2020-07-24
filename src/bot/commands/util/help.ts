@@ -19,7 +19,7 @@ export default class HelpCommand extends Command {
 				{
 					id: 'arg',
 					type: Argument.union('commandAlias', (_: Message, str: string): null | Category<string, Command> => {
-						if (str) return this.handler.categories.get(str.toLowerCase()) || null;
+						if (str) return this.handler.categories.get(str.toLowerCase()) ?? null;
 						return null;
 					}),
 					prompt: {
@@ -36,7 +36,7 @@ export default class HelpCommand extends Command {
 		msg: Message,
 		{ arg }: { arg: undefined | Command | Category<string, Command> },
 	): Promise<Message | Message[] | void> {
-		const prefix = (this.handler.prefix as PrefixSupplier)(msg);
+		const prefix = await (this.handler.prefix as PrefixSupplier)(msg);
 
 		if (!arg) {
 			const embed = this.client.util
@@ -52,10 +52,10 @@ export default class HelpCommand extends Command {
 			for (const category of this.handler.categories.values()) {
 				if (category.id === 'owner' && !this.client.ownerID.includes(msg.author.id)) continue;
 				const commands = category
-					.filter(c => c.aliases.length > 0)
-					.map(cmd => `\`${cmd.aliases[0]}\``)
+					.filter((c) => c.aliases.length > 0)
+					.map((cmd) => `\`${cmd.aliases[0]}\``)
 					.join(', ');
-				embed.addField(`${category.id.replace(/(\b\w)/gi, lc => lc.toUpperCase())}`, commands);
+				embed.addField(`${category.id.replace(/(\b\w)/gi, (lc) => lc.toUpperCase())}`, commands);
 			}
 
 			return msg.util?.send({ embed });
@@ -65,14 +65,14 @@ export default class HelpCommand extends Command {
 				.embed()
 				.setColor(msg.guild?.me?.displayColor ?? this.client.config.color)
 				.setTitle(codeb(`${arg.aliases[0]}${arg.description.usage ? ` ${arg.description.usage}` : ''}`))
-				.addField('Description', arg.description.content || 'No description.');
+				.addField('Description', arg.description.content ?? 'No description.');
 
-			if (arg.aliases.length > 1) embed.addField('Aliases', arg.aliases.map(a => codeb(a)).join(', '));
+			if (arg.aliases.length > 1) embed.addField('Aliases', arg.aliases.map((a) => codeb(a)).join(', '));
 			if (arg.description.flags)
 				embed.addField(
 					'Flags',
 					arg.description.flags.map(
-						({ description, flags }: Flag) => `${flags.map(f => codeb(f)).join(', ')}: ${description}`,
+						({ description, flags }: Flag) => `${flags.map((f) => codeb(f)).join(', ')}: ${description}`,
 					),
 				);
 			if ((arg.description.examples as string[] | undefined)?.length)
@@ -84,7 +84,7 @@ export default class HelpCommand extends Command {
 			return msg.util?.send({ embed });
 		}
 
-		const name = arg.id.replace(/(\b\w)/gi, lc => lc.toUpperCase());
+		const name = arg.id.replace(/(\b\w)/gi, (lc) => lc.toUpperCase());
 		const embed = this.client.util
 			.embed()
 			.setColor(msg.guild?.me?.displayColor ?? this.client.config.color)
@@ -94,9 +94,9 @@ export default class HelpCommand extends Command {
 		`);
 		const data = arg
 			.array()
-			.filter(c => c.aliases.length > 0)
+			.filter((c) => c.aliases.length > 0)
 			.map(
-				cmd =>
+				(cmd) =>
 					`\`${cmd.aliases[0]}\` - ${
 						cmd.description?.content ? cmd.description.content.split('\n')[0] : 'No description.'
 					}`,

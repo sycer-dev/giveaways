@@ -15,7 +15,7 @@ export default class InviteCommand extends Command {
 	}
 
 	public async exec(msg: Message): Promise<Message | Message[] | undefined> {
-		const embed = this.client.util.embed().setColor(msg.guild?.me?.displayColor || this.client.config.color)
+		const embed = this.client.util.embed().setColor(msg.guild?.me?.displayColor ?? this.client.config.color)
 			.setDescription(stripIndents`
                 You can invite **${
 									this.client.user?.username

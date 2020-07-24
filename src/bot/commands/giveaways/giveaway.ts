@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/no-base-to-string */
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import ms from '@naval-base/ms';
 import { stripIndents } from 'common-tags';
 import { Command, PrefixSupplier } from 'discord-akairo';
 import { Message, MessageReaction, Permissions, TextChannel, User } from 'discord.js';
 import prettyms from 'pretty-ms';
-import { PRETTY_MS_SETTINGS } from '../../util/constants';
+import { PRETTY_MS_SETTINGS, GiveawayType } from '../../util/constants';
+import { Giveaway } from '../../../database';
 
 export interface Entries {
 	string: string;
@@ -53,19 +56,20 @@ export default class Giveaways extends Command {
 	}
 
 	// @ts-ignore
-	public userPermissions(msg: Message): string | null {
-		const guild = this.client.settings.cache.guilds.get(msg.guild!.id);
+	public async userPermissions(msg: Message): Promise<string | null> {
+		const guild = await this.client.settings.guild(msg.guild!.id);
 		if (
 			msg.member!.permissions.has(Permissions.FLAGS.MANAGE_GUILD) ||
-			(guild && msg.member!.roles.cache.has(guild.manager))
+			(guild?.manager && msg.member!.roles.cache.has(guild.manager))
 		)
 			return null;
 		return 'notMaster';
 	}
 
 	public async exec(msg: Message, { type }: { type: string }): Promise<Message | Message[] | void> {
-		const guild = this.client.settings.cache.guilds.get(msg.guild!.id);
-		const preifx = (this.handler.prefix as PrefixSupplier)(msg);
+		const guild = await this.client.settings.guild(msg.guild!.id);
+		const preifx = await (this.handler.prefix as PrefixSupplier)(msg);
+
 		if (type === '1') {
 			return this.tierOne(msg);
 		} else if (type === '2') {
@@ -89,7 +93,7 @@ export default class Giveaways extends Command {
 			max: 1,
 			time: 30000,
 		});
-		if (!collect || collect.size !== 1 || !collect.first()) return null;
+		if (collect.size !== 1 || !collect.first()) return null;
 		return collect.first()!;
 	}
 
@@ -99,7 +103,7 @@ export default class Giveaways extends Command {
 			max: 1,
 			time: 30000,
 		});
-		if (!collect || collect.size !== 1) return msg.util?.reply('you took too long! Giveaway builder closed.');
+		if (collect.size !== 1) return msg.util?.reply('you took too long! Giveaway builder closed.');
 		const rawREACTION = collect.first()!;
 		if (w.deletable) await w.delete();
 		if (rawREACTION.emoji.id && !this.client.emojis.cache.get(rawREACTION.emoji.id)) {
@@ -116,16 +120,18 @@ export default class Giveaways extends Command {
 		if (!collect) return msg.util?.reply('you took too long! Giveaway builder closed.');
 		const chan = this.client.util.resolveChannel(
 			collect.content,
-			msg.guild!.channels.cache.filter(c => c.type === 'text'),
-		);
+			msg.guild!.channels.cache.filter((c) => c.type === 'text'),
+		) as TextChannel | null;
+
 		if (w.deletable) await w.delete();
 		if (collect.deletable) await collect.delete();
+
 		if (!chan) {
 			const m = await msg.channel.send('Invalid channel, please try agian.');
 			await m.delete({ timeout: 3500 });
 			return null;
 		}
-		return chan as TextChannel;
+		return chan;
 	}
 
 	public async getTitle(msg: Message): Promise<null | Message | Message[] | string | void> {
@@ -139,10 +145,9 @@ export default class Giveaways extends Command {
 
 	public async tierOne(msg: Message): Promise<Message | Message[] | void> {
 		const EMOJIS = ['📋', '💰', '📦', '🎉', '⏰', '📊', '🛑'];
-		const live = true;
 		let title;
 		let winnerCount;
-		let channel: TextChannel | undefined = msg.guild?.channels.cache.find(c =>
+		let channel: TextChannel | undefined = msg.guild?.channels.cache.find((c) =>
 			c.name.includes('giveaway'),
 		) as TextChannel;
 		let emoji = '🎉';
@@ -151,10 +156,11 @@ export default class Giveaways extends Command {
 		const entries: Entries[] = [];
 		const m = await msg.channel.send('Traditional Giveaway Builder');
 		for (const e of EMOJIS) await m.react(e);
-		while (live) {
+
+		while (true) {
 			const embed = this.client.util
 				.embed()
-				.setColor(msg.guild?.me?.displayColor || this.client.config.color)
+				.setColor(msg.guild?.me?.displayColor ?? this.client.config.color)
 				.addFields(
 					{
 						name: 'Possible Methods',
@@ -171,9 +177,9 @@ export default class Giveaways extends Command {
 					{
 						name: 'Current Settings',
 						value: stripIndents`
-							📋 Title - ${title || 'None set yet.'}
+							📋 Title - ${title ?? 'None set yet.'}
 
-							💰 Winner Count - ${winnerCount || 'None set yet.'}
+							💰 Winner Count - ${winnerCount ?? 'None set yet.'}
 
 							📦 Channel - ${channel || 'None set yet.'}
 
@@ -183,7 +189,7 @@ export default class Giveaways extends Command {
 
 							__Role-based Extra Entries__
 							Default - \`1\` Entry
-							${entries.map(e => `<@&${e.string}> - \`${e.entries}\` entries`).join('\n')}
+							${entries.map((e) => `<@&${e.string}> - \`${e.entries}\` entries`).join('\n')}
 						`,
 						inline: true,
 					},
@@ -225,6 +231,9 @@ export default class Giveaways extends Command {
 				if (!number || (number && number < 1 && !isNaN(number))) {
 					const m = await msg.channel.send('Invalid number, please try agian.');
 					await m.delete({ timeout: 3500 });
+				} else if (number >= 200) {
+					const m = await msg.channel.send('There cannot be more than 200 winners, please try again.');
+					await m.delete({ timeout: 3500 });
 				} else {
 					winnerCount = number;
 				}
@@ -236,7 +245,7 @@ export default class Giveaways extends Command {
 			} else if (emote === '🎉') {
 				const get = await this.getEmoji(msg);
 				if (get && get instanceof MessageReaction) {
-					emoji = get.emoji.id || get.emoji.name;
+					emoji = get.emoji.id ?? get.emoji.name;
 					rawEMOJI = get.emoji.toString();
 				}
 			} else if (emote === '⏰') {
@@ -305,7 +314,7 @@ export default class Giveaways extends Command {
 					try {
 						const embed = this.client.util
 							.embed()
-							.setColor(msg.guild?.me?.displayColor || this.client.config.color)
+							.setColor(msg.guild?.me?.displayColor ?? this.client.config.color)
 							.setFooter(`${winnerCount} Winner${winnerCount === 1 ? '' : 's'} • Ends at`)
 							.setTimestamp(new Date(Date.now() + duration))
 							.setTitle(title)
@@ -315,24 +324,37 @@ export default class Giveaways extends Command {
 									name: 'Entries',
 									value: stripIndents`
 										${msg.guild!.roles.everyone} - \`1\` Entry
-										${entries.map(e => `<@&${e.string}> - \`${e.entries}\` entries`).join('\n')}
+										${entries.map((e) => `<@&${e.string}> - \`${e.entries}\` entries`).join('\n')}
 									`,
 								},
 								{ name: 'Host', value: `${msg.author} [\`${msg.author.tag}\`]` },
 							)
 							.setDescription(`React with ${rawEMOJI} to enter!`);
 						const mss = await channel.send('🎉 **GIVEAWAY** 🎉', { embed });
-						await this.client.settings.new('giveaway', {
+
+						await Giveaway.create({
 							title,
 							emoji,
-							guildID: msg.guild!.id,
-							channelID: channel.id,
-							messageID: mss.id,
-							winnerCount,
-							endsAt: new Date(Date.now() + duration),
+							guildId: msg.guild!.id,
+							channelId: channel.id,
+							messageId: mss.id,
+							winners: winnerCount,
+							drawAt: new Date(Date.now() + duration),
 							createdBy: msg.author.id,
 							boosted: entries,
-						});
+						}).save();
+
+						// await this.client.settings.new('giveaway', {
+						// 	title,
+						// 	emoji,
+						// 	guildID: msg.guild!.id,
+						// 	channelID: channel.id,
+						// 	messageID: mss.id,
+						// 	winnerCount,
+						// 	endsAt: new Date(Date.now() + duration),
+						// 	createdBy: msg.author.id,
+						// 	boosted: entries,
+						// });
 						await mss.react(emoji);
 
 						if (m.editable) {
@@ -348,7 +370,6 @@ export default class Giveaways extends Command {
 				}
 			}
 		}
-		return msg;
 	}
 
 	public async tierTwo(msg: Message): Promise<Message | Message[] | void> {
@@ -364,7 +385,7 @@ export default class Giveaways extends Command {
 		while (live) {
 			const embed = this.client.util
 				.embed()
-				.setColor(msg.guild?.me?.displayColor || this.client.config.color)
+				.setColor(msg.guild?.me?.displayColor ?? this.client.config.color)
 				.addFields(
 					{
 						name: 'Possible Methods',
@@ -378,11 +399,11 @@ export default class Giveaways extends Command {
 					{
 						name: 'Current Settings',
 						value: stripIndents`
-							📋 Title - ${title || 'None set yet.'}
+							📋 Title - ${title ?? 'None set yet.'}
 
-							💰 Winner Count - ${winnerCount || 'None set yet.'}
+							💰 Winner Count - ${winnerCount ?? 'None set yet.'}
 
-							📦 Channel - ${channel || 'None set yet.'}
+							📦 Channel - ${channel ?? 'None set yet.'}
 
 							🎉 Emoij - ${rawEMOJI}
 						`,
@@ -425,6 +446,9 @@ export default class Giveaways extends Command {
 				if (!number || (number && number < 1 && !isNaN(number))) {
 					const m = await msg.channel.send('Invalid number, please try agian.');
 					await m.delete({ timeout: 3500 });
+				} else if (number >= 200) {
+					const m = await msg.channel.send('There cannot be more than 200 winners, please try again.');
+					await m.delete({ timeout: 3500 });
 				} else {
 					winnerCount = number;
 				}
@@ -436,7 +460,7 @@ export default class Giveaways extends Command {
 			} else if (emote === '🎉') {
 				const get = await this.getEmoji(msg);
 				if (get && get instanceof MessageReaction) {
-					emoji = get.emoji.id || get.emoji.name;
+					emoji = get.emoji.id ?? get.emoji.name;
 					rawEMOJI = get.emoji.toString();
 				}
 			} else if (emote === '✅') {
@@ -458,7 +482,7 @@ export default class Giveaways extends Command {
 					await m.delete({ timeout: 3500 });
 				} else {
 					try {
-						const embed = this.client.util.embed().setColor(msg.guild?.me?.displayColor || this.client.config.color)
+						const embed = this.client.util.embed().setColor(msg.guild?.me?.displayColor ?? this.client.config.color)
 							.setDescription(stripIndents`
 								The first ${
 									winnerCount === 1 ? `\`${winnerCount}\` people` : 'person'
@@ -469,16 +493,19 @@ export default class Giveaways extends Command {
 								React before there are no more slots left!
 							`);
 						const mss = await channel!.send('🎉 **FIRST COME, FIRST SERVE** 🎉', { embed });
-						await this.client.settings.new('giveaway', {
+
+						await Giveaway.create({
 							title,
 							emoji,
-							guildID: msg.guild!.id,
-							channelID: channel!.id,
-							messageID: mss.id,
-							winnerCount,
+							guildId: msg.guild!.id,
+							channelId: channel!.id,
+							messageId: mss.id,
+							winners: winnerCount,
 							createdBy: msg.author.id,
+							type: GiveawayType.FCFS,
 							fcfs: true,
-						});
+						}).save();
+
 						await mss.react(emoji);
 
 						if (m.editable) {
@@ -512,7 +539,7 @@ export default class Giveaways extends Command {
 		while (live) {
 			const embed = this.client.util
 				.embed()
-				.setColor(msg.guild?.me?.displayColor || this.client.config.color)
+				.setColor(msg.guild?.me?.displayColor ?? this.client.config.color)
 				.addFields(
 					{
 						name: 'Possible Methods',
@@ -528,13 +555,13 @@ export default class Giveaways extends Command {
 					{
 						name: 'Current Settings',
 						value: stripIndents`
-							📋\` Title - ${title || 'None set yet.'}
+							📋\` Title - ${title ?? 'None set yet.'}
 
-							👥 Max Entries - ${maxEntries || 'None set yet.'}
+							👥 Max Entries - ${maxEntries ?? 'None set yet.'}
 
-							💰 Winner Count - ${winnerCount || 'None set yet.'}
+							💰 Winner Count - ${winnerCount ?? 'None set yet.'}
 
-							📦 Channel - ${channel || 'None set yet.'}
+							📦 Channel - ${channel ?? 'None set yet.'}
 
 							⏰ Duration -  ${duration ? prettyms(duration, PRETTY_MS_SETTINGS) : 'None set yet.'}
 
@@ -579,6 +606,9 @@ export default class Giveaways extends Command {
 				if (!number || (number && number < 1 && !isNaN(number))) {
 					const m = await msg.channel.send('Invalid number, please try agian.');
 					await m.delete({ timeout: 3500 });
+				} else if (number >= 200) {
+					const m = await msg.channel.send('There cannot be more than 200 winners, please try again.');
+					await m.delete({ timeout: 3500 });
 				} else {
 					winnerCount = number;
 				}
@@ -592,6 +622,9 @@ export default class Giveaways extends Command {
 				if (!number || (number && number < 1 && !isNaN(number))) {
 					const m = await msg.channel.send('Invalid number, please try agian.');
 					await m.delete({ timeout: 3500 });
+				} else if (number >= 200) {
+					const m = await msg.channel.send('There cannot be more than 200 winners, please try again.');
+					await m.delete({ timeout: 3500 });
 				} else {
 					maxEntries = number;
 				}
@@ -603,7 +636,7 @@ export default class Giveaways extends Command {
 			} else if (emote === '🎉') {
 				const get = await this.getEmoji(msg);
 				if (get && get instanceof MessageReaction) {
-					emoji = get.emoji.id || get.emoji.name;
+					emoji = get.emoji.id ?? get.emoji.name;
 					rawEMOJI = get.emoji.toString();
 				}
 			} else if (emote === '⏰') {
@@ -650,7 +683,7 @@ export default class Giveaways extends Command {
 					try {
 						const embed = this.client.util
 							.embed()
-							.setColor(msg.guild?.me?.displayColor || this.client.config.color)
+							.setColor(msg.guild?.me?.displayColor ?? this.client.config.color)
 							.setTitle(title).setDescription(stripIndents`
 								This giveaway will draw **${winnerCount}** ${winnerCount === 1 ? 'winner' : 'winners'} after **${maxEntries}** ${
 							maxEntries === 1 ? 'person has' : 'people have'
@@ -661,16 +694,19 @@ export default class Giveaways extends Command {
 						} will be decided!
 							`);
 						const mss = await channel.send('🎉 **LIMITED ENTRIES** 🎉', { embed });
-						await this.client.settings.new('giveaway', {
+
+						await Giveaway.create({
 							title,
 							emoji,
-							winnerCount,
-							guildID: msg.guild!.id,
-							channelID: channel.id,
-							messageID: mss.id,
+							winners: winnerCount,
+							guildId: msg.guild!.id,
+							channelId: channel.id,
+							messageId: mss.id,
 							maxEntries,
+							type: GiveawayType.LIMITED,
 							createdBy: msg.author.id,
-						});
+						}).save();
+
 						await mss.react(emoji);
 
 						if (m.editable) {

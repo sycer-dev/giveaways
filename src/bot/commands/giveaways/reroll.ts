@@ -1,6 +1,7 @@
 import { Command } from 'discord-akairo';
 import { Message, Permissions, TextChannel } from 'discord.js';
-import { draw } from '../../util';
+import { Giveaway } from '../../../database';
+import { GiveawayType } from '../../util/constants';
 
 export default class ManagerRole extends Command {
 	public constructor() {
@@ -33,41 +34,40 @@ export default class ManagerRole extends Command {
 	}
 
 	// @ts-ignore
-	public userPermissions(msg: Message): string | null {
-		const guild = this.client.settings.cache.guilds.get(msg.guild!.id);
+	public async userPermissions(msg: Message): Promise<string | null> {
+		const guild = await this.client.settings.guild(msg.guild!.id);
 		if (
 			msg.member!.permissions.has(Permissions.FLAGS.MANAGE_GUILD) ||
-			(guild && msg.member!.roles.cache.has(guild.manager))
+			(guild?.manager && msg.member!.roles.cache.has(guild.manager))
 		)
 			return null;
 		return 'notMaster';
 	}
 
 	public async exec(msg: Message, { count }: { count: number }): Promise<Message | Message[] | void> {
-		const giveaways = await this.client.settings.get(
-			'giveaway',
-			{ complete: true, channelID: msg.channel.id, guildID: msg.guild!.id, fcfs: false, maxEntries: undefined },
-			false,
-		);
+		const giveaways = await Giveaway.find({
+			drawn: true,
+			channelId: msg.channel.id,
+			guildId: msg.guild!.id,
+			type: GiveawayType.TRADITIONAL,
+		});
 
 		if (!giveaways.length) return msg.util?.reply("sorry! I couldn't find any ended giveaways in this channel");
 		const g =
-			giveaways.length === 1 ? giveaways[0]! : giveaways.sort((a, b) => b.endsAt.getTime() - a.endsAt.getTime())[0]!;
+			giveaways.length === 1 ? giveaways[0]! : giveaways.sort((a, b) => b.drawAt.getTime() - a.drawAt.getTime())[0]!;
 
-		const message = await (this.client.channels.cache.get(g.channelID) as TextChannel).messages
-			.fetch(g.messageID)
+		const message = await (this.client.channels.cache.get(g.channelId) as TextChannel).messages
+			.fetch(g.messageId)
 			.catch(() => null);
 		if (!message) return msg.util?.reply('looks like that giveaway was deleted!');
 		const reaction = message.reactions.cache.get(g.emoji);
 		if (!reaction) return msg.util?.reply('looks like that giveaway was deleted!');
 
-		const users = await reaction.users.fetch();
-		const list = users.array().filter(u => u.id !== message.author.id);
-		const winners = draw(list, count);
+		const winners = await this.client.giveawayHandler.pullWinners(reaction, count);
 
 		return msg.channel.send(
 			`🎲 Congratulations ${winners
-				.map(g => g.toString())
+				.map((g) => g.toString())
 				.join(', ')
 				.substring(0, 1800)}! You won the giveaway for *${g.title}* on a reroll!`,
 		);

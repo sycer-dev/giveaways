@@ -29,11 +29,12 @@ export default class DBL extends EventEmitter {
 		const request = await fetch(`${this.BASE_URL}/bots/${this.client.user!.id}/stats`, {
 			method: 'POST',
 			body: JSON.stringify({
+				// eslint-disable-next-line @typescript-eslint/camelcase
 				server_count: this.client.guilds.cache.size,
 			}),
 			headers: {
 				Authorization: this._token,
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
 			},
 		});
 		this.client.logger.info(`Posting top.gg stats returned code: ${request.statusText}`);
@@ -59,7 +60,8 @@ export default class DBL extends EventEmitter {
 
 	public startVoteInterval(duration?: number): NodeJS.Timeout {
 		this._postStats();
-		this.interval = this.client.setInterval(this._postStats.bind(this), duration || 1000 * 60 * 15);
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises
+		this.interval = this.client.setInterval(this._postStats.bind(this), duration ?? 1000 * 60 * 15);
 		return this.interval;
 	}
 }

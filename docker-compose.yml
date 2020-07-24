@@ -13,17 +13,17 @@ services:
     expose:
       - '5501'
   
-  mongo:
-      image: mongo
-      hostname: mongo
-      restart: unless-stopped
-      ports:
-        - '27017:27017'
-      environment:
-        MONGO_INITDB_ROOT_USERNAME: fyko
-        MONGO_INITDB_ROOT_PASSWORD: doctordoctor
-      volumes:
-        - mongo_data:/data/db
+  postgres:
+    image: postgres:13-alpine
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: fyko
+      POSTGRES_PASSWORD: doctordoctor
+      POSTGRES_DB: giveaways
+    ports:
+      - 5432:5432
 
 volumes:
-  mongo_data:
+  postgres_data:

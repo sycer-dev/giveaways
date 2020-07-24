@@ -18,9 +18,10 @@ export default class CommandStartedListener extends Listener {
 			.embed()
 			.setColor(this.client.config.color)
 			.addFields(
-				{ name: 'Guild', value: msg.guild?.name || 'DMs' },
+				{ name: 'Guild', value: msg.guild?.name ?? 'DMs' },
 				{ name: 'Command', value: command.id },
-				{ name: 'Message Content', value: msg.content?.substring(0, 200) || 'No message content' },
+				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+				{ name: 'Message Content', value: msg.content.substring(0, 200) ?? 'No message content' },
 				{
 					name: 'User',
 					value: `${msg.author.tag} \`[${msg.author.id}]\``,

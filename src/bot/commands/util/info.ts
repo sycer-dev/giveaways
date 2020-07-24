@@ -15,10 +15,10 @@ export default class GuideCommand extends Command {
 	}
 
 	public async exec(msg: Message): Promise<Message | Message[] | void> {
-		const prefix = (this.handler.prefix as PrefixSupplier)(msg);
+		const prefix = await (this.handler.prefix as PrefixSupplier)(msg);
 		const embed = this.client.util
 			.embed()
-			.setColor(msg.guild?.me?.displayColor || this.client.config.color)
+			.setColor(msg.guild?.me?.displayColor ?? this.client.config.color)
 			.addFields(
 				{
 					name: 'Setup',

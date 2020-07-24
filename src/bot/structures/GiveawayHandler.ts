@@ -1,10 +1,11 @@
 import ms from '@naval-base/ms';
 import { ColorResolvable, Message, MessageReaction, Snowflake, TextChannel, User } from 'discord.js';
 import prettyms from 'pretty-ms';
-import GiveawayModel, { Giveaway } from '../../database/models/Giveaway';
+import { In } from 'typeorm';
+import { Giveaway } from '../../database';
 import GiveawayClient from '../client/GiveawayClient';
 import { draw } from '../util';
-import { PRETTY_MS_SETTINGS } from '../util/constants';
+import { GiveawayType, PRETTY_MS_SETTINGS } from '../util/constants';
 
 interface FetchReactionUsersOptions {
 	limit?: number;
@@ -19,9 +20,9 @@ export default class GiveawayHandler {
 
 	protected interval!: NodeJS.Timeout;
 
-	public waiting: Set<string> = new Set();
+	public readonly waiting: Set<number> = new Set();
 
-	public constructor(client: GiveawayClient, { rate = 1000 * 60 } = {}) {
+	public constructor(client: GiveawayClient, { rate = 1000 * 90 } = {}) {
 		this.client = client;
 		this.rate = rate;
 	}
@@ -36,10 +37,20 @@ export default class GiveawayHandler {
 		return reactions.array().concat(next);
 	}
 
+	public async pullWinners(reaction: MessageReaction, winners: number): Promise<User[]> {
+		const _users = await this.fetchUsers(reaction);
+		const list = _users.filter((u) => u.id !== this.client.user!.id);
+
+		return draw(list, winners);
+	}
+
 	public async end(g: Giveaway): Promise<Message | Message[] | void> {
-		await this.client.settings.setById('giveaway', g._id, { complete: true });
-		const channel = this.client.channels.cache.get(g.channelID);
-		const message = await (channel as TextChannel)?.messages.fetch(g.messageID).catch(() => undefined);
+		this.waiting.delete(g.id);
+		g.drawn = true;
+		await g.save();
+
+		const channel = this.client.channels.cache.get(g.channelId);
+		const message = await (channel as TextChannel | null)?.messages.fetch(g.messageId).catch(() => undefined);
 		if (!message || !message.embeds.length) return;
 
 		const reaction = message.reactions.cache.get(g.emoji);
@@ -47,10 +58,10 @@ export default class GiveawayHandler {
 
 		const _users = await this.fetchUsers(reaction);
 		const _members = await message.guild!.members.fetch();
-		const list = _users.filter(u => u.id !== message.author.id);
+		const list = _users.filter((u) => u.id !== message.author.id);
 
 		const used: string[] = [];
-		if (g.boosted?.length) {
+		if (g.boosted.length) {
 			const boosts = g.boosted.sort((a, b) => b.entries - a.entries);
 			for (const b of boosts) {
 				for (const [id, m] of _members) {
@@ -64,11 +75,7 @@ export default class GiveawayHandler {
 			}
 		}
 
-		const embed = this.client.util
-			.embed()
-			.setColor(3553599)
-			.setTimestamp()
-			.setTitle(message.embeds[0].title);
+		const embed = this.client.util.embed().setColor(3553599).setTimestamp().setTitle(message.embeds[0].title);
 
 		if (!list.length) {
 			embed.setFooter('Ended at').setDescription('No winners! 😒');
@@ -76,31 +83,31 @@ export default class GiveawayHandler {
 			return message;
 		}
 
-		const winners = draw(list, g.winnerCount);
-		this.client.logger.verbose(`[GIVEAWAY HANDLER]: Drew giveaway ${g._id}.`);
+		const winners = draw(list, g.winners);
+		this.client.logger.verbose(`[GIVEAWAY HANDLER]: Drew giveaway #${g.id}.`);
 
 		embed
-			.setDescription(`**Winner${winners.length === 1 ? '' : 's'}**:\n ${winners.map(r => r.toString()).join('\n')}`)
+			.setDescription(`**Winner${winners.length === 1 ? '' : 's'}**:\n ${winners.map((r) => r.toString()).join('\n')}`)
 			.setFooter(`${winners.length} Winner${winners.length === 1 ? '' : 's'} • Ended`)
 			.setTimestamp();
 
-		if (message && message.editable) await message.edit({ content: '🎉 **GIVEAWAY ENDED** 🎉', embed });
+		if (message.editable) await message.edit({ content: '🎉 **GIVEAWAY ENDED** 🎉', embed });
 		if ((message.channel as TextChannel).permissionsFor(this.client.user!)!.has('SEND_MESSAGES'))
 			message.channel.send(
 				`🎉 Congratulations, ${winners
-					.map(u => u.toString())
+					.map((u) => u.toString())
 					.join(', ')
 					.substring(0, 1500)}! You won the giveaway for *${g.title}*!`,
 			);
 	}
 
 	private async edit(g: Giveaway, color?: ColorResolvable): Promise<void> {
-		const channel = await this.client.channels.fetch(g.channelID).catch(() => undefined);
-		const message = await (channel as TextChannel)?.messages.fetch(g.messageID).catch(() => undefined);
+		const channel = await this.client.channels.fetch(g.channelId).catch(() => undefined);
+		const message = await (channel as TextChannel).messages.fetch(g.messageId).catch(() => undefined);
 		if (!message || !message.embeds.length) return;
 
 		const embed = this.client.util.embed(message.embeds[0]);
-		const field = embed.fields.find(f => f.name === 'Time Remaining');
+		const field = embed.fields.find((f) => f.name === 'Time Remaining');
 
 		if (color) {
 			embed.setColor(color);
@@ -110,48 +117,50 @@ export default class GiveawayHandler {
 			if (index > -1) {
 				embed.spliceFields(index, 1, {
 					name: 'Time Remaining',
-					value: `\`${prettyms(g.endsAt.getTime() - Date.now(), PRETTY_MS_SETTINGS)}\``,
+					value: `\`${prettyms(g.drawAt.getTime() - Date.now(), PRETTY_MS_SETTINGS)}\``,
 					inline: false,
 				});
 				if (message.editable) {
 					await message
 						.edit({ embed })
-						.catch(err => void this.client.logger.debug(`[GIVEAWAY HANDLER]: Edit of ${message.id} failed - ${err}.`));
+						.catch(
+							(err) => void this.client.logger.debug(`[GIVEAWAY HANDLER]: Edit of ${message.id} failed - ${err}.`),
+						);
 				}
-			} else this.client.logger.verbose(`[GIVEAWAY HANDLER]: Skipped edit for ${g.messageID}, index is ${index}.`);
+			} else this.client.logger.verbose(`[GIVEAWAY HANDLER]: Skipped edit for #${g.id}, index is ${index}.`);
 		}
 	}
 
 	private queue(g: Giveaway): void {
-		const untilFire = g.endsAt.getTime() - Date.now();
-		this.client.logger.verbose(`[GIVEAWAY HANDLER]: Queued ${g._id}, ${ms(untilFire)} until draw.`);
-		this.waiting.add(g.messageID);
+		const untilFire = g.drawAt.getTime() - Date.now();
+		this.client.logger.verbose(`[GIVEAWAY HANDLER]: Queued #${g.id}, ${ms(untilFire)} until draw.`);
+		this.waiting.add(g.id);
 		this.client.setTimeout(() => {
 			this.end(g);
-			this.waiting.delete(g.messageID);
 		}, untilFire);
 	}
 
 	private async _check(): Promise<void> {
-		const $in = this.client.guilds.cache.keyArray();
-		const giveaways = await GiveawayModel.find({
-			fcfs: false,
-			complete: false,
-			maxEntries: undefined,
-			guildID: { $in },
+		const guildId = In(this.client.guilds.cache.keyArray());
+		const giveaways = await Giveaway.find({
+			type: GiveawayType.TRADITIONAL,
+			drawn: false,
+			guildId,
 		});
 
 		const now = Date.now();
 		if (!giveaways.length) return;
-		for (const g of giveaways.values()) {
-			if (g.endsAt.getTime() - now <= this.rate) this.queue(g);
-			else if (g.endsAt.getTime() - now >= 5000) this.edit(g);
-			else if (!this.waiting.has(g.messageID) && now > g.endsAt.getTime()) this.end(g);
+		for (const giveaway of giveaways.values()) {
+			const drawAt = giveaway.drawAt.getTime();
+			if (drawAt - now <= this.rate) this.queue(giveaway);
+			else if (drawAt - now >= 5000) this.edit(giveaway);
+			else if (!this.waiting.has(giveaway.id) && now > drawAt) this.end(giveaway);
 		}
 	}
 
-	public async init(): Promise<void> {
+	public init(): void {
 		this._check();
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises
 		this.interval = this.client.setInterval(this._check.bind(this), this.rate);
 		this.client.logger.info('[GIVEAWAY HANDLER] Successfully started giveaway handler.');
 	}

@@ -1,0 +1,14 @@
+{
+	"name": "default",
+	"type": "postgres",
+	"host": "postgres",
+	"port": 5432,
+	"username": "fyko",
+	"password": "doctordoctor",
+	"database": "giveaways",
+	"synchronize": true,
+	"logging": true,
+	"entities": [
+		"dist/database/entities/*.*"
+	]
+}

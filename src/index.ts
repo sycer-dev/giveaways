@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+
 import { Constants, Intents } from 'discord.js';
 import { CloseEvent, Cluster, SharderEvents, ShardingManager } from 'kurasuta';
 import { join } from 'path';

@@ -1,5 +1,10 @@
 import { Options } from 'pretty-ms';
 
+export enum GiveawayType {
+	TRADITIONAL = 1,
+	FCFS,
+	LIMITED,
+}
 export interface Flag {
 	flags: string[];
 	description: string;
@@ -25,7 +30,7 @@ export const MESSAGES = {
 	},
 };
 
-export const EMOJIS = {
+export const EMOJIS: Record<string, string> = {
 	'0': '686090767571222643',
 	'1': '686090767860891687',
 	'2': '686090767491399697',
@@ -37,7 +42,7 @@ export const EMOJIS = {
 	'8': '686090767927738369',
 	'9': '686090767617359890',
 	countdown: '686090767881470006',
-} as { [key: string]: string };
+};
 
 export const PRETTY_MS_SETTINGS: Options = {
 	millisecondsDecimalDigits: 0,

@@ -25,7 +25,7 @@ export default class GuildDeleteListener extends Listener {
 			.addFields({
 				name: 'Information',
 				value: stripIndents`
-					**Member Count**: \`${guild.memberCount?.toLocaleString('en-US')}\`
+					**Member Count**: \`${guild.memberCount.toLocaleString('en-US')}\`
 					**Duration Joined**: ${ms(durationJoined, true)}
 					**Owner**: ${owner} \`[${owner?.tag}]\`
 				`,

@@ -1,14 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import ms from '@naval-base/ms';
 import { Command } from 'discord-akairo';
 import { Message, Permissions, TextChannel } from 'discord.js';
 import * as nodemoji from 'node-emoji';
 import prettyms from 'pretty-ms';
 import { PRETTY_MS_SETTINGS } from '../../util/constants';
-
-export interface Entries {
-	string: string;
-	entries: number;
-}
+import { Giveaway } from '../../../database';
 
 export default class Giveaways extends Command {
 	public constructor() {
@@ -40,12 +37,12 @@ export default class Giveaways extends Command {
 					id: 'winnerCount',
 					type: (_, str: string): number | null => {
 						const input = parseInt(str, 10);
-						if (input && !isNaN(input) && input >= 1) return input;
+						if (input && !isNaN(input) && input >= 1 && input <= 200) return input;
 						return null;
 					},
 					prompt: {
 						start: 'How many winners would you like there to be?',
-						retry: 'How many winners would you like there to be? Please provide a valid number over 0.',
+						retry: 'How many winners would you like there to be? Please provide a valid number over 0 and less than or equal to 200.',
 					},
 				},
 				{
@@ -95,11 +92,11 @@ export default class Giveaways extends Command {
 	}
 
 	// @ts-ignore
-	public userPermissions(msg: Message): string | null {
-		const guild = this.client.settings.cache.guilds.get(msg.guild!.id);
+	public async userPermissions(msg: Message): Promise<string | null> {
+		const guild = await this.client.settings.guild(msg.guild!.id);
 		if (
 			msg.member!.permissions.has(Permissions.FLAGS.MANAGE_GUILD) ||
-			(guild && msg.member!.roles.cache.has(guild.manager))
+			(guild?.manager && msg.member!.roles.cache.has(guild.manager))
 		)
 			return null;
 		return 'notMaster';
@@ -117,7 +114,7 @@ export default class Giveaways extends Command {
 	): Promise<Message | Message[] | undefined> {
 		const embed = this.client.util
 			.embed()
-			.setColor(msg.guild?.me?.displayColor || this.client.config.color)
+			.setColor(msg.guild?.me?.displayColor ?? this.client.config.color)
 			.setFooter(`${winnerCount} Winner${winnerCount === 1 ? '' : 's'} • Ends at`)
 			.setTimestamp(new Date(Date.now() + duration))
 			.setTitle(title)
@@ -128,18 +125,19 @@ export default class Giveaways extends Command {
 					value: `${msg.author} [\`${msg.author.tag}\`]`,
 				},
 			)
-			.setDescription(`React with ${this.client.emojis.cache.get(emoji) || emoji} to enter!`);
+			.setDescription(`React with ${this.client.emojis.cache.get(emoji) ?? emoji} to enter!`);
+
 		const m = await channel.send('🎉 **GIVEAWAY** 🎉', { embed });
-		await this.client.settings.new('giveaway', {
+		await Giveaway.create({
 			title,
 			emoji,
-			guildID: msg.guild!.id,
-			channelID: channel.id,
-			messageID: m.id,
-			winnerCount,
-			endsAt: new Date(Date.now() + duration),
+			guildId: msg.guild!.id,
+			channelId: channel.id,
+			messageId: m.id,
+			winners: winnerCount,
+			drawAt: new Date(Date.now() + duration),
 			createdBy: msg.author.id,
-		});
+		}).save();
 		await m.react(emoji);
 
 		return msg.util?.reply(`successfully started giveaway in ${channel}.`);

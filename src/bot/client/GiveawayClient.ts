@@ -1,8 +1,14 @@
-import { AkairoClient, CommandHandler, Constants as AkairoConstants, InhibitorHandler, ListenerHandler } from 'discord-akairo';
+import {
+	AkairoClient,
+	CommandHandler,
+	Constants as AkairoConstants,
+	InhibitorHandler,
+	ListenerHandler,
+} from 'discord-akairo';
 import { ColorResolvable, Constants, Message, WebhookClient } from 'discord.js';
 import { join } from 'path';
 import { Logger } from 'winston';
-import SettingsProvider from '../../database/structures/SettingsProvider';
+import SettingsProvider from '../../database';
 import API from '../structures/API';
 import GiveawayHandler from '../structures/GiveawayHandler';
 import { Prometheus, prometheus } from '../structures/Prometheus';
@@ -53,10 +59,10 @@ export default class GiveawayClient extends AkairoClient {
 
 	public commandHandler: CommandHandler = new CommandHandler(this, {
 		directory: join(__dirname, '..', 'commands'),
-		prefix: (msg: Message): string => {
+		prefix: async (msg: Message): Promise<string> => {
 			if (msg.guild) {
-				const req = this.settings.cache.guilds.get(msg.guild.id);
-				if (req) return req.prefix;
+				const row = await this.settings.guild(msg.guild.id);
+				if (row?.prefix) return row.prefix;
 			}
 			return this.config.prefix;
 		},
@@ -69,9 +75,9 @@ export default class GiveawayClient extends AkairoClient {
 		argumentDefaults: {
 			prompt: {
 				modifyStart: (msg: Message, str: string) =>
-					`${msg.author} \`🎁\` ${str}\n...or type \`cancel\` to cancel this command.`,
+					`${msg.author}, ${str}\n...or type \`cancel\` to cancel this command.`,
 				modifyRetry: (msg: Message, str: string) =>
-					`${msg.author} \`🎁\` ${str}\n... or type \`cancel\` to cancel this command.`,
+					`${msg.author}, ${str}\n... or type \`cancel\` to cancel this command.`,
 				timeout: 'You took too long. Command cancelled.',
 				ended: 'You took more than 3 tries! Command canclled',
 				cancel: 'Sure thing, command cancelled.',
@@ -94,7 +100,7 @@ export default class GiveawayClient extends AkairoClient {
 
 	public readonly settings: SettingsProvider = new SettingsProvider(this);
 
-	private async load(): Promise<void> {
+	private load(): void {
 		this.voteHandler = new VoteHandler(this);
 		this.giveawayAPI = new API(this);
 
@@ -121,8 +127,8 @@ export default class GiveawayClient extends AkairoClient {
 	}
 
 	public async launch(): Promise<string> {
-		await this.load();
-		this.giveawayAPI!.init();
+		this.load();
+		this.giveawayAPI?.init();
 		await this.settings.init();
 		return this.login(this.config.token);
 	}

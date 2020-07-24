@@ -14,7 +14,7 @@ export default class CommandBlockedListener extends Listener {
 		});
 	}
 
-	public async exec(msg: Message, command: Command, reason: string): Promise<void> {
+	public exec(msg: Message, command: Command, reason: string): void {
 		if (reason === 'sendMessages') return;
 
 		const text: Text = {

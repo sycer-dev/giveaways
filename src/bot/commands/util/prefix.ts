@@ -49,7 +49,7 @@ export default class PrefixCommand extends Command {
 		if (!prefix && reset && canEdit && msg.guild) prefix = this.client.config.prefix;
 
 		if (!prefix) {
-			const prefix = (this.handler.prefix as PrefixSupplier)(msg);
+			const prefix = await (this.handler.prefix as PrefixSupplier)(msg);
 			return msg.util?.reply(
 				`the current command prefix is ${codeb(prefix)}. If you'd like to change it, please run ${codeb(
 					`${prefix}prefix NewPrefixHere`,
@@ -57,7 +57,10 @@ export default class PrefixCommand extends Command {
 			);
 		}
 
-		await this.client.settings.set('guild', { id: msg.guild!.id }, { prefix });
+		const guild = await this.client.settings.guild(msg.guild!.id);
+		guild!.prefix = prefix;
+		await guild?.save();
+
 		return msg.util?.reply(`successfully set the prefix to ${codeb(prefix)}.`);
 	}
 }

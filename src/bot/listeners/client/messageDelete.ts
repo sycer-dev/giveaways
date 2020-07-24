@@ -1,5 +1,6 @@
 import { Listener } from 'discord-akairo';
 import { Message, Constants } from 'discord.js';
+import { Giveaway } from '../../../database';
 
 export default class MessageDeleteListener extends Listener {
 	public constructor() {
@@ -11,6 +12,6 @@ export default class MessageDeleteListener extends Listener {
 	}
 
 	public exec(msg: Message): void {
-		this.client.settings.set('giveaway', { messageID: msg.id }, { complete: true });
+		Giveaway.update({ messageId: msg.id }, { drawn: true }).catch(() => undefined);
 	}
 }

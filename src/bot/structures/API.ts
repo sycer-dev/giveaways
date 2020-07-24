@@ -29,7 +29,7 @@ export default class API {
 	}
 
 	private _initRoutes(): this {
-		this.app.post('/vote', req => this.dbl._handleVote(req));
+		this.app.post('/vote', (req) => this.dbl._handleVote(req));
 		this.app.get('/metrics', (req, res) => this._sendMetrics(req, res));
 		return this;
 	}
