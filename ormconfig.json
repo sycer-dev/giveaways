@@ -7,7 +7,7 @@
 	"password": "doctordoctor",
 	"database": "giveaways",
 	"synchronize": true,
-	"logging": true,
+	"logging": false,
 	"entities": [
 		"dist/database/entities/*.*"
 	],
