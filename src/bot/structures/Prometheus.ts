@@ -7,8 +7,8 @@ interface Metrics {
 	commandCounter: AGauge;
 	eventCounter: AGauge;
 
-	guildCounter: AGauge;
-	userCounter: AGauge;
+	guildCounter?: AGauge;
+	userCounter?: AGauge;
 
 	register: Registry;
 }
@@ -18,7 +18,7 @@ export class Prometheus {
 		collectDefaultMetrics({ prefix: 'giveaway_bot2_' });
 	}
 
-	public readonly metrics: Partial<Metrics> = {
+	public readonly metrics: Metrics = {
 		messageCounter: new Gauge({
 			name: 'giveaway_bot2_messages',
 			help: 'Total number of messages Giveaway Bot has seen.',
