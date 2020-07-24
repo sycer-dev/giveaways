@@ -42,7 +42,7 @@ export class CreateGiveawayResolver {
 	@Mutation(() => Giveaway)
 	public async createGiveaway(
 		@Arg('data')
-		{ title, emoji, guild_id, channel_id, message_id, winners, draw_at }: CreateGiveawayInput,
+		{ title, emoji, guild_id, channel_id, message_id, winners, draw_at, created_by }: CreateGiveawayInput,
 	): Promise<Giveaway> {
 		const row = await Giveaway.create({
 			title,
@@ -50,6 +50,7 @@ export class CreateGiveawayResolver {
 			guild_id,
 			channel_id,
 			message_id,
+			created_by,
 			winners,
 			draw_at,
 		}).save();
@@ -75,6 +76,9 @@ export class FindGiveawayArgs {
 	@Length(17, 21)
 	@Field({ nullable: true })
 	public created_by?: string;
+
+	@Field({ nullable: true })
+	public drawn?: boolean;
 
 	@Length(17, 21)
 	@Field({ nullable: true })
@@ -106,5 +110,17 @@ export class DeleteGiveawayResolver {
 		const row = await Giveaway.findOne({ message_id });
 		if (row) await Giveaway.remove(row);
 		return row ? true : false;
+	}
+}
+
+@Resolver()
+export class ExpireGiveawayResolver {
+	@Query(() => Giveaway)
+	public async expireGiveaway(@Arg('message_id') message_id: string): Promise<Giveaway> {
+		const row = await Giveaway.findOne({ message_id });
+		row!.drawn = true;
+		await row?.save();
+
+		return row!;
 	}
 }

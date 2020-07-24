@@ -34,6 +34,7 @@ export class GetGuildResolver {
 	@Query(() => Guild)
 	public async getGuild(@Arg('id') id: string): Promise<Guild | undefined> {
 		const row = await Guild.findOne({ id });
+		if (!row) return Guild.create({ id }).save();
 		return row;
 	}
 

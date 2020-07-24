@@ -1,8 +1,17 @@
-import { APIEmbedData, APIGuildData, APIGuildMemberData, APIMessageData, APIUserData } from '@klasa/dapi-types';
+import {
+	APIEmbedData,
+	APIGuildData,
+	APIGuildMemberData,
+	APIMessageData,
+	APIUserData,
+	APIChannelData,
+	APIRoleData,
+} from '@klasa/dapi-types';
 import { Routes } from '../../util/constants';
 import { Embed } from '../../util/embed';
 import { Permissions } from '../../util/Permissions';
 import Client from './Client';
+import { find } from 'node-emoji';
 
 // https://github.com/dirigeants/core/blob/master/src/lib/caching/structures/messages/MessageBuilder.ts
 export interface MessageData {
@@ -53,6 +62,11 @@ export default class ClientUtil {
 
 	public async editMessage(channelId: string, messageId: string, data: MessageData): Promise<APIMessageData> {
 		const res = await this.rest.patch(this.routes.channelMessage(channelId, messageId), { data });
+		return res as APIMessageData;
+	}
+
+	public async createReaction(channelId: string, messageId: string, emoji: string): Promise<APIMessageData> {
+		const res = await this.rest.put(this.routes.messageReaction(channelId, messageId, this.parseEmoji(emoji)!));
 		return res as APIMessageData;
 	}
 
@@ -107,6 +121,10 @@ export default class ClientUtil {
 		return (await this.rest.get(Routes.user(Id))) as APIUserData;
 	}
 
+	public async getMessage(channelId: string, messageId: string): Promise<APIMessageData> {
+		return (await this.rest.get(Routes.channelMessage(channelId, messageId))) as APIMessageData;
+	}
+
 	public async fetchPermissions(guildId: string, memberId: string, force = false): Promise<Permissions | null> {
 		// try fetching from redis first
 		if (!force) {
@@ -123,10 +141,84 @@ export default class ClientUtil {
 		if (guild && member) {
 			const roles = member.roles.map(id => guild.roles.find(r => r.id === id)!);
 			const permissions = new Permissions(roles.map(r => r.permissions));
+			// necessary to add the @everyone role
+			permissions.add(guild.roles.find(r => r.id === guild.id)!.permissions);
+
+			if (permissions.has(Permissions.FLAGS.ADMINISTRATOR)) permissions.add(Permissions.ALL);
 
 			await this.client.redis.set(`permissions.${guildId}.${memberId}`, permissions.bitfield.toString());
-			return permissions;
+			return permissions.freeze();
 		}
+
+		return null;
+	}
+
+	public async parseChannel(str: string): Promise<APIChannelData | null> {
+		// try fetching from redis before moving on
+		const cached = await this.client.redis.get(`channel.${str}`);
+		if (cached) {
+			try {
+				return JSON.parse(cached) as APIChannelData;
+			} catch {}
+		}
+
+		const reg = /<#(\d{17,19})>/;
+		const match = str.match(reg);
+		if (match && match[1]) {
+			const [, id] = match;
+			// try fetching it from redis before hitting the API
+			const cached = await this.client.redis.get(`channel.${id}`);
+			if (cached) {
+				try {
+					return JSON.parse(cached) as APIChannelData;
+				} catch {}
+			}
+
+			// now we hit the API, if this fails we return null
+			try {
+				// TODO: use this.routes
+				const response = (await this.client.rest.get(`/channels/${id}`)) as APIChannelData;
+				return response;
+			} catch {}
+		}
+
+		return null;
+	}
+
+	public async parseRole(roleStr: string, guildId: string): Promise<APIRoleData | null> {
+		const { roles } = (await this.fetchGuild(guildId)) ?? { roles: undefined };
+		if (!roles) return null;
+
+		// if they provide the role id
+		const cached = roles.find(r => [r.id, r.name.toLowerCase()].includes(roleStr.toLowerCase()));
+		if (cached) return cached;
+
+		// if they ping the role, good for us
+		const reg = /<@&(\d{17,19})>/;
+		const match = roleStr.match(reg);
+		if (match && match[1]) {
+			const [, id] = match;
+			const cached = roles.find(r => r.id === id);
+			if (cached) return cached;
+		}
+
+		// fuzzy search via role name
+		const found = roles.find(r => r.name.toLowerCase().includes(roleStr.toLowerCase()));
+		if (found) return found;
+
+		return null;
+	}
+
+	public parseEmoji(str: string): string | null {
+		const unicode = find(str);
+		if (unicode) return unicode.emoji;
+
+		// <:klasa:354702113147846666> -> :klasa:354702113147846666
+		if (str.startsWith('<')) return str.slice(1, -1);
+
+		// :klasa:354702113147846666 -> :klasa:354702113147846666
+		// a:klasa:354702113147846666 -> a:klasa:354702113147846666
+		if (str.startsWith(':') || str.startsWith('a:')) return str;
 
 		return null;
 	}

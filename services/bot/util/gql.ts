@@ -35,12 +35,45 @@ export interface Giveaway {
 }
 
 export interface GuildInput {
-	id: string,
+	id: string;
 }
 
 export interface CreateGuildInput {
-	id: string,
-	prefix?: string,
+	id: string;
+	prefix?: string;
+}
+
+export interface CreateGiveawayInput {
+	title: string;
+	emoji: string;
+	guild_id: string;
+	channel_id: string;
+	message_id: string;
+	created_by: string;
+	winners: number;
+	draw_at: Date;
+}
+
+export interface EntryData {
+	user_id: string;
+}
+
+export interface CreateGiveawayData {
+	id: number;
+	title: string;
+	emoji: string;
+	guild_id: string;
+	channel_id: string;
+	message_id: string;
+	created_by: string;
+	winners: number;
+	draw_at: Date;
+	entries?: EntryData[];
+}
+
+export interface FindGiveawayArgs {
+	drawn?: boolean;
+	guild_id?: string;
 }
 
 export const QUERIES = {
@@ -49,19 +82,42 @@ export const QUERIES = {
 			getGuild(id: $id) {
 				id
 				prefix
-				created_at
 			}
 		}
 	`,
 	DELETE_GUILD: gql`
 		query($id: String!) {
-			deleteGuild(id: $id) {}
+			deleteGuild(id: $id)
 		}
 	`,
 	GIVEAWAY: gql`
 		query($message_id: String!) {
 			getGiveaway(message_id: $message_id) {
 				id
+			}
+		}
+	`,
+	GIVEAWAYS: gql`
+		query($drawn: Boolean, $guild_id: String) {
+			findGiveaway(drawn: $drawn, guild_id: $guild_id) {
+				id
+				drawn
+				draw_at
+				guild_id
+				channel_id
+				message_id
+				winners
+				entries {
+					user_id
+				}
+			}
+		}
+	`,
+	EXPIRE_GIVEAWAY: gql`
+		query($message_id: String!) {
+			expireGiveaway(message_id: $message_id) {
+				id
+				drawn
 			}
 		}
 	`,
@@ -77,4 +133,11 @@ export const MUTATIONS = {
 			}
 		}
 	`,
-}
+	CREATE_GIVEAWAY: gql`
+		mutation($data: CreateGiveawayInput) {
+			createGiveaway(data: $data) {
+				id
+			}
+		}
+	`,
+};

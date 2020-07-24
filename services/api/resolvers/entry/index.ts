@@ -45,7 +45,10 @@ export class CreateEntryResolver {
 @Resolver()
 export class GetEntryResolver {
 	@Query(() => Entry)
-	public async getEntry(@Arg('message_id') message_id: string, @Arg('user_id') user_id: string): Promise<Entry | undefined> {
+	public async getEntry(
+		@Arg('message_id') message_id: string,
+		@Arg('user_id') user_id: string,
+	): Promise<Entry | undefined> {
 		const giveaway = await Giveaway.findOne({ message_id });
 		if (!giveaway) throw Error('Invalid giveaway message ID.');
 
@@ -66,7 +69,7 @@ export class GetEntryResolver {
 
 @Resolver()
 export class DeleteEntryResolver {
-	@Query(() => Entry)
+	@Query(() => Boolean)
 	public async deleteEntry(@Arg('message_id') message_id: string, @Arg('user_id') user_id: string): Promise<boolean> {
 		const giveaway = await Giveaway.findOne({ message_id });
 		if (!giveaway) throw Error('Invalid giveaway message ID.');

@@ -19,7 +19,7 @@ export default class Listener extends Module {
 		this.event = event;
 	}
 
-	public run(...args: any[]): unknown | Promise<unknown> {
+	public run(..._: any[]): unknown | Promise<unknown> {
 		// eslint-disable-line no-unused-vars
 		throw Error(`Function "run" is not implemented on listener "${this.id}"`);
 	}

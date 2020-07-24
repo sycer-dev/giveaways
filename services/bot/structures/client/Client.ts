@@ -12,10 +12,16 @@ import { apolloClient, QUERIES, Guild, GuildInput } from '../../util/gql';
 import ApolloClient from 'apollo-client';
 import { NormalizedCacheObject } from 'apollo-cache-inmemory';
 import { GraphQLError } from 'graphql';
+import GiveawayHandler from '../func/GiveawayHandler';
 
 const { AMQP_URL, AMQP_GROUP, DISCORD_TOKEN, COLOR, PREFIX } = process.env;
 
 export default class Client {
+	/**
+	 * the graphql client
+	 */
+	public readonly apolloClient: ApolloClient<NormalizedCacheObject> = apolloClient;
+
 	/**
 	 * the RabbitMQ broker
 	 */
@@ -31,9 +37,14 @@ export default class Client {
 	 */
 	public readonly commandHandler: CommandHandler = new CommandHandler(this, {
 		dir: join(__dirname, '..', '..', 'commands'),
-		prefix: async (msg) => {
+		prefix: async msg => {
 			if (msg.guild_id) {
-				const { data }: { data: { getGuild: Guild }, errors?: Readonly<GraphQLError[]> } = await this.apolloClient.query<any, GuildInput>({
+				const {
+					data,
+				}: { data: { getGuild: Guild }; errors?: Readonly<GraphQLError[]> } = await this.apolloClient.query<
+					any,
+					GuildInput
+				>({
 					query: QUERIES.GUILD,
 					variables: {
 						id: msg.guild_id,
@@ -42,16 +53,13 @@ export default class Client {
 
 				if (data?.getGuild?.prefix) return data.getGuild?.prefix;
 			}
-			
+
 			return PREFIX!;
 		},
 		cooldown: 3500,
 	});
 
-	/**
-	 * the graphql client
-	 */
-	public readonly apolloClient: ApolloClient<NormalizedCacheObject> = apolloClient;
+	public readonly giveawayHandler: GiveawayHandler = new GiveawayHandler(this);
 
 	/**
 	 * the listener handler
@@ -81,6 +89,8 @@ export default class Client {
 	public readonly util: ClientUtil = new ClientUtil(this);
 
 	public async launch() {
+		void this.redis.flushall();
+
 		this.rest.token = DISCORD_TOKEN!;
 
 		// load all the commands and listeners
@@ -131,5 +141,7 @@ export default class Client {
 		this.logger.info(`[RABBIT]: Subscribed to ${events.size} events!`);
 
 		this.user = await this.util.getUser('@me');
+
+		this.giveawayHandler.init();
 	}
 }

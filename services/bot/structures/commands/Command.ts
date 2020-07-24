@@ -72,7 +72,7 @@ export class Command extends Module {
 		this.userPermissions = userPermissions;
 	}
 
-	public run(...args: any[]): unknown {
+	public run(..._: any[]): unknown {
 		// eslint-disable-line no-unused-vars
 		throw Error(`Function "run" is not implemented on command "${this.id}"`);
 	}

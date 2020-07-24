@@ -23,7 +23,7 @@
  *	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *	SOFTWARE.
  */
-
+import { Options } from 'pretty-ms';
 import { APIGuildUnavailable, APIUserData, APIGuildMemberData, APIEmojiPartial } from '@klasa/dapi-types';
 
 export const Routes = {
@@ -153,3 +153,10 @@ export interface MessageReactionAddData {
 	member?: APIGuildMemberData;
 	emoji: APIEmojiPartial;
 }
+
+export const PRETTY_MS_SETTINGS: Options = {
+	millisecondsDecimalDigits: 0,
+	secondsDecimalDigits: 0,
+	separateMilliseconds: true,
+	verbose: true,
+};

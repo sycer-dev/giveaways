@@ -3,6 +3,7 @@ import { Command } from './Command';
 import * as Lexure from 'lexure';
 import { APIMessageData } from '@klasa/dapi-types';
 import Client from '../client/Client';
+import { Permissions } from '../../util/Permissions';
 
 export enum CommandHandlerEvents {
 	COMMAND_BLOCKED = 'commandBlocked',
@@ -64,7 +65,7 @@ export default class CommandHandler extends Handler<Command> {
 		if (typeof this._prefix === 'function') {
 			let res = this._prefix(msg!);
 			// @ts-ignore
-			if (typeof res.then !== 'function') return await res;
+			if (typeof res.then !== 'function') res = await res;
 			return res;
 		}
 		return this._prefix;
@@ -105,15 +106,18 @@ export default class CommandHandler extends Handler<Command> {
 
 		// TODO: handle command ratelimit
 		if (exists) {
+			this.client.logger.debug(`within ratelimit funciton on key ${exists}`);
 			this.emit(CommandHandlerEvents.RATELIMIT, msg, command);
 			return;
 		}
 
 		if (command.userPermissions) {
 			const permissions = await this.client.util.fetchPermissions(msg.guild_id, msg.author.id);
+			this.client.logger.debug(`user permissions is: ${permissions?.bitfield ?? 'null'}`);
 
 			// TODO: handle missing permissions
 			if (!permissions || !permissions.has(command.userPermissions)) {
+				this.client.logger.debug(`user is missing permissions`);
 				this.emit(CommandHandlerEvents.MISSING_PERMISSIONS, msg, command, 'user', permissions);
 				return;
 			}
@@ -121,9 +125,11 @@ export default class CommandHandler extends Handler<Command> {
 
 		if (command.clientPermissions) {
 			const permissions = await this.client.util.fetchPermissions(msg.guild_id, this.client.user!.id);
+			this.client.logger.debug(`client permissions is: ${permissions?.bitfield ?? 'null'}`);
 
 			// TODO: handle missing permissions
 			if (!permissions || !permissions.has(command.clientPermissions)) {
+				this.client.logger.debug(`client is missing permissions`);
 				this.emit(CommandHandlerEvents.MISSING_PERMISSIONS, msg, command, 'client', permissions);
 				return;
 			}

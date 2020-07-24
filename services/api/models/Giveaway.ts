@@ -62,6 +62,13 @@ export class Giveaway extends BaseEntity {
 	public winners!: number;
 
 	/**
+	 * Wether or not the giveaway was drawn already
+	 */
+	@Field()
+	@Column('boolean', { default: false })
+	public drawn!: boolean;
+
+	/**
 	 * All the entries into this giveaway
 	 */
 	@Field(() => [Entry])
@@ -75,7 +82,7 @@ export class Giveaway extends BaseEntity {
 	 * When this giveaway should draw
 	 */
 	@Field()
-	@Column('bigint')
+	@Column('timestamptz')
 	public draw_at!: Date;
 
 	/**

@@ -26,9 +26,11 @@ services:
       interval: 10s
       timeout: 5s
     ports: 
-      - '15672:15672'
+      - 15672:15672
+      - 5672:5672
     expose: 
-      - '15672' # management panel
+      - 15672 # management panel
+      - 5672
 
   # redis instance for caching shit
   redis:

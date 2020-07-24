@@ -20,10 +20,11 @@ export default class extends Command {
 		});
 	}
 
-	public async run(msg: APIMessageData, res: ParserOutput): Promise<void> {
+	public async run(msg: APIMessageData, res: ParserOutput): Promise<APIMessageData | void> {
 		const args = new Args(res);
 		const mod = args.single();
-		const { prefix, modules: _mods } = this.client.commandHandler;
+		const { prefix: _pfx, modules: _mods } = this.client.commandHandler;
+		const prefix = await _pfx(msg);
 
 		// if they provide an alias or category
 		if (mod) {
@@ -41,7 +42,7 @@ export default class extends Command {
 				const data = modules.map(m => `\`${prefix}${m.aliases[0]}\` - ${m.meta.description}`).join('\n');
 				embed.addField('Commands', data);
 
-				return void this.client.util.sendMessage(msg.channel_id, { embed });
+				return this.client.util.sendMessage(msg.channel_id, { embed });
 			}
 
 			const command = modules.find(m => m.aliases.some(a => a.toLowerCase() === mod.toLowerCase()));
@@ -61,10 +62,10 @@ export default class extends Command {
 							.join('\n')}\``,
 					);
 
-				return void this.client.util.sendMessage(msg.channel_id, { embed });
+				return this.client.util.sendMessage(msg.channel_id, { embed });
 			}
 
-			return void this.client.util.sendMessage(msg.channel_id, {
+			return this.client.util.sendMessage(msg.channel_id, {
 				content: `Invalid category name or command alias '${mod.substring(0, 16)}' provided.`,
 			});
 		}
@@ -85,6 +86,6 @@ export default class extends Command {
 			embed.addField(`${name.replace(/(\b\w)/gi, lc => lc.toUpperCase())} (${cmds.size})`, commands);
 		}
 
-		return void this.client.util.sendMessage(msg.channel_id, { embed });
+		return this.client.util.sendMessage(msg.channel_id, { embed });
 	}
 }
