@@ -6,13 +6,13 @@ dependencies:
   '@klasa/utils': 0.0.8
   '@naval-base/ms': 3.1.0
   '@spectacles/brokers': 0.8.0
-  apollo-cache-inmemory: 1.6.6_graphql@14.7.0
-  apollo-client: 2.6.10_graphql@14.7.0
-  apollo-link-http: 1.5.17_graphql@14.7.0
+  apollo-cache-inmemory: 1.6.6_graphql@15.3.0
+  apollo-client: 2.6.10_graphql@15.3.0
+  apollo-link-http: 1.5.17_graphql@15.3.0
   common-tags: 1.8.0
   fs-nextra: 0.5.1
-  graphql: 14.7.0
-  graphql-tag: 2.10.3_graphql@14.7.0
+  graphql: 15.3.0
+  graphql-tag: 2.10.3_graphql@15.3.0
   ioredis: 4.17.3
   lexure: 0.9.0
   node-emoji: 1.10.0
@@ -358,11 +358,11 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-9VGjrMsG1vePxcSweQsN20KY/c4zN0h9fLjqAbwbPfahM3t+NL+M9HC8xeXG2I8pX5NoamTGNuomEUFI7fcUjA==
-  /apollo-cache-inmemory/1.6.6_graphql@14.7.0:
+  /apollo-cache-inmemory/1.6.6_graphql@15.3.0:
     dependencies:
-      apollo-cache: 1.3.5_graphql@14.7.0
-      apollo-utilities: 1.3.4_graphql@14.7.0
-      graphql: 14.7.0
+      apollo-cache: 1.3.5_graphql@15.3.0
+      apollo-utilities: 1.3.4_graphql@15.3.0
+      graphql: 15.3.0
       optimism: 0.10.3
       ts-invariant: 0.4.4
       tslib: 1.13.0
@@ -371,23 +371,23 @@ packages:
       graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
     resolution:
       integrity: sha512-L8pToTW/+Xru2FFAhkZ1OA9q4V4nuvfoPecBM34DecAugUZEBhI2Hmpgnzq2hTKZ60LAMrlqiASm0aqAY6F8/A==
-  /apollo-cache/1.3.5_graphql@14.7.0:
+  /apollo-cache/1.3.5_graphql@15.3.0:
     dependencies:
-      apollo-utilities: 1.3.4_graphql@14.7.0
-      graphql: 14.7.0
+      apollo-utilities: 1.3.4_graphql@15.3.0
+      graphql: 15.3.0
       tslib: 1.13.0
     dev: false
     peerDependencies:
       graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
     resolution:
       integrity: sha512-1XoDy8kJnyWY/i/+gLTEbYLnoiVtS8y7ikBr/IfmML4Qb+CM7dEEbIUOjnY716WqmZ/UpXIxTfJsY7rMcqiCXA==
-  /apollo-client/2.6.10_graphql@14.7.0:
+  /apollo-client/2.6.10_graphql@15.3.0:
     dependencies:
       '@types/zen-observable': 0.8.0
-      apollo-cache: 1.3.5_graphql@14.7.0
-      apollo-link: 1.2.14_graphql@14.7.0
-      apollo-utilities: 1.3.4_graphql@14.7.0
-      graphql: 14.7.0
+      apollo-cache: 1.3.5_graphql@15.3.0
+      apollo-link: 1.2.14_graphql@15.3.0
+      apollo-utilities: 1.3.4_graphql@15.3.0
+      graphql: 15.3.0
       symbol-observable: 1.2.0
       ts-invariant: 0.4.4
       tslib: 1.13.0
@@ -397,10 +397,10 @@ packages:
       graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
     resolution:
       integrity: sha512-jiPlMTN6/5CjZpJOkGeUV0mb4zxx33uXWdj/xQCfAMkuNAC3HN7CvYDyMHHEzmcQ5GV12LszWoQ/VlxET24CtA==
-  /apollo-link-http-common/0.2.16_graphql@14.7.0:
+  /apollo-link-http-common/0.2.16_graphql@15.3.0:
     dependencies:
-      apollo-link: 1.2.14_graphql@14.7.0
-      graphql: 14.7.0
+      apollo-link: 1.2.14_graphql@15.3.0
+      graphql: 15.3.0
       ts-invariant: 0.4.4
       tslib: 1.13.0
     dev: false
@@ -408,21 +408,21 @@ packages:
       graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
     resolution:
       integrity: sha512-2tIhOIrnaF4UbQHf7kjeQA/EmSorB7+HyJIIrUjJOKBgnXwuexi8aMecRlqTIDWcyVXCeqLhUnztMa6bOH/jTg==
-  /apollo-link-http/1.5.17_graphql@14.7.0:
+  /apollo-link-http/1.5.17_graphql@15.3.0:
     dependencies:
-      apollo-link: 1.2.14_graphql@14.7.0
-      apollo-link-http-common: 0.2.16_graphql@14.7.0
-      graphql: 14.7.0
+      apollo-link: 1.2.14_graphql@15.3.0
+      apollo-link-http-common: 0.2.16_graphql@15.3.0
+      graphql: 15.3.0
       tslib: 1.13.0
     dev: false
     peerDependencies:
       graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
     resolution:
       integrity: sha512-uWcqAotbwDEU/9+Dm9e1/clO7hTB2kQ/94JYcGouBVLjoKmTeJTUPQKcJGpPwUjZcSqgYicbFqQSoJIW0yrFvg==
-  /apollo-link/1.2.14_graphql@14.7.0:
+  /apollo-link/1.2.14_graphql@15.3.0:
     dependencies:
-      apollo-utilities: 1.3.4_graphql@14.7.0
-      graphql: 14.7.0
+      apollo-utilities: 1.3.4_graphql@15.3.0
+      graphql: 15.3.0
       ts-invariant: 0.4.4
       tslib: 1.13.0
       zen-observable-ts: 0.8.21
@@ -431,11 +431,11 @@ packages:
       graphql: ^0.11.3 || ^0.12.3 || ^0.13.0 || ^14.0.0 || ^15.0.0
     resolution:
       integrity: sha512-p67CMEFP7kOG1JZ0ZkYZwRDa369w5PIjtMjvrQd/HnIV8FRsHRqLqK+oAZQnFa1DDdZtOtHTi+aMIW6EatC2jg==
-  /apollo-utilities/1.3.4_graphql@14.7.0:
+  /apollo-utilities/1.3.4_graphql@15.3.0:
     dependencies:
       '@wry/equality': 0.1.11
       fast-json-stable-stringify: 2.1.0
-      graphql: 14.7.0
+      graphql: 15.3.0
       ts-invariant: 0.4.4
       tslib: 1.13.0
     dev: false
@@ -962,22 +962,20 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-BWICuzzDvDoH54NHKCseDanAhE3CeDorgDL5MT6LMXXj2WCnd9UC2szdk4AWLfjdgNBCXLUanXYcpBBKOSWGwg==
-  /graphql-tag/2.10.3_graphql@14.7.0:
+  /graphql-tag/2.10.3_graphql@15.3.0:
     dependencies:
-      graphql: 14.7.0
+      graphql: 15.3.0
     dev: false
     peerDependencies:
       graphql: ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0
     resolution:
       integrity: sha512-4FOv3ZKfA4WdOKJeHdz6B3F/vxBLSgmBcGeAFPf4n1F64ltJUvOOerNj0rsJxONQGdhUMynQIvd6LzB+1J5oKA==
-  /graphql/14.7.0:
-    dependencies:
-      iterall: 1.3.0
+  /graphql/15.3.0:
     dev: false
     engines:
-      node: '>= 6.x'
+      node: '>= 10.x'
     resolution:
-      integrity: sha512-l0xWZpoPKpppFzMfvVyFmp9vLN7w/ZZJPefUicMCepfJeQ8sMcztloGYY9DfjVPo6tIUDzU5Hw3MUbIjj9AVVA==
+      integrity: sha512-GTCJtzJmkFLWRfFJuoo9RWWa/FfamUHgiFosxi/X1Ani4AVWbeyBenZTNX6dM+7WSbbFfTo/25eh0LLkwHMw2w==
   /has-flag/3.0.0:
     dev: true
     engines:
@@ -1113,10 +1111,6 @@ packages:
     dev: true
     resolution:
       integrity: sha1-6PvzdNxVb/iUehDcsFctYz8s+hA=
-  /iterall/1.3.0:
-    dev: false
-    resolution:
-      integrity: sha512-QZ9qOMdF+QLHxy1QIpUHUU1D5pS2CG2P69LF6L6CPjPYA/XMOmKV3PZpawHoAjHNyB0swdVTRxdYT4tbBbxqwg==
   /js-tokens/4.0.0:
     dev: true
     resolution:
@@ -1827,7 +1821,7 @@ specifiers:
   eslint-config-prettier: ^6.11.0
   eslint-plugin-prettier: ^3.1.4
   fs-nextra: ^0.5.1
-  graphql: ^14.7.0
+  graphql: ^15.0.0
   graphql-tag: ^2.10.3
   ioredis: ^4.17.3
   lexure: ^0.9.0
