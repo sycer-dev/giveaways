@@ -10,5 +10,10 @@
 	"logging": true,
 	"entities": [
 		"dist/database/entities/*.*"
-	]
+	],
+	"cache": {
+		"type": "ioredis",
+		"options": "redis://localhost:6379/",
+		"duration": 600000
+	}
 }

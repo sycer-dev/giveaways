@@ -15,15 +15,7 @@ export default class SettingsProvider {
 	private async _connect() {
 		const start = Date.now();
 		try {
-			this.connection = await createConnection({
-				type: 'postgres',
-				url: process.env.POSTGRES_URL,
-				cache: {
-					type: 'ioredis',
-					options: process.env.REDIS_URL!,
-					duration: 60 * 1000,
-				},
-			});
+			this.connection = await createConnection();
 		} catch (err) {
 			this.client.logger.error(`[DATABASE] Error when connecting to Postgres:\n${err.stack}`);
 			process.exit(1);
