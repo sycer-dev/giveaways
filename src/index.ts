@@ -1,4 +1,4 @@
-import { Constants } from 'discord.js';
+import { Constants, Intents } from 'discord.js';
 import { CloseEvent, Cluster, SharderEvents, ShardingManager } from 'kurasuta';
 import { join } from 'path';
 import GiveawayClient from './bot/client/GiveawayClient';
@@ -13,6 +13,15 @@ const manager = new ShardingManager(join(__dirname, 'bot', 'structures', 'Giveaw
 		messageCacheLifetime: 300,
 		messageSweepInterval: 900,
 		partials: [Constants.PartialTypes.REACTION],
+		ws: {
+			intents: [
+				Intents.FLAGS.GUILDS,
+				Intents.FLAGS.GUILD_MESSAGES,
+				Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+				Intents.FLAGS.GUILD_MEMBERS,
+				Intents.FLAGS.GUILD_PRESENCES,
+			],
+		},
 	},
 	development: DEV,
 	respawn: !DEV,

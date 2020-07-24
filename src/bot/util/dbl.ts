@@ -1,8 +1,8 @@
-import fetch from 'node-fetch';
+import { User } from 'discord.js';
 import { EventEmitter } from 'events';
 import { Request } from 'express';
+import fetch from 'node-fetch';
 import GiveawayClient from '../client/GiveawayClient';
-import { User } from 'discord.js';
 
 export interface Vote {
 	bot: User | null;
@@ -13,26 +13,30 @@ export interface Vote {
 }
 
 export default class DBL extends EventEmitter {
-	protected readonly client: GiveawayClient;
 	protected readonly BASE_URL = 'https://top.gg/api';
-	protected interval!: NodeJS.Timeout;
-	protected readonly signature: string = process.env.DBL_SIGNATURE!;
-	protected readonly token: string = process.env.DBL_TOKEN!;
 
-	public constructor(client: GiveawayClient) {
+	protected interval!: NodeJS.Timeout;
+
+	protected readonly _signature = process.env.DBL_SIGNATURE!;
+
+	protected readonly _token = process.env.DBL_TOKEN!;
+
+	public constructor(protected readonly client: GiveawayClient) {
 		super();
-		this.client = client;
 	}
 
-	private async _postStats(): Promise<number> {
-		const request = await fetch(`${this.BASE_URL}/bots/${this.client.user?.id}/stats`, {
+	private async _postStats(): Promise<void> {
+		const request = await fetch(`${this.BASE_URL}/bots/${this.client.user!.id}/stats`, {
 			method: 'POST',
 			body: JSON.stringify({
 				server_count: this.client.guilds.cache.size,
 			}),
-			headers: { Authorization: this.token },
+			headers: {
+				Authorization: this._token,
+				'Content-Type': 'application/json'
+			},
 		});
-		return request.status;
+		this.client.logger.info(`Posting top.gg stats returned code: ${request.statusText}`);
 	}
 
 	public async _handleVote(req: Request): Promise<boolean> {

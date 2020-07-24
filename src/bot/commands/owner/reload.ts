@@ -1,4 +1,4 @@
-import { Command, Inhibitor, Listener } from 'discord-akairo';
+import { Argument, Command, Listener } from 'discord-akairo';
 import { Message } from 'discord.js';
 
 export default class ReloadCommand extends Command {
@@ -11,55 +11,58 @@ export default class ReloadCommand extends Command {
 				content: 'Reloads a module.',
 				usage: '<module> [type:]',
 			},
-		});
-	}
-
-	public *args() {
-		const type = yield {
-			match: 'option',
-			flag: ['type:'],
-			type: [
-				['command', 'c'],
-				['inhibitor', 'i'],
-				['listener', 'l'],
+			args: [
+				{
+					id: 'mod',
+					type: Argument.union('commandAlias', 'listener'),
+					prompt: {
+						start: 'what command or listener would you like to reload?',
+						retry: "please provide a valid command or listener that you'd like to reload.",
+						optional: true,
+					},
+				},
+				{
+					id: 'all',
+					match: 'flag',
+					flag: ['--all'],
+				},
 			],
-			default: 'command',
-		};
-
-		const mod = yield {
-			type: (msg: Message, phrase: string) => {
-				if (!phrase) return null;
-
-				const types = {
-					command: 'commandAlias',
-					inhibitor: 'inhibitor',
-					listener: 'listener',
-				} as { [key: string]: string };
-
-				const resolver = this.handler.resolver.type(types[type]!);
-
-				return resolver(msg, phrase);
-			},
-		};
-
-		return { type, mod };
+		});
 	}
 
 	public async exec(
 		msg: Message,
-		{ type, mod }: { type: any; mod: Command | Inhibitor | Listener },
+		{ mod, all }: { mod: Command | Listener | null; all: boolean },
 	): Promise<Message | Message[] | void> {
-		if (!mod) {
-			return msg.util?.reply(`invalid ${type} ${type === 'command' ? 'alias' : 'ID'} specified to reload.`);
+		if (all) {
+			const commandHandler = this.handler;
+			const listenerHandler = this.client.listenerHandler;
+			try {
+				await new Promise((resolve) => resolve(commandHandler.reloadAll()));
+				await new Promise((resolve) => resolve(listenerHandler.reloadAll()));
+				return msg.util?.reply(
+					`successfully reloaded \`${commandHandler.modules.size}\` command and \`${listenerHandler.modules.size}\` listeners.`,
+				);
+			} catch (err) {
+				// eslint-disable-next-line
+				return msg.util?.reply(`failed to reload all with error: \`${err}\`.`);
+			}
 		}
 
+		if (!mod) return msg.util?.reply(`please provide a valid command or listener to reload.`);
+
+		const handler = mod instanceof Command ? this.handler : this.client.listenerHandler;
+
 		try {
-			mod.reload();
-			return msg.util?.reply(`sucessfully reloaded ${type} \`${mod.id}\`.`);
+			await new Promise((resolve) => resolve(handler.reload(mod.id)));
+			return msg.util?.reply(
+				`successfully reloaded the \`${mod.id}\` ${mod instanceof Command ? 'command' : 'listener'}.`,
+			);
 		} catch (err) {
-			this.client.logger.error(`Error occured reloading ${type} ${mod.id}`);
-			this.client.logger.error(err);
-			return msg.util?.reply(`failed to reload ${type} \`${mod.id}\`.`);
+			return msg.util?.reply(
+				// eslint-disable-next-line
+				`failed to reload ${mod instanceof Command ? 'command' : 'listener'} ${mod.id}: \`${err}\``,
+			);
 		}
 	}
 }

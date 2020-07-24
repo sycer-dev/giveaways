@@ -1,11 +1,5 @@
-import {
-	AkairoClient,
-	CommandHandler,
-	Constants as AkairoConstants,
-	InhibitorHandler,
-	ListenerHandler,
-} from 'discord-akairo';
-import { ColorResolvable, Constants, Message, WebhookClient, Intents } from 'discord.js';
+import { AkairoClient, CommandHandler, Constants as AkairoConstants, InhibitorHandler, ListenerHandler } from 'discord-akairo';
+import { ColorResolvable, Constants, Message, WebhookClient } from 'discord.js';
 import { join } from 'path';
 import { Logger } from 'winston';
 import SettingsProvider from '../../database/structures/SettingsProvider';
@@ -19,6 +13,7 @@ declare module 'discord-akairo' {
 	interface AkairoClient {
 		logger: Logger;
 		commandHandler: CommandHandler;
+		listenerHandler: ListenerHandler;
 		config: GiveawayOpts;
 		devlog: WebhookClient;
 		settings: SettingsProvider;
@@ -40,15 +35,6 @@ export default class GiveawayClient extends AkairoClient {
 	public constructor() {
 		super({
 			ownerID: process.env.OWNERS!.split(','),
-			ws: {
-				intents: [
-					Intents.FLAGS.GUILDS,
-					Intents.FLAGS.GUILD_MESSAGES,
-					Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
-					Intents.FLAGS.GUILD_MEMBERS,
-					Intents.FLAGS.GUILD_PRESENCES,
-				],
-			},
 		});
 	}
 

@@ -1,4 +1,21 @@
 import { WebhookClient } from 'discord.js';
+import fetch from 'node-fetch';
+
+export async function postHaste(code: string, lang?: string): Promise<string> {
+	try {
+		if (code.length > 400 * 1000) {
+			return 'Document exceeds maximum length.';
+		}
+		const res = await fetch('https://paste.nomsy.net/documents', { method: 'POST', body: code });
+		const { key, message } = await res.json();
+		if (!key) {
+			return message;
+		}
+		return `https://paste.nomsy.net/${key}${lang && `.${lang}`}`;
+	} catch (err) {
+		throw err;
+	}
+}
 
 export function shuffle<T>(data: T[]): T[] {
 	const array = data.slice();
