@@ -15,9 +15,10 @@ export default class API {
 		this.dbl = new DBL(client);
 	}
 
-	private _sendMetrics(_: Request, res: Response): Response {
+	private async _sendMetrics(_: Request, res: Response): Promise<Response> {
 		res.setHeader('Content-Type', this.client.prometheus.metrics.register.contentType);
-		return res.status(200).send(this.client.prometheus.metrics.register.metrics());
+		const metrics = await this.client.prometheus.metrics.register.metrics();
+		return res.status(200).send(metrics);
 	}
 
 	private _initMiddleware(): this {
