@@ -11,6 +11,8 @@ github.com/shurcooL/graphql v0.0.0-20181231061246-d48a9a75455f h1:tygelZueB1EtXk
 github.com/shurcooL/graphql v0.0.0-20181231061246-d48a9a75455f/go.mod h1:AuYgA5Kyo4c7HfUmvRGs/6rGlMMV/6B1bVnB9JxJEEg=
 github.com/spec-tacles/go v0.0.0-20200605155616-28c00d85f773 h1:0cUJ/mO0iDnTOqxnhkgshc7qeYGy/UhoAKBDzZEQAOI=
 github.com/spec-tacles/go v0.0.0-20200605155616-28c00d85f773/go.mod h1:oVaVaM/k2Wjh4wPh+h025iwYodv3usQ9fcMty0kO3HE=
+github.com/spec-tacles/go v0.0.0-20200803152432-7bcdf15e815d h1:562kM1d52hkpFD+UN6nKaHC/9pqBFQf7QRQhKVvhCFo=
+github.com/spec-tacles/go v0.0.0-20200803152432-7bcdf15e815d/go.mod h1:oVaVaM/k2Wjh4wPh+h025iwYodv3usQ9fcMty0kO3HE=
 github.com/streadway/amqp v0.0.0-20181205114330-a314942b2fd9 h1:37QTz/gdHBLQcsmgMTnQDSWCtKzJ7YnfI2M2yTdr4BQ=
 github.com/streadway/amqp v0.0.0-20181205114330-a314942b2fd9/go.mod h1:1WNBiOZtZQLpVAyu0iTduoJL9hEsMloAK5XWrtW0xdY=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
