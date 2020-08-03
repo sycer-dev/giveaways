@@ -7,6 +7,7 @@ dependencies:
   eslint: 7.5.0
   eslint-config-marine: 7.1.2
   express: 4.17.1
+  heapdump: 0.3.15
   helmet: 3.23.3
   ioredis: 4.17.3
   kurasuta: 2.1.0_f7fc7d34a07c9bd503fed5a408e179ce
@@ -1576,6 +1577,15 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==
+  /heapdump/0.3.15:
+    dependencies:
+      nan: 2.14.1
+    dev: false
+    engines:
+      node: '>=0.10.0'
+    requiresBuild: true
+    resolution:
+      integrity: sha512-n8aSFscI9r3gfhOcAECAtXFaQ1uy4QSke6bnaL+iymYZ/dWs9cqDqHM+rALfsHUwukUbxsdlECZ0pKmJdQ/4OA==
   /helmet-crossdomain/0.4.0:
     dev: false
     engines:
@@ -3505,6 +3515,7 @@ specifiers:
   eslint-config-prettier: ^6.11.0
   eslint-plugin-prettier: ^3.1.4
   express: ^4.17.1
+  heapdump: ^0.3.15
   helmet: ^3.23.3
   husky: ^4.2.5
   ioredis: ^4.17.3
