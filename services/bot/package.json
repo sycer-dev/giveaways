@@ -28,7 +28,7 @@
         "graphql": "^14.7.0",
         "graphql-tag": "^2.10.3",
         "ioredis": "^4.17.3",
-        "lexure": "^0.9.0",
+        "lexure": "^0.17.0",
         "node-emoji": "^1.10.0",
         "node-fetch": "^2.6.0",
         "pretty-ms": "^7.0.0",
