@@ -15,7 +15,7 @@ devDependencies:
   '@types/compression': 1.7.0
   '@types/express': 4.17.6
   '@types/helmet': 0.0.47
-  '@types/node': 13.13.12
+  '@types/node': 14.6.0
   '@typescript-eslint/eslint-plugin': 2.34.0_3787943315ebc5ea524d5c102dc9e452
   '@typescript-eslint/parser': 2.34.0_eslint@6.8.0+typescript@3.9.6
   eslint: 6.8.0
@@ -294,6 +294,10 @@ packages:
   /@types/node/13.13.12:
     resolution:
       integrity: sha512-zWz/8NEPxoXNT9YyF2osqyA9WjssZukYpgI4UYZpOjcyqwIUqWGkcCionaEb9Ki+FULyPyvNFpg/329Kd2/pbw==
+  /@types/node/14.6.0:
+    dev: true
+    resolution:
+      integrity: sha512-mikldZQitV94akrc4sCcSjtJfsTKt4p+e/s0AGscVA6XArQ9kFclP+ZiYUMnq987rc6QlYxXv/EivqlfSLxpKA==
   /@types/qs/6.9.3:
     resolution:
       integrity: sha512-7s9EQWupR1fTc2pSMtXRQ9w9gLOcrJn+h7HOXw4evxyvVqMi4f+q7d2tnFe3ng3SNHjtK+0EzGMGFUQX4/AQRA==
@@ -3300,7 +3304,7 @@ specifiers:
   '@types/compression': ^1.7.0
   '@types/express': ^4.17.6
   '@types/helmet': ^0.0.47
-  '@types/node': ^13.13.12
+  '@types/node': ^14.0.0
   '@typescript-eslint/eslint-plugin': ^2.34.0
   '@typescript-eslint/parser': ^2.34.0
   apollo-server-express: ^2.15.1

@@ -23,7 +23,7 @@ dependencies:
 devDependencies:
   '@types/common-tags': 1.8.0
   '@types/ioredis': 4.17.0
-  '@types/node': 13.13.12
+  '@types/node': 14.6.0
   '@types/node-emoji': 1.8.1
   '@types/node-fetch': 2.5.7
   '@typescript-eslint/eslint-plugin': 2.34.0_3787943315ebc5ea524d5c102dc9e452
@@ -184,6 +184,10 @@ packages:
   /@types/node/13.13.13:
     resolution:
       integrity: sha512-UfvBE9oRCAJVzfR+3eWm/sdLFe/qroAPEXP3GPJ1SehQiEVgZT6NQZWYbPMiJ3UdcKM06v4j+S1lTcdWCmw+3g==
+  /@types/node/14.6.0:
+    dev: true
+    resolution:
+      integrity: sha512-mikldZQitV94akrc4sCcSjtJfsTKt4p+e/s0AGscVA6XArQ9kFclP+ZiYUMnq987rc6QlYxXv/EivqlfSLxpKA==
   /@types/zen-observable/0.8.0:
     dev: false
     resolution:
@@ -1813,7 +1817,7 @@ specifiers:
   '@spectacles/brokers': ^0.8.0
   '@types/common-tags': ^1.8.0
   '@types/ioredis': ^4.17.0
-  '@types/node': ^13.13.12
+  '@types/node': ^14.0.0
   '@types/node-emoji': ^1.8.1
   '@types/node-fetch': ^2.5.7
   '@typescript-eslint/eslint-plugin': ^2.34.0
