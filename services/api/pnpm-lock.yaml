@@ -21,8 +21,8 @@ devDependencies:
   eslint: 6.8.0
   eslint-config-marine: 6.0.0
   eslint-config-prettier: 6.11.0_eslint@6.8.0
-  eslint-plugin-prettier: 3.1.4_eslint@6.8.0+prettier@1.19.1
-  prettier: 1.19.1
+  eslint-plugin-prettier: 3.1.4_eslint@6.8.0+prettier@2.1.1
+  prettier: 2.1.1
   rimraf: 3.0.2
   typescript: 3.9.6
 lockfileVersion: 5.1
@@ -1247,10 +1247,10 @@ packages:
       eslint: '>=3.14.1'
     resolution:
       integrity: sha512-oB8cpLWSAjOVFEJhhyMZh6NOEOtBVziaqdDQ86+qhDHFbZXoRTM7pNSvFRfW/W/L/LrQ38C99J5CGuRBBzBsdA==
-  /eslint-plugin-prettier/3.1.4_eslint@6.8.0+prettier@1.19.1:
+  /eslint-plugin-prettier/3.1.4_eslint@6.8.0+prettier@2.1.1:
     dependencies:
       eslint: 6.8.0
-      prettier: 1.19.1
+      prettier: 2.1.1
       prettier-linter-helpers: 1.0.0
     dev: true
     engines:
@@ -2460,13 +2460,13 @@ packages:
       node: '>=6.0.0'
     resolution:
       integrity: sha512-GbK2cP9nraSSUF9N2XwUwqfzlAFlMNYYl+ShE/V+H8a9uNl/oUqB1w2EL54Jh0OlyRSd8RfWYJ3coVS4TROP2w==
-  /prettier/1.19.1:
+  /prettier/2.1.1:
     dev: true
     engines:
-      node: '>=4'
+      node: '>=10.13.0'
     hasBin: true
     resolution:
-      integrity: sha512-s7PoyDv/II1ObgQunCbB9PdLmUcBZcnWOcxDh7O0N/UwDEsHyqkW+Qh28jW+mVuCdx7gLB0BotYI1Y6uI9iyew==
+      integrity: sha512-9bY+5ZWCfqj3ghYBLxApy2zf6m+NJo5GzmLTpr9FsApsfjriNnS2dahWReHMi7qNPhhHl9SYHJs2cHZLgexNIw==
   /process-nextick-args/2.0.1:
     dev: false
     resolution:
@@ -3314,7 +3314,7 @@ specifiers:
   graphql: ^15.3.0
   helmet: ^3.23.3
   pg: ^8.2.1
-  prettier: ^1.19.1
+  prettier: ^2.0.0
   reflect-metadata: ^0.1.13
   rimraf: ^3.0.2
   tslib: ^2.0.0
