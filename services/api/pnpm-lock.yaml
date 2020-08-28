@@ -19,7 +19,7 @@ devDependencies:
   '@typescript-eslint/eslint-plugin': 2.34.0_3787943315ebc5ea524d5c102dc9e452
   '@typescript-eslint/parser': 2.34.0_eslint@6.8.0+typescript@3.9.6
   eslint: 6.8.0
-  eslint-config-marine: 6.0.0
+  eslint-config-marine: 7.2.0
   eslint-config-prettier: 6.11.0_eslint@6.8.0
   eslint-plugin-prettier: 3.1.4_eslint@6.8.0+prettier@1.19.1
   prettier: 1.19.1
@@ -1225,18 +1225,18 @@ packages:
       node: '>=0.8.0'
     resolution:
       integrity: sha1-G2HAViGQqN/2rjuyzwIAyhMLhtQ=
-  /eslint-config-aqua/7.2.4:
+  /eslint-config-aqua/7.3.0:
     dev: true
     engines:
       node: '>=10'
     resolution:
-      integrity: sha512-AfZdiyAkzeVQaPlpKPI2KGtyWH3ePs5fAOUwDYsT52OGAPyBid8Rotgkn/0JdRM/79MF3pOrXfOtcEjsMxhB3w==
-  /eslint-config-marine/6.0.0:
+      integrity: sha512-rSOMrG5fpv/DtITtGKeOwTWYMeLiCaNLIsJlLABp2oeDs4qTaIE4Y3UdWc/10/C7Vuy/aNGiOidb/XAa6veFFg==
+  /eslint-config-marine/7.2.0:
     dependencies:
-      eslint-config-aqua: 7.2.4
+      eslint-config-aqua: 7.3.0
     dev: true
     resolution:
-      integrity: sha512-4735oFwmfMsXQY/MUKJ/N8EjCqHiLkAu9kbxOjdQCwJpWUeDpGwLUN5LL/c5DZQ/NaQVGfLvUM0gq4waj8UwAA==
+      integrity: sha512-emIoQpexPl5Of4d/qZ+lf91JObvnJefGdsuNUQWH8p2E7iSSw8nQmOSocVdEUWjZoTzhf1z0x/UP4g9g6S2Kdw==
   /eslint-config-prettier/6.11.0_eslint@6.8.0:
     dependencies:
       eslint: 6.8.0
@@ -3307,7 +3307,7 @@ specifiers:
   class-validator: ^0.12.2
   compression: ^1.7.4
   eslint: ^6.8.0
-  eslint-config-marine: ^6.0.0
+  eslint-config-marine: ^7.0.0
   eslint-config-prettier: ^6.11.0
   eslint-plugin-prettier: ^3.1.4
   express: ^4.17.1
