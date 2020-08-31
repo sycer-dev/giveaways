@@ -1,4 +1,4 @@
-FROM golang:1.13.0-alpine
+FROM golang:1.15.0-alpine
 
 
 WORKDIR /usr/src/reactionroles-next/worker/reactions 
