@@ -1,58 +1,38 @@
-import express, { Application, Request, Response } from 'express';
+import fastify, { FastifyInstance } from 'fastify';
+import { Server, IncomingMessage, ServerResponse } from 'http';
 import GiveawayClient from '../client/GiveawayClient';
-import helmet from 'helmet';
-import parser from 'body-parser';
+import helmet from 'fastify-helmet';
 import DBL from '../util/dbl';
 
 export default class API {
-	public app: Application = express();
-	protected readonly client: GiveawayClient;
 	public readonly dbl: DBL;
 	protected readonly port: number = Number(process.env.API_PORT!);
+	public readonly server: FastifyInstance<Server, IncomingMessage, ServerResponse> = fastify();
 
-	public constructor(client: GiveawayClient) {
-		this.client = client;
+	public constructor(protected readonly client: GiveawayClient) {
 		this.dbl = new DBL(client);
+
+		this.server.register(helmet);
 	}
 
-	private async _sendMetrics(_: Request, res: Response): Promise<Response> {
-		res.setHeader('Content-Type', this.client.prometheus.metrics.register.contentType);
-		const metrics = await this.client.prometheus.metrics.register.metrics();
-		return res.status(200).send(metrics);
-	}
+	public init() {
+		this.client.logger.debug(`[API]: Starting Giveaway API...`);
 
-	private _initMiddleware(): this {
-		this.app
-			.use(helmet())
-			.use(parser.json())
-			.use(parser.urlencoded({ extended: true }));
-		return this;
-	}
+		this.server.get('/metrics', async (_, reply) => {
+			const data = await this.client.prometheus.metrics.register.metrics();
+			void reply.type('text/plain').send(data);
+		});
 
-	private _initRoutes(): this {
-		this.app.post('/vote', (req) => this.dbl._handleVote(req));
-		this.app.get('/metrics', (req, res) => this._sendMetrics(req, res));
-		return this;
+		this.server.post('/vote', (req) => this.dbl._handleVote(req));
+
+		void this._listen();
 	}
 
 	private async _listen(): Promise<number> {
 		await new Promise((resolve: () => void) => {
-			this.app.listen(this.port, resolve);
+			this.server.listen(this.port, resolve);
 		});
 		this.client.logger.info(`[API]: API is live on port ${this.port}.`);
 		return this.port;
-	}
-
-	private _setup(): this {
-		this._initMiddleware();
-		this._initRoutes();
-		return this;
-	}
-
-	public async init(): Promise<this> {
-		this.client.logger.debug(`[API]: Starting Giveaway API...`);
-		this._setup();
-		await this._listen();
-		return this;
 	}
 }

@@ -1,6 +1,6 @@
 import { User } from 'discord.js';
 import { EventEmitter } from 'events';
-import { Request } from 'express';
+import { FastifyRequest } from 'fastify';
 import fetch from 'node-fetch';
 import GiveawayClient from '../client/GiveawayClient';
 
@@ -40,12 +40,12 @@ export default class DBL extends EventEmitter {
 		this.client.logger.info(`Posting top.gg stats returned code: ${request.statusText}`);
 	}
 
-	public async _handleVote(req: Request): Promise<boolean> {
-		const header = req.get('Authorization');
+	public async _handleVote(req: FastifyRequest): Promise<boolean> {
+		const header = req.headers.authorization;
 		const signature = process.env.DBL_SIGNATURE!;
 		if (header !== signature) return super.emit('invalid');
 
-		const { user, type, isWeekend, query } = req.body;
+		const { user, type, isWeekend, query } = req.body as Record<string, string>;
 		const fetchedUser = await this.client.users.fetch(user).catch(() => null);
 		const emitted = super.emit('vote', { bot: this.client.user, user: fetchedUser, type, isWeekend, query });
 		this.client.logger.verbose(`[HANDLE VOTE]: Emitted ${emitted}.`);
