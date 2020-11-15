@@ -45,20 +45,17 @@ export default class ReadyListener extends Listener {
 		this.client.prometheus.metrics.guildCounter = new Gauge({
 			name: 'giveaway_bot2_guilds',
 			help: 'Total number of all users Giveaway Bot has seen.',
-			async collect() {
-				const guildCount = (await client.shard?.fetchClientValues('guilds.cache.size')) as number[];
-				this.set(guildCount.reduce((acc, val) => (acc += val), 0));
+			collect() {
+				this.set(client.guilds.cache.size);
 			},
 		});
 
 		this.client.prometheus.metrics.userCounter = new Gauge({
 			name: 'giveaway_bot2_users',
 			help: 'Total number of all users Giveaway Bot has seen.',
-			async collect() {
-				const userCount = (await client.shard?.broadcastEval(
-					'this.guilds.cache.reduce((prev, { memberCount }) => (prev + memberCount), 0)',
-				)) as number[];
-				this.set(userCount.reduce((acc, val) => (acc += val), 0));
+			collect() {
+				const userCount = client.guilds.cache.reduce((prev, { memberCount }) => prev + memberCount, 0);
+				this.set(userCount);
 			},
 		});
 	}
