@@ -5,7 +5,7 @@ dependencies:
   express: 4.17.1
   graphql: 15.3.0
   helmet: 3.23.3
-  pg: 8.2.1_pg@8.2.1
+  pg: 8.2.1
   reflect-metadata: 0.1.13
   tslib: 2.0.0
   type-graphql: 1.0.0-rc.3_baefff1eb1c0eba9c5a3dcea293c81c7
@@ -20,12 +20,12 @@ devDependencies:
   '@typescript-eslint/parser': 2.34.0_eslint@6.8.0+typescript@3.9.6
   eslint: 6.8.0
   eslint-config-marine: 6.0.0
-  eslint-config-prettier: 6.11.0_eslint@6.8.0
+  eslint-config-prettier: 7.0.0_eslint@6.8.0
   eslint-plugin-prettier: 3.1.4_eslint@6.8.0+prettier@1.19.1
   prettier: 1.19.1
   rimraf: 3.0.2
   typescript: 3.9.6
-lockfileVersion: 5.1
+lockfileVersion: 5.2
 packages:
   /@apollo/protobufjs/1.0.4:
     dependencies:
@@ -1237,16 +1237,15 @@ packages:
     dev: true
     resolution:
       integrity: sha512-4735oFwmfMsXQY/MUKJ/N8EjCqHiLkAu9kbxOjdQCwJpWUeDpGwLUN5LL/c5DZQ/NaQVGfLvUM0gq4waj8UwAA==
-  /eslint-config-prettier/6.11.0_eslint@6.8.0:
+  /eslint-config-prettier/7.0.0_eslint@6.8.0:
     dependencies:
       eslint: 6.8.0
-      get-stdin: 6.0.0
     dev: true
     hasBin: true
     peerDependencies:
-      eslint: '>=3.14.1'
+      eslint: '>=7.0.0'
     resolution:
-      integrity: sha512-oB8cpLWSAjOVFEJhhyMZh6NOEOtBVziaqdDQ86+qhDHFbZXoRTM7pNSvFRfW/W/L/LrQ38C99J5CGuRBBzBsdA==
+      integrity: sha512-8Y8lGLVPPZdaNA7JXqnvETVC7IiVRgAP6afQu9gOQRn90YY3otMNh+x7Vr2vMePQntF+5erdSUBqSzCmU/AxaQ==
   /eslint-plugin-prettier/3.1.4_eslint@6.8.0+prettier@1.19.1:
     dependencies:
       eslint: 6.8.0
@@ -1588,12 +1587,6 @@ packages:
       node: 6.* || 8.* || >= 10.*
     resolution:
       integrity: sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg==
-  /get-stdin/6.0.0:
-    dev: true
-    engines:
-      node: '>=4'
-    resolution:
-      integrity: sha512-jp4tHawyV7+fkkSKyvjuLZswblUtz+SQKzSWnBbii16BuZksJlU1wuBYXY75r+duh/llF1ur6oNwi+2ZzjKZ7g==
   /glob-parent/5.1.1:
     dependencies:
       is-glob: 4.0.1
@@ -2375,7 +2368,7 @@ packages:
       integrity: sha512-WCtabS6t3c8SkpDBUlb1kjOs7l66xsGdKpIPZsg4wR+B3+u9UAum2odSsF9tnvxg80h4ZxLWMy4pRjOsFIqQpw==
   /pg-pool/3.2.1_pg@8.2.1:
     dependencies:
-      pg: 8.2.1_pg@8.2.1
+      pg: 8.2.1
     dev: false
     peerDependencies:
       pg: '>=8.0'
@@ -2397,7 +2390,7 @@ packages:
       node: '>=4'
     resolution:
       integrity: sha512-qTAAlrEsl8s4OiEQY69wDvcMIdQN6wdz5ojQiOy6YRMuynxenON0O5oCpJI6lshc6scgAY8qvJ2On/p+CXY0GA==
-  /pg/8.2.1_pg@8.2.1:
+  /pg/8.2.1:
     dependencies:
       buffer-writer: 2.0.0
       packet-reader: 1.0.0
@@ -2410,8 +2403,6 @@ packages:
     dev: false
     engines:
       node: '>= 8.0.0'
-    peerDependencies:
-      pg: '*'
     resolution:
       integrity: sha512-DKzffhpkWRr9jx7vKxA+ur79KG+SKw+PdjMb1IRhMiKI9zqYUGczwFprqy+5Veh/DCcFs1Y6V8lRLN5I1DlleQ==
   /pgpass/1.0.2:
@@ -3308,7 +3299,7 @@ specifiers:
   compression: ^1.7.4
   eslint: ^6.8.0
   eslint-config-marine: ^6.0.0
-  eslint-config-prettier: ^6.11.0
+  eslint-config-prettier: ^7.0.0
   eslint-plugin-prettier: ^3.1.4
   express: ^4.17.1
   graphql: ^15.3.0

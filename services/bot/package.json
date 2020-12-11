@@ -45,7 +45,7 @@
         "@typescript-eslint/parser": "^2.34.0",
         "eslint": "^6.8.0",
         "eslint-config-marine": "^6.0.0",
-        "eslint-config-prettier": "^6.11.0",
+        "eslint-config-prettier": "^7.0.0",
         "eslint-plugin-prettier": "^3.1.4",
         "prettier": "^1.19.1",
         "rimraf": "^3.0.2",
