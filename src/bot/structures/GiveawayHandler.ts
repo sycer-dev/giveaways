@@ -32,7 +32,7 @@ export default class GiveawayHandler {
 		const reactions = await reaction.users.fetch(opts);
 		if (!reactions.size) return [];
 
-		const last = reactions.first()?.id;
+		const last = reactions.last()?.id;
 		const next = await this.fetchUsers(reaction, last);
 		return reactions.array().concat(next);
 	}
@@ -53,27 +53,33 @@ export default class GiveawayHandler {
 		const message = await (channel as TextChannel | null)?.messages.fetch(g.messageId).catch(() => undefined);
 		if (!message || !message.embeds.length) return;
 
-		const reaction = message.reactions.cache.get(g.emoji);
+		const reaction = await message.reactions.cache
+			.get(g.emoji)
+			?.fetch()
+			.catch(() => undefined);
 		if (!reaction) return;
 
-		const _users = await this.fetchUsers(reaction);
-		const _members = await message.guild!.members.fetch();
+		const _users =
+			reaction.count! <= 100
+				? await reaction.users.fetch({ limit: 100 }).then((x) => x.array())
+				: await this.fetchUsers(reaction);
+		// const _members = await message.guild!.members.fetch();
 		const list = _users.filter((u) => u.id !== message.author.id);
 
-		const used: string[] = [];
-		if (g.boosted.length) {
-			const boosts = g.boosted.sort((a, b) => b.entries - a.entries);
-			for (const b of boosts) {
-				for (const [id, m] of _members) {
-					if (!m.roles.cache.has(b.string)) continue;
-					if (!used.includes(id)) {
-						// start i as 1 to account for the initial entry from L32
-						for (let i = 1; i < b.entries; i++) list.push(m.user);
-						used.push(id);
-					}
-				}
-			}
-		}
+		// const used: string[] = [];
+		// if (g.boosted.length) {
+		// 	const boosts = g.boosted.sort((a, b) => b.entries - a.entries);
+		// 	for (const b of boosts) {
+		// 		for (const [id, m] of _members) {
+		// 			if (!m.roles.cache.has(b.string)) continue;
+		// 			if (!used.includes(id)) {
+		// 				// start i as 1 to account for the initial entry from L32
+		// 				for (let i = 1; i < b.entries; i++) list.push(m.user);
+		// 				used.push(id);
+		// 			}
+		// 		}
+		// 	}
+		// }
 
 		const embed = this.client.util.embed().setColor(3553599).setTimestamp().setTitle(message.embeds[0].title);
 
