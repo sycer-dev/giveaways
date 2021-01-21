@@ -21,7 +21,10 @@ export default class CommandStartedListener extends Listener {
 				{ name: 'Guild', value: msg.guild?.name ?? 'DMs' },
 				{ name: 'Command', value: command.id },
 				// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-				{ name: 'Message Content', value: msg.content.substring(0, 200) ?? 'No message content' },
+				{
+					name: 'Message Content',
+					value: msg.content.substring(0, 200) || 'No message content',
+				},
 				{
 					name: 'User',
 					value: `${msg.author.tag} \`[${msg.author.id}]\``,

@@ -26,7 +26,10 @@ export default class ListCommand extends Command {
 	}
 
 	public async exec(msg: Message): Promise<Message | Message[] | void> {
-		const giveaways = await Giveaway.find({ drawn: false, guildId: msg.guild!.id });
+		const giveaways = await Giveaway.find({
+			drawn: false,
+			guildId: msg.guild!.id,
+		});
 		if (!giveaways.length) return msg.util?.reply("sorry! I couldn't find any ongoing giveaways.");
 
 		const gs = giveaways.map((g, i) => {

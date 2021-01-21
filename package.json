@@ -8,7 +8,7 @@
         "cleardir": "rimraf dist/*",
         "compile": "tsc",
         "lint": "eslint src --ext .ts",
-        "lint:fix": "eslint src --fix --ext .ts",
+        "lint:fix": "eslint src --fix --ext .ts --debug",
         "pre-commit": "pnpm run lint && pnpm run build",
         "start": "pnpm run build && node ."
     },

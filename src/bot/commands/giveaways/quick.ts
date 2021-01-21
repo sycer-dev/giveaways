@@ -42,7 +42,8 @@ export default class Giveaways extends Command {
 					},
 					prompt: {
 						start: 'How many winners would you like there to be?',
-						retry: 'How many winners would you like there to be? Please provide a valid number over 0 and less than or equal to 200.',
+						retry:
+							'How many winners would you like there to be? Please provide a valid number over 0 and less than or equal to 200.',
 					},
 				},
 				{
@@ -110,7 +111,13 @@ export default class Giveaways extends Command {
 			emoji,
 			duration,
 			title,
-		}: { channel: TextChannel; winnerCount: number; emoji: string; duration: number; title: string },
+		}: {
+			channel: TextChannel;
+			winnerCount: number;
+			emoji: string;
+			duration: number;
+			title: string;
+		},
 	): Promise<Message | Message[] | undefined> {
 		const embed = this.client.util
 			.embed()
@@ -119,7 +126,10 @@ export default class Giveaways extends Command {
 			.setTimestamp(new Date(Date.now() + duration))
 			.setTitle(title)
 			.addFields(
-				{ name: 'Time Remaining', value: `\`${prettyms(duration, PRETTY_MS_SETTINGS) || '.'}\`` },
+				{
+					name: 'Time Remaining',
+					value: `\`${prettyms(duration, PRETTY_MS_SETTINGS) || '.'}\``,
+				},
 				{
 					name: 'Host',
 					value: `${msg.author} [\`${msg.author.tag}\`]`,

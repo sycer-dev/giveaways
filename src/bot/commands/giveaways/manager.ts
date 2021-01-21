@@ -35,8 +35,8 @@ export default class ManagerRole extends Command {
 		msg: Message,
 		{ role, off }: { role: Role | null; off: boolean },
 	): Promise<Message | Message[] | void> {
-		const guild = await this.client.settings.guild(msg.guild!.id)!;
-		const staff = guild?.manager!;
+		const guild = await this.client.settings.guild(msg.guild!.id);
+		const staff = guild!.manager!;
 
 		if (!off && !role) {
 			if (staff && msg.guild!.roles.cache.get(staff))

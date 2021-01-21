@@ -5,6 +5,9 @@
 			"error",
 			"always-multiline"
 		],
-		"@typescript-eslint/no-base-to-string": "off"
+		"@typescript-eslint/no-base-to-string": "off",
+		"@typescript-eslint/no-floating-promises": "off",
+		"@typescript-eslint/restrict-template-expressions": "off",
+		"@typescript-eslint/naming-convention": "off"
 	}
 }

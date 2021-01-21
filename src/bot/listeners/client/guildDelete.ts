@@ -17,7 +17,7 @@ export default class GuildDeleteListener extends Listener {
 		if (!guild.available) return;
 
 		const owner = await this.client.users.fetch(guild.ownerID).catch(() => null);
-		const durationJoined = Date.now() - guild?.me?.joinedAt?.getTime()!;
+		const durationJoined = Date.now() - guild.me!.joinedAt!.getTime();
 		const embed = this.client.util
 			.embed()
 			.setColor(Constants.Colors.RED)

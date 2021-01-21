@@ -209,7 +209,10 @@ export default class Giveaways extends Command {
 				},
 			);
 			if (!collector || collector.size !== 1) {
-				if (m.editable) await m.edit('You took too long! Giveaway builder closed.', { embed: null });
+				if (m.editable)
+					await m.edit('You took too long! Giveaway builder closed.', {
+						embed: null,
+					});
 				m.reactions.removeAll();
 				return m;
 			}
@@ -319,7 +322,10 @@ export default class Giveaways extends Command {
 							.setTimestamp(new Date(Date.now() + duration))
 							.setTitle(title)
 							.addFields(
-								{ name: 'Time Remaining', value: `\`${ms(duration, true) || '.'}\`` },
+								{
+									name: 'Time Remaining',
+									value: `\`${ms(duration, true) || '.'}\``,
+								},
 								{
 									name: 'Entries',
 									value: stripIndents`
@@ -359,7 +365,9 @@ export default class Giveaways extends Command {
 
 						if (m.editable) {
 							m.reactions.removeAll();
-							return m.edit(`Successfully started giveaway in ${channel}.`, { embed: null });
+							return m.edit(`Successfully started giveaway in ${channel}.`, {
+								embed: null,
+							});
 						}
 						return msg.util?.send(`Successfully started giveaway in ${channel}.`);
 					} catch (err) {
@@ -424,7 +432,10 @@ export default class Giveaways extends Command {
 				},
 			);
 			if (!collector || collector.size !== 1) {
-				if (m.editable) await m.edit('You took too long! Giveaway builder closed.', { embed: null });
+				if (m.editable)
+					await m.edit('You took too long! Giveaway builder closed.', {
+						embed: null,
+					});
 				m.reactions.removeAll();
 				return m;
 			}
@@ -510,7 +521,9 @@ export default class Giveaways extends Command {
 
 						if (m.editable) {
 							m.reactions.removeAll();
-							return m.edit(`Successfully started giveaway in ${channel}.`, { embed: null });
+							return m.edit(`Successfully started giveaway in ${channel}.`, {
+								embed: null,
+							});
 						}
 						return msg.util?.send(`Successfully started giveaway in ${channel}.`);
 					} catch (err) {
@@ -584,7 +597,10 @@ export default class Giveaways extends Command {
 				},
 			);
 			if (!collector || collector.size !== 1) {
-				if (m.editable) await m.edit('You took too long! Giveaway builder closed.', { embed: null });
+				if (m.editable)
+					await m.edit('You took too long! Giveaway builder closed.', {
+						embed: null,
+					});
 				m.reactions.removeAll();
 				return m;
 			}
@@ -693,7 +709,9 @@ export default class Giveaways extends Command {
 							maxEntries === 1 ? '' : 's'
 						} will be decided!
 							`);
-						const mss = await channel.send('🎉 **LIMITED ENTRIES** 🎉', { embed });
+						const mss = await channel.send('🎉 **LIMITED ENTRIES** 🎉', {
+							embed,
+						});
 
 						await Giveaway.create({
 							title,
@@ -711,7 +729,9 @@ export default class Giveaways extends Command {
 
 						if (m.editable) {
 							m.reactions.removeAll();
-							return m.edit(`Successfully started giveaway in ${channel}.`, { embed: null });
+							return m.edit(`Successfully started giveaway in ${channel}.`, {
+								embed: null,
+							});
 						}
 						return msg.util?.send(`Successfully started giveaway in ${channel}.`);
 					} catch (err) {

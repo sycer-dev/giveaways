@@ -29,7 +29,6 @@ export default class DBL extends EventEmitter {
 		const request = await fetch(`${this.BASE_URL}/bots/${this.client.user!.id}/stats`, {
 			method: 'POST',
 			body: JSON.stringify({
-				// eslint-disable-next-line @typescript-eslint/camelcase
 				server_count: this.client.guilds.cache.size,
 			}),
 			headers: {
@@ -47,7 +46,13 @@ export default class DBL extends EventEmitter {
 
 		const { user, type, isWeekend, query } = req.body as Record<string, string>;
 		const fetchedUser = await this.client.users.fetch(user).catch(() => null);
-		const emitted = super.emit('vote', { bot: this.client.user, user: fetchedUser, type, isWeekend, query });
+		const emitted = super.emit('vote', {
+			bot: this.client.user,
+			user: fetchedUser,
+			type,
+			isWeekend,
+			query,
+		});
 		this.client.logger.verbose(`[HANDLE VOTE]: Emitted ${emitted}.`);
 		return emitted;
 	}

@@ -21,7 +21,10 @@ export default class RescheduleCommand extends Command {
 					id: 'giveaway',
 					type: async (msg: Message, str: string): Promise<Giveaway | null> => {
 						if (str) {
-							const doc = await Giveaway.findOne({ messageId: str, guildId: msg.guild!.id });
+							const doc = await Giveaway.findOne({
+								messageId: str,
+								guildId: msg.guild!.id,
+							});
 							if (doc) return doc;
 						}
 						return null;

@@ -144,7 +144,10 @@ export default class VoteHandler {
 
 	private async _check(): Promise<void> {
 		const now = new Date();
-		const guilds = await Guild.find({ premium: true, expiresAt: LessThanOrEqual(now) });
+		const guilds = await Guild.find({
+			premium: true,
+			expiresAt: LessThanOrEqual(now),
+		});
 
 		this.client.logger.verbose(`[VOTE MANAGER] Checking ${guilds.length} guilds for votes.`);
 		for (const g of guilds.values()) {

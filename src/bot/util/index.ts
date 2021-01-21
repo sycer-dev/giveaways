@@ -6,7 +6,10 @@ export async function postHaste(code: string, lang?: string): Promise<string> {
 		if (code.length > 400 * 1000) {
 			return 'Document exceeds maximum length.';
 		}
-		const res = await fetch('https://paste.nomsy.net/documents', { method: 'POST', body: code });
+		const res = await fetch('https://paste.nomsy.net/documents', {
+			method: 'POST',
+			body: code,
+		});
 		const { key, message } = await res.json();
 		if (!key) {
 			return message;

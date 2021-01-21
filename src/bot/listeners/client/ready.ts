@@ -23,7 +23,9 @@ export default class ReadyListener extends Listener {
 
 		this.client.giveawayHandler.init();
 
-		await this.client.user?.setActivity(`giveawaybot.fun | gguide 🎉`, { type: 'WATCHING' });
+		await this.client.user?.setActivity(`giveawaybot.fun | gguide 🎉`, {
+			type: 'WATCHING',
+		});
 
 		this._clearPresences();
 		setInterval(() => this._clearPresences(), 9e5);
