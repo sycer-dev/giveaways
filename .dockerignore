@@ -1,8 +1,8 @@
 # Packages
-node_modules/
+node_modules
 
 # Log files
-logs/
+logs
 *.log
 npm-debug.log*
 
@@ -12,11 +12,11 @@ pids
 *.seed
 
 # IDE
-.vscode/
+.vscode
 
 # Docker (experimental)
-docker/
-deploy/
+docker
+deploy
 Dockerfile
 .dockerignore
 
@@ -30,8 +30,8 @@ Dockerfile
 *.bak
 
 # Miscellaneous
-.tmp/
-.github/
+.tmp
+.github
 .travis.yml
 LICENSE
 
