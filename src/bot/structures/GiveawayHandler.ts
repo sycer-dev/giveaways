@@ -63,9 +63,10 @@ export default class GiveawayHandler {
 			reaction.count! <= 100
 				? await reaction.users.fetch({ limit: 100 }).then((x) => x.array())
 				: await this.fetchUsers(reaction);
-		// const _members = await message.guild!.members.fetch();
+
 		const list = _users.filter((u) => u.id !== message.author.id);
 
+		// const _members = await message.guild!.members.fetch();
 		// const used: string[] = [];
 		// if (g.boosted.length) {
 		// 	const boosts = g.boosted.sort((a, b) => b.entries - a.entries);
