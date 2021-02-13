@@ -1,8 +1,8 @@
-import { User } from 'discord.js';
+import type { User } from 'discord.js';
 import { EventEmitter } from 'events';
-import { FastifyRequest } from 'fastify';
+import type { FastifyRequest } from 'fastify';
 import fetch from 'node-fetch';
-import GiveawayClient from '../client/GiveawayClient';
+import type GiveawayClient from '../client/GiveawayClient';
 
 export interface Vote {
 	bot: User | null;

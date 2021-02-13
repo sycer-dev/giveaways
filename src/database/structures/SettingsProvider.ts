@@ -1,4 +1,4 @@
-import GiveawayClient from '../../bot/client/GiveawayClient';
+import type GiveawayClient from '../../bot/client/GiveawayClient';
 import { Giveaway, Guild } from '../entities';
 import { Connection, createConnection } from 'typeorm';
 

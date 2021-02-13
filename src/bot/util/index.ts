@@ -1,4 +1,4 @@
-import { WebhookClient } from 'discord.js';
+import { Collection, WebhookClient } from 'discord.js';
 import fetch from 'node-fetch';
 
 export async function postHaste(code: string, lang?: string): Promise<string> {
@@ -20,26 +20,16 @@ export async function postHaste(code: string, lang?: string): Promise<string> {
 	}
 }
 
-export function shuffle<T>(data: T[]): T[] {
-	const array = data.slice();
-	for (let i = array.length; i; i--) {
-		const randomIndex = Math.floor(Math.random() * i);
-		[array[i - 1], array[randomIndex]] = [array[randomIndex], array[i - 1]];
-	}
-	return array;
-}
-
-export function drawOne<T>(shuffled: T[]): T {
-	return shuffled[Math.floor(Math.random() * shuffled.length)];
-}
-
-export function draw<T>(array: T[], winners: number, filterDuplicates = true): T[] {
-	if (array.length <= winners) return array;
-	const shuffled = shuffle(array);
-	const draw: T[] = [];
-	while (draw.length < winners) {
-		const w = drawOne(shuffled);
-		if (filterDuplicates && !draw.includes(w)) draw.push(w);
+export function draw<T extends { id: string }>(
+	hat: Collection<string, T>,
+	winners: number,
+	filterDuplicates = true,
+): Collection<string, T> {
+	if (hat.size <= winners) return hat;
+	const draw = new Collection<string, T>();
+	while (draw.size < winners) {
+		const drawn = hat.random();
+		if (filterDuplicates && !draw.has(drawn.id)) draw.set(drawn.id, drawn);
 	}
 	return draw;
 }

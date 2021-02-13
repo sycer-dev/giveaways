@@ -21,7 +21,6 @@ const manager = new ShardingManager(join(__dirname, 'bot', 'structures', 'Giveaw
 				Intents.FLAGS.GUILD_MESSAGES,
 				Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
 				Intents.FLAGS.GUILD_MEMBERS,
-				Intents.FLAGS.GUILD_PRESENCES,
 			],
 		},
 	},

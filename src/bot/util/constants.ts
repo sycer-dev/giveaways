@@ -1,4 +1,4 @@
-import { Options } from 'pretty-ms';
+import type { Options } from 'pretty-ms';
 
 export enum GiveawayType {
 	TRADITIONAL = 1,

@@ -7,7 +7,7 @@ import {
 } from 'discord-akairo';
 import { ColorResolvable, Constants, Message, WebhookClient } from 'discord.js';
 import { join } from 'path';
-import { Logger } from 'winston';
+import type { Logger } from 'winston';
 import SettingsProvider from '../../database';
 import API from '../structures/API';
 import GiveawayHandler from '../structures/GiveawayHandler';

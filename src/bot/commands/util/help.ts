@@ -1,8 +1,8 @@
 import { Argument, Category, Command, PrefixSupplier } from 'discord-akairo';
-import { Message } from 'discord.js';
+import type { Message } from 'discord.js';
 import { codeb, smartChunk } from '../../util';
 import { stripIndents } from 'common-tags';
-import { Flag } from '../../util/constants';
+import type { Flag } from '../../util/constants';
 
 export default class HelpCommand extends Command {
 	public constructor() {

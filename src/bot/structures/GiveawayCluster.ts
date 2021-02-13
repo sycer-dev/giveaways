@@ -1,5 +1,5 @@
-import { BaseCluster, ShardingManager, SharderEvents, Cluster, CloseEvent } from 'kurasuta';
-import GiveawayClient from '../client/GiveawayClient';
+import { BaseCluster, CloseEvent, Cluster, SharderEvents, ShardingManager } from 'kurasuta';
+import type GiveawayClient from '../client/GiveawayClient';
 import { logger } from '../util/logger';
 
 export default class GiveawayCluster extends BaseCluster {

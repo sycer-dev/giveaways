@@ -1,9 +1,9 @@
 import { stripIndents } from 'common-tags';
 import { Message, WebhookClient } from 'discord.js';
 import { Guild } from '../../database';
-import GiveawayClient from '../client/GiveawayClient';
+import type GiveawayClient from '../client/GiveawayClient';
 import { LessThanOrEqual } from 'typeorm';
-import { Vote } from '../util/dbl';
+import type { Vote } from '../util/dbl';
 
 interface GuildOverShard {
 	id: string;

@@ -1,7 +1,7 @@
 import fastify, { FastifyInstance } from 'fastify';
-import { Server, IncomingMessage, ServerResponse } from 'http';
-import GiveawayClient from '../client/GiveawayClient';
 import helmet from 'fastify-helmet';
+import type { IncomingMessage, Server, ServerResponse } from 'http';
+import type GiveawayClient from '../client/GiveawayClient';
 import DBL from '../util/dbl';
 
 export default class API {

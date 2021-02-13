@@ -1,4 +1,4 @@
-FROM node:12-alpine
+FROM node:14-alpine
 
 LABEL name "Giveaway Bot"
 LABEL version "1.1.0"
@@ -7,34 +7,15 @@ EXPOSE 5501
 
 WORKDIR /usr/giveaways
 
-COPY package.json pnpm-lock.yaml ./
+COPY package.json yarn.lock .yarnclean ./
 
-RUN apk add --update \
-&& apk add --no-cache ca-certificates \
-&& apk add --no-cache --virtual .build-deps git curl build-base python g++ make \
-&& curl -L https://unpkg.com/@pnpm/self-installer | node \
-&& pnpm i \
-&& apk del .build-deps
+RUN apk add --update
+RUN apk add --no-cache ca-certificates
+RUN apk add --no-cache --virtual .build-deps git curl build-base python g++ make libtool autoconf automake
+RUN yarn install
 
 COPY . .
 
-ENV NODE_ENV= \
-	ID= \
-	DISCORD_TOKEN= \
-	OWNERS= \
-	COLOR= \
-	PREFIX= \
-	MONGO= \
-	CMDLOGID= \
-	CMDLOGTOKEN= \
-	DBL_TOKEN= \
-	DBL_SIGNATURE= \
-	VOTE_ID= \
-	VOTE_TOKEN= \
-	LOG_ID= \
-	LOG_TOKEN= \
-	API_PORT=
-
-RUN pnpm run build
+RUN yarn run build
 CMD ["node", "."]
 

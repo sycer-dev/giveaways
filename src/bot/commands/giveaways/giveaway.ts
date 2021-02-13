@@ -99,7 +99,7 @@ export default class Giveaways extends Command {
 
 	public async getEmoji(msg: Message): Promise<MessageReaction | Message | Message[] | null | void> {
 		const w = await msg.channel.send('Please react to this message with the emoji you wish to use.');
-		const collect = await w.awaitReactions((r: MessageReaction, u: User): boolean => msg.author.id === u.id, {
+		const collect = await w.awaitReactions((_: MessageReaction, u: User): boolean => msg.author.id === u.id, {
 			max: 1,
 			time: 30000,
 		});
@@ -151,7 +151,7 @@ export default class Giveaways extends Command {
 			c.name.includes('giveaway'),
 		) as TextChannel;
 		let emoji = '🎉';
-		let duration;
+		let duration = 0;
 		let rawEMOJI = emoji;
 		const entries: Entries[] = [];
 		const m = await msg.channel.send('Traditional Giveaway Builder');
@@ -185,7 +185,7 @@ export default class Giveaways extends Command {
 
 							🎉 Emoij - ${rawEMOJI}
 
-							⏰ Duration - ${duration ? prettyms(duration, PRETTY_MS_SETTINGS) : 'None set yet.'}
+							⏰ Duration - ${duration > 0 ? prettyms(duration, PRETTY_MS_SETTINGS) : 'None set yet.'}
 
 							__Role-based Extra Entries__
 							Default - \`1\` Entry
@@ -196,7 +196,7 @@ export default class Giveaways extends Command {
 				);
 			await m.edit({ embed });
 
-			if (title && winnerCount && channel && rawEMOJI && duration) {
+			if (title && winnerCount && channel && rawEMOJI && duration > 0) {
 				await m.react('✅');
 				EMOJIS.push('✅');
 			}

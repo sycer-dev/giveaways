@@ -1,10 +1,11 @@
 import ms from '@naval-base/ms';
-import { ColorResolvable, Message, MessageReaction, Snowflake, TextChannel, User } from 'discord.js';
+import { stripIndents } from 'common-tags';
+import type { Collection, ColorResolvable, Message, MessageReaction, Snowflake, TextChannel, User } from 'discord.js';
 import prettyms from 'pretty-ms';
 import { In } from 'typeorm';
 import { Giveaway } from '../../database';
-import GiveawayClient from '../client/GiveawayClient';
-import { draw } from '../util';
+import type GiveawayClient from '../client/GiveawayClient';
+import { draw, pluralize } from '../util';
 import { GiveawayType, PRETTY_MS_SETTINGS } from '../util/constants';
 
 interface FetchReactionUsersOptions {
@@ -14,30 +15,23 @@ interface FetchReactionUsersOptions {
 }
 
 export default class GiveawayHandler {
-	protected client: GiveawayClient;
-
-	protected rate: number;
-
 	protected interval!: NodeJS.Timeout;
 
 	public readonly waiting: Set<number> = new Set();
 
-	public constructor(client: GiveawayClient, { rate = 1000 * 90 } = {}) {
-		this.client = client;
-		this.rate = rate;
-	}
+	public constructor(protected readonly client: GiveawayClient, protected readonly rate = 1000 * 90) {}
 
-	private async fetchUsers(reaction: MessageReaction, after?: string): Promise<User[]> {
+	private async fetchUsers(reaction: MessageReaction, after?: string): Promise<Collection<string, User>> {
 		const opts: FetchReactionUsersOptions = { limit: 100, after };
 		const reactions = await reaction.users.fetch(opts);
-		if (!reactions.size) return [];
+		if (!reactions.size) return reactions;
 
 		const last = reactions.last()?.id;
 		const next = await this.fetchUsers(reaction, last);
-		return reactions.array().concat(next);
+		return reactions.concat(next);
 	}
 
-	public async pullWinners(reaction: MessageReaction, winners: number): Promise<User[]> {
+	public async pullWinners(reaction: MessageReaction, winners: number): Promise<Collection<string, User>> {
 		const _users = await this.fetchUsers(reaction);
 		const list = _users.filter((u) => u.id !== this.client.user!.id);
 
@@ -60,31 +54,29 @@ export default class GiveawayHandler {
 		if (!reaction) return;
 
 		const _users =
-			reaction.count! <= 100
-				? await reaction.users.fetch({ limit: 100 }).then((x) => x.array())
-				: await this.fetchUsers(reaction);
+			reaction.count! <= 100 ? await reaction.users.fetch({ limit: 100 }) : await this.fetchUsers(reaction);
 
 		const list = _users.filter((u) => u.id !== message.author.id);
 
-		// const _members = await message.guild!.members.fetch();
-		// const used: string[] = [];
-		// if (g.boosted.length) {
-		// 	const boosts = g.boosted.sort((a, b) => b.entries - a.entries);
-		// 	for (const b of boosts) {
-		// 		for (const [id, m] of _members) {
-		// 			if (!m.roles.cache.has(b.string)) continue;
-		// 			if (!used.includes(id)) {
-		// 				// start i as 1 to account for the initial entry from L32
-		// 				for (let i = 1; i < b.entries; i++) list.push(m.user);
-		// 				used.push(id);
-		// 			}
-		// 		}
-		// 	}
-		// }
+		const used: string[] = [];
+		if (g.boosted.length) {
+			const _members = await message.guild!.members.fetch();
+			const boosts = g.boosted.sort((a, b) => b.entries - a.entries);
+			for (const b of boosts.values()) {
+				for (const [id, m] of _members.entries()) {
+					if (!m.roles.cache.has(b.string)) continue;
+					if (!used.includes(id)) {
+						// start i as 1 to account for the initial entry
+						for (let i = 1; i < b.entries; i++) list.set(`${m.id}-${i}`, m.user);
+						used.push(id);
+					}
+				}
+			}
+		}
 
 		const embed = this.client.util.embed().setColor(3553599).setTimestamp().setTitle(message.embeds[0].title);
 
-		if (!list.length) {
+		if (!list.size) {
 			embed.setFooter('Ended at').setDescription('No winners! 😒');
 			if (message.editable) return message.edit({ content: '🎉 **GIVEAWAY ENDED** 🎉', embed });
 			return message;
@@ -94,8 +86,12 @@ export default class GiveawayHandler {
 		this.client.logger.verbose(`[GIVEAWAY HANDLER]: Drew giveaway #${g.id}.`);
 
 		embed
-			.setDescription(`**Winner${winners.length === 1 ? '' : 's'}**:\n ${winners.map((r) => r.toString()).join('\n')}`)
-			.setFooter(`${winners.length} Winner${winners.length === 1 ? '' : 's'} • Ended`)
+			.setDescription(
+				stripIndents`
+				**Winner${pluralize(winners.size)}**:
+				${winners.map((r) => r.toString()).join('\n')}`,
+			)
+			.setFooter(`${winners.size} Winner${pluralize(winners.size)} • Ended`)
 			.setTimestamp();
 
 		if (message.editable) await message.edit({ content: '🎉 **GIVEAWAY ENDED** 🎉', embed });

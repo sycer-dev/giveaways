@@ -1,16 +1,12 @@
 import { execSync } from 'child_process';
 import { Command } from 'discord-akairo';
-import { Message } from 'discord.js';
+import type { Message } from 'discord.js';
 import util from 'util';
-import { Linter } from 'eslint';
 import { postHaste } from '../../util';
 import { MESSAGES, SENSITIVE_PATTERN_REPLACEMENT } from '../../util/constants';
 // eslint-disable-next-line
-const config = require('eslint-config-marine/prettier/node');
 
 export default class EvalCommand extends Command {
-	private readonly linter = new Linter();
-
 	public constructor() {
 		super('eval', {
 			category: 'owner',
@@ -47,11 +43,6 @@ export default class EvalCommand extends Command {
 		return text;
 	}
 
-	private _format(code: string): string {
-		const formatted = this.linter.verifyAndFix(code, config);
-		return formatted.output;
-	}
-
 	public async exec(
 		msg: Message,
 		{
@@ -81,7 +72,7 @@ export default class EvalCommand extends Command {
 			const hrStop = process.hrtime(hrStart);
 
 			let response = '';
-			response += MESSAGES.COMMANDS.EVAL.INPUT(this._format(code));
+			response += MESSAGES.COMMANDS.EVAL.INPUT(code);
 			response += MESSAGES.COMMANDS.EVAL.OUTPUT(this._clean(util.inspect(evaled, { depth: 0 })));
 			response += `• Type: \`${typeof evaled}\``;
 			response += ` • time taken: \`${(hrStop[0] * 1e9 + hrStop[1]) / 1e6}ms\``;
