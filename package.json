@@ -31,7 +31,7 @@
         "node-fetch": "^2.6.1",
         "pg": "^8.5.1",
         "pretty-ms": "^7.0.1",
-        "prom-client": "github:siimon/prom-client#4e6aacd4921a3791e8f01ac6ab2fd6bb421b0dc0",
+        "prom-client": "github:siimon/prom-client#96f7495d66b1a21755f745b1367d3e530668a957",
         "reflect-metadata": "^0.1.13",
         "typeorm": "^0.2.30"
     },

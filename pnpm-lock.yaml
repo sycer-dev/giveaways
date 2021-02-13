@@ -15,7 +15,7 @@ dependencies:
   node-fetch: 2.6.1
   pg: 8.5.1
   pretty-ms: 7.0.1
-  prom-client: github.com/siimon/prom-client/4e6aacd4921a3791e8f01ac6ab2fd6bb421b0dc0
+  prom-client: github.com/siimon/prom-client/96f7495d66b1a21755f745b1367d3e530668a957
   reflect-metadata: 0.1.13
   typeorm: 0.2.30
 devDependencies:
@@ -3199,7 +3199,7 @@ packages:
     resolution:
       tarball: https://codeload.github.com/discordapp/erlpack/tar.gz/e27db8f82892bdb9b28a0547cc394d68b5d2242d
     version: 0.1.3
-  github.com/siimon/prom-client/4e6aacd4921a3791e8f01ac6ab2fd6bb421b0dc0:
+  github.com/siimon/prom-client/96f7495d66b1a21755f745b1367d3e530668a957:
     dependencies:
       tdigest: 0.1.1
     dev: false
@@ -3207,8 +3207,8 @@ packages:
       node: '>=10'
     name: prom-client
     resolution:
-      tarball: https://codeload.github.com/siimon/prom-client/tar.gz/4e6aacd4921a3791e8f01ac6ab2fd6bb421b0dc0
-    version: 12.0.0
+      tarball: https://codeload.github.com/siimon/prom-client/tar.gz/96f7495d66b1a21755f745b1367d3e530668a957
+    version: 13.1.0
 specifiers:
   '@commitlint/cli': ^11.0.0
   '@commitlint/config-angular': ^11.0.0
@@ -3245,7 +3245,7 @@ specifiers:
   pg: ^8.5.1
   prettier: ^2.2.1
   pretty-ms: ^7.0.1
-  prom-client: github:siimon/prom-client#4e6aacd4921a3791e8f01ac6ab2fd6bb421b0dc0
+  prom-client: github:siimon/prom-client#96f7495d66b1a21755f745b1367d3e530668a957
   reflect-metadata: ^0.1.13
   rimraf: ^3.0.2
   tslib: ^2.1.0
