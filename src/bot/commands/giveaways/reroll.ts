@@ -63,7 +63,8 @@ export default class ManagerRole extends Command {
 		const reaction = message.reactions.cache.get(g.emoji);
 		if (!reaction) return msg.util?.reply('looks like that giveaway was deleted!');
 
-		const winners = await this.client.giveawayHandler.pullWinners(reaction, count);
+		const list = await this.client.giveawayHandler.fetchWinners(reaction);
+		const winners = this.client.giveawayHandler.pullWinners(list, count);
 
 		return msg.channel.send(
 			`🎲 Congratulations ${winners

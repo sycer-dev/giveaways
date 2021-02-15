@@ -1,12 +1,14 @@
 import ms from '@naval-base/ms';
 import { stripIndents } from 'common-tags';
-import type { Collection, ColorResolvable, Message, MessageReaction, Snowflake, TextChannel, User } from 'discord.js';
+import { Collection, ColorResolvable, Message, MessageReaction, Snowflake, TextChannel, User } from 'discord.js';
 import prettyms from 'pretty-ms';
 import { In } from 'typeorm';
 import { Giveaway } from '../../database';
 import type GiveawayClient from '../client/GiveawayClient';
-import { draw, pluralize } from '../util';
+import { pluralize } from '../util';
 import { GiveawayType, PRETTY_MS_SETTINGS } from '../util/constants';
+
+type UserCollection = Collection<Snowflake, User>;
 
 interface FetchReactionUsersOptions {
 	limit?: number;
@@ -21,7 +23,9 @@ export default class GiveawayHandler {
 
 	public constructor(protected readonly client: GiveawayClient, protected readonly rate = 1000 * 90) {}
 
-	private async fetchUsers(reaction: MessageReaction, after?: string): Promise<Collection<string, User>> {
+	private async fetchUsers(reaction: MessageReaction, after?: string): Promise<UserCollection> {
+		if (reaction.count! <= 100) return reaction.users.fetch({ limit: 100 });
+
 		const opts: FetchReactionUsersOptions = { limit: 100, after };
 		const reactions = await reaction.users.fetch(opts);
 		if (!reactions.size) return reactions;
@@ -31,11 +35,14 @@ export default class GiveawayHandler {
 		return reactions.concat(next);
 	}
 
-	public async pullWinners(reaction: MessageReaction, winners: number): Promise<Collection<string, User>> {
-		const _users = await this.fetchUsers(reaction);
-		const list = _users.filter((u) => u.id !== this.client.user!.id);
+	public async fetchWinners(reaction: MessageReaction): Promise<UserCollection> {
+		const users = await this.fetchUsers(reaction);
+		return users.filter((u) => u.id !== this.client.user?.id);
+	}
 
-		return draw(list, winners);
+	public pullWinners(list: UserCollection, count: number): UserCollection {
+		const winners = list.random(count);
+		return new Collection(winners.map((u) => [u.id, u]));
 	}
 
 	public async end(g: Giveaway): Promise<Message | Message[] | void> {
@@ -53,17 +60,15 @@ export default class GiveawayHandler {
 			.catch(() => undefined);
 		if (!reaction) return;
 
-		const _users =
-			reaction.count! <= 100 ? await reaction.users.fetch({ limit: 100 }) : await this.fetchUsers(reaction);
+		const users = await this.fetchUsers(reaction);
+		const list = users.filter((u) => u.id !== message.author.id);
 
-		const list = _users.filter((u) => u.id !== message.author.id);
-
-		const used: string[] = [];
 		if (g.boosted.length) {
-			const _members = await message.guild!.members.fetch();
+			const used: string[] = [];
+			const members = await message.guild!.members.fetch();
 			const boosts = g.boosted.sort((a, b) => b.entries - a.entries);
 			for (const b of boosts.values()) {
-				for (const [id, m] of _members.entries()) {
+				for (const [id, m] of members.entries()) {
 					if (!m.roles.cache.has(b.string)) continue;
 					if (!used.includes(id)) {
 						// start i as 1 to account for the initial entry
@@ -82,7 +87,7 @@ export default class GiveawayHandler {
 			return message;
 		}
 
-		const winners = draw(list, g.winners);
+		const winners = this.pullWinners(list, g.winners);
 		this.client.logger.verbose(`[GIVEAWAY HANDLER]: Drew giveaway #${g.id}.`);
 
 		embed

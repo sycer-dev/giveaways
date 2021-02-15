@@ -1,4 +1,4 @@
-import { Collection, WebhookClient } from 'discord.js';
+import { WebhookClient } from 'discord.js';
 import fetch from 'node-fetch';
 
 export async function postHaste(code: string, lang?: string): Promise<string> {
@@ -18,20 +18,6 @@ export async function postHaste(code: string, lang?: string): Promise<string> {
 	} catch (err) {
 		throw err;
 	}
-}
-
-export function draw<T extends { id: string }>(
-	hat: Collection<string, T>,
-	winners: number,
-	filterDuplicates = true,
-): Collection<string, T> {
-	if (hat.size <= winners) return hat;
-	const draw = new Collection<string, T>();
-	while (draw.size < winners) {
-		const drawn = hat.random();
-		if (filterDuplicates && !draw.has(drawn.id)) draw.set(drawn.id, drawn);
-	}
-	return draw;
 }
 
 export function codeb(data: any, lang?: string) {
