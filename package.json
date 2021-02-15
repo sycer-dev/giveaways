@@ -5,13 +5,13 @@
 	"description": "A feature dense Discord Giveaways bot 🎉",
 	"main": "dist/index.js",
 	"scripts": {
-		"preinstall": "npx only-allow yarn",
+		"preinstall": "npx only-allow npm",
 		"postinstall": "husky install",
 		"build": "rimraf dist/* && tsc",
 		"lint": "eslint src --ext .ts",
 		"lint:fix": "eslint src --fix --ext .ts --debug",
-		"pre-commit": "yarn lint && yarn build",
-		"prestart": "yarn build",
+		"pre-commit": "npm run lint && npm run build",
+		"prestart": "npm run build",
 		"start": "node ."
 	},
 	"author": "Carter Himmel <fyko@sycer.dev>",
