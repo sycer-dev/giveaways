@@ -63,7 +63,7 @@ export default class GiveawayHandler {
 		const users = await this.fetchUsers(reaction);
 		const list = users.filter((u) => u.id !== message.author.id);
 
-		if (g.boosted?.length) {
+		if (g.boosted.length) {
 			const used: string[] = [];
 			const members = await message.guild!.members.fetch();
 			const boosts = g.boosted.sort((a, b) => b.entries - a.entries);
@@ -155,6 +155,8 @@ export default class GiveawayHandler {
 			drawn: false,
 			guildId,
 		});
+
+		this.client.logger.info(`[GIVEAWAY HANDLER]: Checking ${giveaways.length} if they're ready for draw`);
 
 		const now = Date.now();
 		if (!giveaways.length) return;
