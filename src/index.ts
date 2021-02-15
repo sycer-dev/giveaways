@@ -14,7 +14,12 @@ const manager = new ShardingManager(join(__dirname, 'bot', 'structures', 'Giveaw
 		messageCacheMaxSize: 25,
 		messageCacheLifetime: 300,
 		messageSweepInterval: 900,
-		partials: [Constants.PartialTypes.REACTION],
+		partials: [
+			Constants.PartialTypes.CHANNEL,
+			Constants.PartialTypes.MESSAGE,
+			Constants.PartialTypes.REACTION,
+			Constants.PartialTypes.USER,
+		],
 		ws: {
 			intents: [
 				Intents.FLAGS.GUILDS,
