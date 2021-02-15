@@ -7,15 +7,16 @@ EXPOSE 5501
 
 WORKDIR /usr/giveaways
 
-COPY package.json yarn.lock .yarnclean ./
+COPY package.json package-lock.json ./
 
 RUN apk add --update
 RUN apk add --no-cache ca-certificates
 RUN apk add --no-cache --virtual .build-deps git curl build-base python g++ make libtool autoconf automake
-RUN yarn install
+RUN npm install
 
 COPY . .
 
-RUN yarn run build
+RUN npm run build
+RUN npm prune --production
 CMD ["node", "."]
 
