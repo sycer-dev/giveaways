@@ -21,7 +21,7 @@ export default class GiveawayHandler {
 
 	public readonly waiting: Set<number> = new Set();
 
-	public constructor(protected readonly client: GiveawayClient, protected readonly rate = 1000 * 90) {}
+	public constructor(protected readonly client: GiveawayClient, protected readonly rate = 1000 * 45) {}
 
 	private async fetchUsers(reaction: MessageReaction, after?: string): Promise<UserCollection> {
 		if (reaction.count! <= 100) return reaction.users.fetch({ limit: 100 });
