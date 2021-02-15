@@ -13,6 +13,7 @@ RUN apk add --update
 RUN apk add --no-cache ca-certificates
 RUN apk add --no-cache --virtual .build-deps git curl build-base python g++ make libtool autoconf automake
 RUN npm install
+RUN apk del .build-deps
 
 COPY . .
 
