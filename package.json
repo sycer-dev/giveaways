@@ -33,7 +33,7 @@
 		"pretty-ms": "^7.0.1",
 		"prom-client": "github:siimon/prom-client#4e6aacd4921a3791e8f01ac6ab2fd6bb421b0dc0",
 		"reflect-metadata": "^0.1.13",
-		"typeorm": "^0.2.31",
+		"typeorm": "^0.3.0",
 		"winston": "^3.3.3"
 	},
 	"devDependencies": {
