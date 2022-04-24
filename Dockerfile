@@ -1,4 +1,4 @@
-FROM node:14-alpine
+FROM node:18-alpine
 
 LABEL name "Giveaway Bot"
 LABEL version "1.1.0"
